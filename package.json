@@ -1,0 +1,42 @@
+{
+    "name": "vite-plugin-autoi18n",
+    "version": "0.1.0",
+    "type": "module",
+    "description": "Implicit, build-time AI localization for JSX applications",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup src/index.ts --format esm --dts",
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit"
+    },
+    "peerDependencies": {
+        "vite": ">=5"
+    },
+    "dependencies": {
+        "@babel/generator": "^7.26.0",
+        "@babel/parser": "^7.26.0",
+        "@babel/traverse": "^7.26.0",
+        "@babel/types": "^7.26.0",
+        "fast-glob": "^3.3.2"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^4.3.4",
+        "@types/babel__generator": "^7.6.8",
+        "@types/babel__traverse": "^7.20.6",
+        "@types/node": "^22.10.0",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2",
+        "vite": "^6.0.0",
+        "vitest": "^2.1.8"
+    }
+}
