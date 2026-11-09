@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, fileURLToPath(new URL("..", import.meta.url)), ""), ...process.env };
   return {
     plugins: [
-      react(),
+      // Must precede react(): @vitejs/plugin-react transforms JSX first in dev, removing the text nodes autoI18n extracts.
       autoI18n({
         locales: ["en", "de", "fr"],
         sourceLocale: "en",
@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => {
         provider: env.OPENAI_API_KEY
           ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: env.OPENAI_MODEL ?? "gpt-4.1-mini" })
           : undefined
-      })
+      }),
+      react()
     ]
   };
 });

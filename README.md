@@ -64,7 +64,7 @@ import { locales, resolveSupported, setLocale, getLocale, subscribe, t } from "v
 setLocale(resolveSupported(navigator.languages)); // call before first render
 ```
 
-`subscribe(listener)` returns an unsubscribe function and is suitable for `useSyncExternalStore`. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
+`subscribe(listener)` returns an unsubscribe function and is suitable for `useSyncExternalStore`. List `autoI18n()` before `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
 
 ## Important prototype limitations
 
