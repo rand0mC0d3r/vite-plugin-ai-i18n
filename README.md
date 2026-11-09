@@ -123,6 +123,75 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 
 In dev, saving a source file re-indexes the project, translates only new or changed messages and pushes the updated catalogues to the browser over an `autoi18n:update` event. Files added or removed are indexed as well. The page is not reloaded, so new JSX text appears once its translation is ready.
 
+## ⚙️ Configuration reference
+
+### Plugin options (`autoI18n({...})`)
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `locales` | `string[]` | _required_ | Locales the app ships, for example `["en", "de", "fr"]`. The source locale is never translated, so including it is harmless. |
+| `sourceLocale` | `string` | `"en"` | Language the JSX is written in. Used as the fallback when a translation is missing. |
+| `delivery` | `"build" \| "runtime"` | `"build"` | `build` compiles one locale per build. `runtime` ships every catalogue and switches locale in the browser with `setLocale()` from `virtual:autoi18n`. |
+| `locale` | `string` | `sourceLocale` | Locale to compile in `build` delivery. Also read from the `AUTOI18N_LOCALE` environment variable, which is handy for CI matrix builds. In `build` delivery during a non-dev build, only this locale is translated. |
+| `include` | `string[]` | `["src/**/*.{tsx,jsx,ts,js}"]` | Glob patterns of source files to scan, relative to the Vite root. |
+| `exclude` | `string[]` | `["**/*.test.*", "**/node_modules/**"]` | Glob patterns of files to skip, relative to the Vite root. |
+| `directory` | `string` | `".autoi18n"` | Folder for `registry.json` and `locales/`, relative to the Vite root. |
+| `provider` | `TranslationProvider` | `undefined` | Translates missing and changed messages. Without one, untranslated messages fall back to the source text. |
+| `failOnMissingProvider` | `boolean` | `false` | When `true`, the build fails if a locale has untranslated messages and no `provider` is set. |
+| `onAmbiguous` | `"warn" \| "error"` | `"warn"` | What to do when duplicated identical texts change their occurrence count, so their IDs may have moved. `"error"` fails the build. |
+| `orphanRetentionMinutes` | `number` | `43200` (30 days) | Minutes an orphaned message is kept before it is deleted. `0` deletes on the next build; `Infinity` keeps forever. |
+| `localeConcurrency` | `number` | `2` | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. |
+| `debug` | `boolean` | `false` | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps. |
+
+### `OpenAICompatibleProvider` options
+
+Create the provider with `new OpenAICompatibleProvider(options)`.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `apiKey` | `string` | _required_ | Bearer token for the endpoint. Read it from an environment variable and do not commit it. |
+| `model` | `string` | _required_ | Model name sent in each request, for example `"gpt-4.1-mini"`. |
+| `baseURL` | `string` | `"https://api.openai.com/v1"` | Base URL of any OpenAI-compatible API. Requests go to `${baseURL}/chat/completions`. |
+| `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
+| `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
+| `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
+| `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
+| `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+
+### Custom provider (`TranslationProvider`)
+
+Any object with this shape can be passed as `provider`:
+
+```ts
+interface TranslationProvider {
+  translate(input: {
+    sourceLocale: string;
+    targetLocale: string;
+    messages: TranslationRequest[];
+  }): Promise<Record<string, string>>; // message ID -> translated text
+}
+
+interface TranslationRequest {
+  id: string;             // opaque ID to echo back in the result
+  source: string;         // English text
+  context: string;        // for example "Toolbar > Save button"
+  kind: "text" | "attribute" | "mixed"; // text node, static attribute, or both in one message
+  placeholders?: string[]; // {name} placeholders that must survive translation
+}
+```
+
+Return only the IDs you translated. Omitted IDs stay in the source language and are requested again on the next build. If your provider can only translate some batches, throw `PartialTranslationError` (exported from the package) with the translations you have and the number of failed messages, so the successful ones are still stored. Any other error fails the whole locale, which keeps its previous file.
+
+### Environment variables
+
+| Variable | Effect |
+|---|---|
+| `AUTOI18N_LOCALE` | Same as the `locale` option. The option wins when both are set. |
+
+### Prune CLI
+
+The `prune` CLI options (`--directory`, `--retention-minutes`, `--debug`) are described in the orphan paragraph of [Try the bundled example](#-try-the-bundled-example).
+
 ## ⚠️ Important prototype limitations
 
 This is a compiler MVP, not production-ready localization yet:
