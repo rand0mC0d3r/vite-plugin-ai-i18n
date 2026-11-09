@@ -14,22 +14,16 @@ export interface ExtractedMessage {
   attribute?: string;
   context: string;
   fingerprint: string;
-  id?: string;
 }
-export interface RegistryEntry {
+/** A message with the stable ID that the registry assigned to it. */
+export type ResolvedMessage = ExtractedMessage & { id: string };
+export type RegistryEntry = Pick<ExtractedMessage, "source" | "kind" | "tag" | "component" | "attribute" | "context" | "fingerprint"> & {
   id: string;
-  source: string;
-  kind: MessageKind;
-  tag: string;
-  component: string;
-  attribute?: string;
-  context: string;
-  fingerprint: string;
   location: string;
   status: "active" | "orphaned";
   firstSeen: string;
   lastSeen: string;
-}
+};
 export interface Registry { version: 1; entries: Record<string, RegistryEntry> }
 export type Catalog = Record<string, string>;
 export interface TranslationRequest { id: string; source: string; context: string; kind: MessageKind; placeholders?: string[] }

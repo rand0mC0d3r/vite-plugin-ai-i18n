@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { ExtractedMessage, Registry, RegistryEntry } from "../types.js";
-import { readJsonFile, writeFileAtomic } from "../io.js";
+import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
+import { readJsonFile, toJson, writeFileAtomic } from "../io.js";
 
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
@@ -27,6 +27,8 @@ export interface ReconcileResult {
   registry: Registry;
   /** Sources whose duplicate count changed; their IDs may have moved between occurrences. */
   ambiguous: string[];
+  /** The input messages in their original order, each with the ID assigned to it. */
+  messages: ResolvedMessage[];
 }
 
 export function reconcile(registry: Registry, messages: ExtractedMessage[]): ReconcileResult {
@@ -45,6 +47,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
     incoming.set(message.fingerprint, list);
   }
 
+  const assigned = new Map<ExtractedMessage, string>();
   const seen = new Set<string>();
   const ambiguous: string[] = [];
   for (const [fingerprint, current] of incoming) {
@@ -61,7 +64,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
       const message = current[i];
       const candidate = previous[i];
       if (candidate) {
-        message.id = candidate.id;
+        assigned.set(message, candidate.id);
         candidate.status = "active";
         candidate.lastSeen = now;
         candidate.source = message.source;
@@ -69,7 +72,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
         seen.add(candidate.id);
       } else {
         const id = `msg_${randomUUID().replaceAll("-", "").slice(0, 16)}`;
-        message.id = id;
+        assigned.set(message, id);
         registry.entries[id] = {
           id, source: message.source, kind: message.kind, tag: message.tag,
           component: message.component, attribute: message.attribute,
@@ -82,7 +85,12 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
     }
   }
   for (const entry of Object.values(registry.entries)) if (!seen.has(entry.id)) entry.status = "orphaned";
-  return { registry, ambiguous };
+  const resolved = messages.map((message): ResolvedMessage => {
+    const id = assigned.get(message);
+    if (id === undefined) throw new Error(`autoi18n: no message ID was assigned to ${message.file}:${message.start}`);
+    return { ...message, id };
+  });
+  return { registry, ambiguous, messages: resolved };
 }
 
 const MINUTE_MS = 60 * 1000;
@@ -107,5 +115,5 @@ export function pruneOrphans(registry: Registry, retentionMinutes: number, now =
 }
 
 export async function saveRegistry(file: string, registry: Registry): Promise<void> {
-  await writeFileAtomic(file, JSON.stringify(registry, null, 2) + "\n");
+  await writeFileAtomic(file, toJson(registry));
 }

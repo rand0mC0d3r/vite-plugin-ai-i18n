@@ -1,8 +1,11 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 type Warn = (message: string) => void;
+
+export const toJson = (value: unknown): string => JSON.stringify(value, null, 2) + "\n";
+export const hashContent = (text: string): string => createHash("sha256").update(text).digest("hex");
 
 /**
  * Reads a JSON file. A missing file yields the fallback silently. A corrupt file is moved aside

@@ -89,11 +89,11 @@ describe("registry identity", () => {
 
   it("keeps IDs in order when offsets cross a digit boundary", () => {
     const initial = [message(9), message(100)];
-    const registry = reconcile({ version: 1, entries: {} }, initial).registry;
-    const originalIds = initial.map(m => m.id);
+    const first = reconcile({ version: 1, entries: {} }, initial);
+    const originalIds = first.messages.map(m => m.id);
     const shifted = [message(105), message(200)];
-    const second = reconcile(registry, shifted);
-    expect(shifted.map(m => m.id)).toEqual(originalIds);
+    const second = reconcile(first.registry, shifted);
+    expect(second.messages.map(m => m.id)).toEqual(originalIds);
     expect(second.ambiguous).toEqual([]);
   });
 

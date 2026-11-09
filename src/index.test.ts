@@ -7,11 +7,11 @@ import { extractMessages } from "./compiler/extract.js";
 import { transformSource } from "./compiler/transform.js";
 import { createLocaleLoader, resolveLocale } from "./runtime/index.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
-import type { ExtractedMessage, TranslationProvider, TranslationRequest } from "./types.js";
+import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "./types.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
 
-function withIds(messages: ExtractedMessage[]): ExtractedMessage[] {
+function withIds(messages: ExtractedMessage[]): ResolvedMessage[] {
   return messages.map((m, i) => ({ ...m, id: `msg_${i}` }));
 }
 
@@ -183,7 +183,7 @@ describe("autoI18n build hook", () => {
 
     await runBuild(plugin);
     expect(provider.calls.flat().map(m => m.source)).toEqual(["Save the file", "Save"]);
-    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8"));
+    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")).messages;
     expect(Object.values(catalog)).toEqual(["DE:Save the file", "DE:Save"]);
 
     // Second build with unchanged sources must not call the provider again.
@@ -196,12 +196,12 @@ describe("autoI18n build hook", () => {
     expect(provider.calls).toHaveLength(2);
     expect(provider.calls[1].map(m => m.source)).toContain("Save the document");
 
-    // Same ID with a source text that no longer matches the sidecar must be re-translated.
-    const sourcesPath = path.join(root, ".autoi18n/locales/de.sources.json");
-    const sources = JSON.parse(await readFile(sourcesPath, "utf8"));
+    // Same ID with a source text that no longer matches the recorded source must be re-translated.
+    const localePath = path.join(root, ".autoi18n/locales/de.json");
+    const localeFile = JSON.parse(await readFile(localePath, "utf8"));
     const staleId = provider.calls[1][0].id;
-    sources[staleId] = "Previously translated text";
-    await writeFile(sourcesPath, JSON.stringify(sources));
+    localeFile.sources[staleId] = "Previously translated text";
+    await writeFile(localePath, JSON.stringify(localeFile));
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
     expect(provider.calls).toHaveLength(3);
     expect(provider.calls[2].map(m => m.id)).toEqual([staleId]);
@@ -211,13 +211,13 @@ describe("autoI18n build hook", () => {
     await writeFile(path.join(root, "src/App.tsx"), `export function App({ count }) { return <p>You have {count} documents</p>; }\n`);
     const broken: TranslationProvider = { async translate({ messages }) { return Object.fromEntries(messages.map(m => [m.id, "Viele Dokumente"])); } };
     await runBuild(autoI18n({ locales: ["en", "de"], provider: broken }));
-    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8"));
+    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")).messages;
     expect(catalog).toEqual({});
 
     const provider = fakeProvider();
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
     expect(provider.calls).toHaveLength(1);
-    expect(Object.values(JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")))).toEqual(["DE:You have {count} documents"]);
+    expect(Object.values(JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")).messages)).toEqual(["DE:You have {count} documents"]);
   });
 
   it("fails when translations are missing and no provider is configured", async () => {

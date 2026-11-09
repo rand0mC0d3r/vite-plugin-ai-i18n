@@ -2,23 +2,22 @@ import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "../debug.js";
+import { pruneCatalog, readLocaleFile, writeLocaleFile } from "../catalog.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES, loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
-import { readJsonFile, writeFileAtomic } from "../io.js";
 
-type Catalog = Record<string, string>;
-
-/** Drops catalogue keys (`locales/*.json`, `*.sources.json`) that are no longer active registry ids. */
-async function pruneCatalogs(localesDir: string, activeIds: Set<string>): Promise<{ file: string; removed: string[] }[]> {
+/** Drops keys for inactive registry ids from every locale file, in both `messages` and `sources`. */
+async function pruneLocaleFiles(localesDir: string, activeIds: Set<string>): Promise<{ file: string; removed: string[] }[]> {
   if (!existsSync(localesDir)) return [];
   const results: { file: string; removed: string[] }[] = [];
   for (const name of await readdir(localesDir)) {
     if (!name.endsWith(".json")) continue;
     const file = path.join(localesDir, name);
-    const catalog = await readJsonFile<Catalog>(file, {}, message => console.warn(message));
-    const removed = Object.keys(catalog).filter(id => !activeIds.has(id));
+    const current = await readLocaleFile(file, message => console.warn(message));
+    const messages = pruneCatalog(current.messages, activeIds);
+    const sources = pruneCatalog(current.sources, activeIds);
+    const removed = [...new Set([...messages.removed, ...sources.removed])];
     if (!removed.length) continue;
-    for (const id of removed) delete catalog[id];
-    await writeFileAtomic(file, JSON.stringify(catalog, null, 2) + "\n");
+    await writeLocaleFile(file, { messages: messages.catalog, sources: sources.catalog });
     results.push({ file, removed });
   }
   return results;
@@ -60,7 +59,7 @@ async function main(): Promise<void> {
   const removed = pruneOrphans(registry, args.retentionMinutes);
   if (removed.length) await saveRegistry(registryFile, registry);
   const activeIds = new Set(Object.values(registry.entries).filter(entry => entry.status === "active").map(entry => entry.id));
-  const catalogs = await pruneCatalogs(path.join(path.dirname(registryFile), "locales"), activeIds);
+  const catalogs = await pruneLocaleFiles(path.join(path.dirname(registryFile), "locales"), activeIds);
   if (args.debug) {
     for (const entry of removed) debugLog(`removed ${entry.id} ${JSON.stringify(entry.source)} (last seen ${entry.lastSeen})`);
     for (const { file, removed: ids } of catalogs) {

@@ -1,17 +1,25 @@
+import { PLACEHOLDER_PATTERN } from "../compiler/placeholders.js";
+import { formatPlaceholders } from "./format.js";
+import { createLocaleLoader } from "./loader.js";
 import { resolveLocale } from "./resolve.js";
 
 /**
- * plain JavaScript because it runs in the browser and must not import the plugin itself.
+ * Builds the `virtual:autoi18n` module. It is plain JavaScript because it runs in the browser and must not
+ * import the plugin itself, so the shared helpers are embedded with `toString()`. Those helpers must stay
+ * self-contained (see their doc comments).
  */
 export function createRuntimeModule(catalogFiles: Record<string, string>, sourceLocale: string): string {
   const loaders = Object.entries(catalogFiles)
-    .map(([locale, file]) => `  ${JSON.stringify(locale)}: () => import(${JSON.stringify(file)})`)
+    .map(([locale, file]) => `  ${JSON.stringify(locale)}: () => import(${JSON.stringify(file)}).then(m => (m.default ?? m).messages)`)
     .join(",\n");
   return [
     `const loaders = {\n${loaders}\n};`,
     `const sourceLocale = ${JSON.stringify(sourceLocale)};`,
     `const resolveLocale = ${resolveLocale.toString()};`,
-    `const cache = new Map();`,
+    `const createLocaleLoader = ${createLocaleLoader.toString()};`,
+    `const formatPlaceholders = ${formatPlaceholders.toString()};`,
+    `const PLACEHOLDER = new RegExp(${JSON.stringify(PLACEHOLDER_PATTERN)}, "g");`,
+    `const loadLocale = createLocaleLoader(loaders, sourceLocale);`,
     `const listeners = new Set();`,
     `let currentLocale = sourceLocale;`,
     `let messages = {};`,
@@ -21,25 +29,17 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
     `export function getLocale() { return currentLocale; }`,
     `export function getVersion() { return version; }`,
     `export function resolveSupported(preferred) { return resolveLocale(preferred, locales, sourceLocale); }`,
-    `function loadCatalog(locale) {`,
-    `  if (!cache.has(locale)) {`,
-    `    const pending = loaders[locale]().then(m => m.default ?? m);`,
-    `    cache.set(locale, pending);`,
-    `    pending.catch(() => { if (cache.get(locale) === pending) cache.delete(locale); });`,
-    `  }`,
-    `  return cache.get(locale);`,
-    `}`,
     `export async function setLocale(locale) {`,
     `  const request = ++latestRequest;`,
     `  let selected = loaders[locale] ? locale : sourceLocale;`,
     `  let catalog;`,
     `  try {`,
-    `    catalog = await loadCatalog(selected);`,
+    `    catalog = await loadLocale(selected);`,
     `  } catch (error) {`,
     `    if (selected === sourceLocale) throw error;`,
     `    console.warn('autoi18n: could not load "' + selected + '", falling back to "' + sourceLocale + '".', error);`,
     `    selected = sourceLocale;`,
-    `    catalog = await loadCatalog(selected);`,
+    `    catalog = await loadLocale(selected);`,
     `  }`,
     `  // A slower earlier request must not overwrite the locale the user picked last.`,
     `  if (request !== latestRequest) return;`,
@@ -53,23 +53,11 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
     `}`,
     `export function subscribe(fn) { listeners.add(fn); return () => { listeners.delete(fn); }; }`,
     `export function t(id, source) { return messages[id] ?? source; }`,
-    `// Splits a translated sentence at its {name} placeholders so values keep their React nodes; unknown names stay literal.`,
-    `export function format(text, values) {`,
-    `  const parts = [];`,
-    `  let last = 0;`,
-    `  for (const match of text.matchAll(/\\{([^{}]+)\\}/g)) {`,
-    `    if (!Object.hasOwn(values, match[1])) continue;`,
-    `    if (match.index > last) parts.push(text.slice(last, match.index));`,
-    `    parts.push(values[match[1]]);`,
-    `    last = match.index + match[0].length;`,
-    `  }`,
-    `  if (last < text.length) parts.push(text.slice(last));`,
-    `  return parts;`,
-    `}`,
+    `export function format(text, values) { return formatPlaceholders(text, values, PLACEHOLDER); }`,
     `// Dev server pushes fresh catalogues after a source change; no page reload is needed.`,
     `if (import.meta.hot) {`,
     `  import.meta.hot.on("autoi18n:update", data => {`,
-    `    for (const [locale, catalog] of Object.entries(data.catalogs)) cache.set(locale, Promise.resolve(catalog));`,
+    `    for (const [locale, catalog] of Object.entries(data.catalogs)) loadLocale.prime(locale, catalog);`,
     `    if (data.catalogs[currentLocale]) messages = data.catalogs[currentLocale];`,
     `    notify();`,
     `  });`,

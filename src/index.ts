@@ -1,16 +1,16 @@
-import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import fg from "fast-glob";
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "./debug.js";
+import { buildCatalogs } from "./engine.js";
 import { extractMessages } from "./compiler/extract.js";
 import { RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
-import { loadRegistry, DEFAULT_ORPHAN_RETENTION_MINUTES, pruneOrphans, reconcile, saveRegistry } from "./identity/registry.js";
-import { readJsonFile, writeFileAtomic } from "./io.js";
+import { localeFilePath, readLocaleFile, writeLocaleFile, type LocaleFile } from "./catalog.js";
+import { loadRegistry, DEFAULT_ORPHAN_RETENTION_MINUTES, saveRegistry } from "./identity/registry.js";
+import { hashContent } from "./io.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
-import { translateLocale } from "./translate.js";
-import type { Catalog, ExtractedMessage, TranslationProvider } from "./types.js";
+import type { Catalog, ExtractedMessage, ResolvedMessage, TranslationProvider } from "./types.js";
 
 export interface AutoI18nOptions {
   locales: string[];
@@ -37,15 +37,25 @@ export interface AutoI18nOptions {
   debug?: boolean;
 }
 
+interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
+
+interface ExtractionCacheEntry { hash: string; messages: ExtractedMessage[] }
+
 const UPDATE_EVENT = "autoi18n:update";
 const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
 const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
 const WATCH_DEBOUNCE_MS = 150;
 
-const hashOf = (code: string): string => createHash("sha1").update(code).digest("hex");
-const toJson = (value: unknown): string => JSON.stringify(value, null, 2) + "\n";
-// `path.matchesGlob` is only available on newer Node versions, so it is optional here.
-const pathWithGlob = path as unknown as { matchesGlob?: (file: string, pattern: string) => boolean };
+const reporterFor = (logger: Logger): Reporter => ({
+  info: m => logger.info(m),
+  warn: m => logger.warn(m),
+  error: m => logger.error(m)
+});
+
+// Pre-merge builds wrote `<locale>.sources.json` next to `<locale>.json`. Nothing reads those files any more.
+async function removeLegacySidecars(outDir: string, locales: string[]): Promise<void> {
+  await Promise.all(locales.map(locale => rm(path.join(outDir, `${locale}.sources.json`), { force: true })));
+}
 
 export default function autoI18n(options: AutoI18nOptions): Plugin {
   const sourceLocale = options.sourceLocale ?? "en";
@@ -56,16 +66,15 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   let config: ResolvedConfig;
   let registryFile = "";
   let catalogFiles: Record<string, string> = {};
-  let fileMessages = new Map<string, ExtractedMessage[]>();
+  let extractions = new Map<string, ExtractionCacheEntry>();
+  let fileMessages = new Map<string, ResolvedMessage[]>();
   let fileHashes = new Map<string, string>();
   let catalogs = new Map<string, Catalog>();
   const warnedFiles = new Set<string>();
 
-  interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
   let server: ViteDevServer | undefined;
   let queue: Promise<void> = Promise.resolve();
   let watchTimer: ReturnType<typeof setTimeout> | undefined;
-  const devReporter = (): Reporter => ({ info: m => config.logger.info(m), warn: m => config.logger.warn(m), error: m => config.logger.error(m) });
   const selectedLocale = (): string => options.locale ?? process.env.AUTOI18N_LOCALE ?? sourceLocale;
 
   // With build delivery and an explicit locale (for example one CI matrix job), only that catalogue is needed.
@@ -77,68 +86,88 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   }
 
   // Re-indexes every source file, translates only missing or stale messages and writes the catalogues.
-  // Results are built locally and swapped in at the end, so a transform never sees half-updated state.
+  // Files whose content hash is unchanged reuse their extraction. In-memory state is swapped in before any
+  // translation error is rethrown, so a transform never sees a half-updated index.
   async function sync(report: Reporter): Promise<void> {
     const files = await fg(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
-    const all: ExtractedMessage[] = [];
-    const nextMessages = new Map<string, ExtractedMessage[]>();
-    const nextHashes = new Map<string, string>();
+    const nextExtractions = new Map<string, ExtractionCacheEntry>();
+    const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
       const code = await readFile(file, "utf8");
-      const messages = extractMessages(code, file);
-      nextMessages.set(file, messages);
-      nextHashes.set(file, hashOf(code));
-      all.push(...messages);
+      const hash = hashContent(code);
+      const cached = extractions.get(file);
+      const entry = cached?.hash === hash ? cached : { hash, messages: extractMessages(code, file) };
+      nextExtractions.set(file, entry);
+      indexed.push({ file, messages: entry.messages });
     }
-    const { registry, ambiguous } = reconcile(await loadRegistry(registryFile, report.warn), all);
-    const pruned = pruneOrphans(registry, orphanRetentionMinutes);
-    if (debug) for (const entry of pruned) debugLog(`removed ${entry.id} ${JSON.stringify(entry.source)} (last seen ${entry.lastSeen})`);
-    if (pruned.length) report.info(`autoi18n: removed ${pruned.length} registry entries no longer in the source.`);
-    await saveRegistry(registryFile, registry);
-    if (ambiguous.length) {
-      const message = `autoi18n: ${ambiguous.length} duplicated texts changed occurrence count, so their IDs may have moved (e.g. "${ambiguous[0]}").`;
+
+    const outDir = path.resolve(config.root, directory, "locales");
+    const locales = localesToTranslate();
+    const previous = new Map<string, LocaleFile>();
+    for (const locale of locales) previous.set(locale, await readLocaleFile(localeFilePath(outDir, locale), report.warn));
+
+    const result = await buildCatalogs({
+      files: indexed,
+      registry: await loadRegistry(registryFile, report.warn),
+      orphanRetentionMinutes,
+      sourceLocale,
+      locales,
+      previous,
+      provider: options.provider,
+      debug
+    });
+
+    if (debug) for (const entry of result.pruned) debugLog(`removed ${entry.id} ${JSON.stringify(entry.source)} (last seen ${entry.lastSeen})`);
+    if (result.pruned.length) report.info(`autoi18n: removed ${result.pruned.length} registry entries no longer in the source.`);
+    await saveRegistry(registryFile, result.registry);
+    if (result.ambiguous.length) {
+      const message = `autoi18n: ${result.ambiguous.length} duplicated texts changed occurrence count, so their IDs may have moved (e.g. "${result.ambiguous[0]}").`;
       if (options.onAmbiguous === "error") report.error(message);
       else report.warn(message);
     }
 
-    const outDir = path.resolve(config.root, directory, "locales");
-    const sourceCatalog: Catalog = {};
-    for (const m of all) if (m.id) sourceCatalog[m.id] = m.source;
-    await writeFileAtomic(path.join(outDir, `${sourceLocale}.json`), toJson(sourceCatalog));
+    await writeLocaleFile(localeFilePath(outDir, sourceLocale), result.sourceFile);
+    await removeLegacySidecars(outDir, [sourceLocale, ...options.locales]);
 
-    const requests = all.filter(m => m.id).map(m => ({ id: m.id!, source: m.source, context: `${m.component} > ${m.context}`, kind: m.kind, placeholders: m.placeholders }));
-    const nextFiles = Object.fromEntries(options.locales.map(locale => [locale, path.join(outDir, `${locale}.json`)]));
-    const nextCatalogs = new Map<string, Catalog>([[sourceLocale, sourceCatalog]]);
-    for (const locale of localesToTranslate()) {
-      const catalogPath = nextFiles[locale];
-      const sourcesPath = path.join(outDir, `${locale}.sources.json`);
-      const result = await translateLocale({
-        provider: options.provider,
-        sourceLocale,
-        locale,
-        requests,
-        previous: await readJsonFile<Catalog>(catalogPath, {}, report.warn),
-        previousSources: await readJsonFile<Catalog>(sourcesPath, {}, report.warn),
-        debug
-      });
-      if (result.requested && !options.provider && options.failOnMissingProvider) {
-        report.error(`Missing ${result.requested} ${locale} translations and no provider is configured.`);
+    const nextCatalogs = new Map<string, Catalog>([[sourceLocale, result.sourceFile.messages]]);
+    for (const [locale, translation] of result.locales) {
+      await writeLocaleFile(localeFilePath(outDir, locale), translation.file);
+      nextCatalogs.set(locale, translation.file.messages);
+    }
+    // A failed locale keeps its previous file on disk, so the build keeps serving the previous text for it.
+    for (const locale of result.failures.keys()) nextCatalogs.set(locale, previous.get(locale)?.messages ?? {});
+
+    let offset = 0;
+    fileMessages = new Map();
+    for (const { file, messages } of indexed) {
+      fileMessages.set(file, result.messages.slice(offset, offset + messages.length));
+      offset += messages.length;
+    }
+    fileHashes = new Map([...nextExtractions].map(([file, entry]) => [file, entry.hash]));
+    extractions = nextExtractions;
+    catalogs = nextCatalogs;
+    catalogFiles = Object.fromEntries(options.locales.map(locale => [locale, localeFilePath(outDir, locale)]));
+
+    for (const [locale, translation] of result.locales) {
+      if (translation.requested && !options.provider && options.failOnMissingProvider) {
+        report.error(`Missing ${translation.requested} ${locale} translations and no provider is configured.`);
       }
-      if (result.rejected) report.info(`autoi18n: rejected ${result.rejected} ${locale} translations with changed placeholders.`);
-      if (result.untranslated) {
+      if (translation.rejected) report.info(`autoi18n: rejected ${translation.rejected} ${locale} translations with changed placeholders.`);
+      if (translation.untranslated) {
         const log = options.provider ? report.warn : report.info;
-        log(`autoi18n: ${result.untranslated} ${locale} messages have no translation and fall back to the source text.`);
+        log(`autoi18n: ${translation.untranslated} ${locale} messages have no translation and fall back to the source text.`);
       }
-      await writeFileAtomic(catalogPath, toJson(result.catalog));
-      await writeFileAtomic(sourcesPath, toJson(result.sources));
-      nextCatalogs.set(locale, result.catalog);
+      if (translation.failed) {
+        report.warn(`autoi18n: ${translation.failed} ${locale} translation batches failed (${translation.failure}); they will be requested again on the next build.`);
+      }
     }
 
-    fileMessages = nextMessages;
-    fileHashes = nextHashes;
-    catalogs = nextCatalogs;
-    catalogFiles = nextFiles;
-    if (all.length) report.info(`autoi18n: indexed ${all.length} messages across ${files.length} files.`);
+    if (result.messages.length) report.info(`autoi18n: indexed ${result.messages.length} messages across ${files.length} files.`);
+
+    // The successful locales are already written, so only the first failure is thrown; the rest are reported.
+    const failures = [...result.failures];
+    for (const [locale, error] of failures.slice(1)) report.warn(`autoi18n: ${locale} translation failed: ${(error as Error).message}`);
+    if (failures.length) throw failures[0][1];
   }
 
   // Runs syncs one after another so overlapping saves cannot interleave writes or API calls.
@@ -154,7 +183,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
 
   async function retranslate(): Promise<void> {
     try {
-      await runSync(devReporter());
+      await runSync(reporterFor(config.logger));
       pushCatalogs();
     } catch (error) {
       config.logger.error(`autoi18n: re-translation failed: ${(error as Error).message}`);
@@ -169,11 +198,9 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
 
   function isSourceCandidate(file: string): boolean {
     if (!/\.[jt]sx?$/.test(file)) return false;
-    if (!pathWithGlob.matchesGlob) return true;
     const relative = path.relative(config.root, file).split(path.sep).join("/");
-    const matches = pathWithGlob.matchesGlob;
-    return (options.include ?? DEFAULT_INCLUDE).some(p => matches(relative, p))
-      && !(options.exclude ?? DEFAULT_EXCLUDE).some(p => matches(relative, p));
+    return (options.include ?? DEFAULT_INCLUDE).some(p => path.matchesGlob(relative, p))
+      && !(options.exclude ?? DEFAULT_EXCLUDE).some(p => path.matchesGlob(relative, p));
   }
 
   return {
@@ -202,12 +229,12 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     async transform(code, id) {
       const file = id.split("?")[0];
       if (!fileMessages.has(file)) return null;
-      if (hashOf(code) !== fileHashes.get(file)) {
+      if (hashContent(code) !== fileHashes.get(file)) {
         // The file changed after it was indexed, e.g. the watcher has not fired yet; re-index once.
-        await runSync(devReporter());
+        await runSync(reporterFor(config.logger));
       }
       const messages = fileMessages.get(file);
-      if (!messages || hashOf(code) !== fileHashes.get(file)) {
+      if (!messages || hashContent(code) !== fileHashes.get(file)) {
         if (!warnedFiles.has(file)) {
           warnedFiles.add(file);
           this.warn(`autoi18n: ${file} changed while it was being indexed; its messages are left untranslated.`);

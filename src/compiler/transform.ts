@@ -3,7 +3,7 @@ import { parse } from "@babel/parser";
 import traverseModule from "@babel/traverse";
 import generateModule from "@babel/generator";
 import * as t from "@babel/types";
-import type { ExtractedMessage, Catalog } from "../types.js";
+import type { Catalog, ResolvedMessage } from "../types.js";
 import { PLACEHOLDER, isUsableTranslation } from "./placeholders.js";
 const traverse = (traverseModule as any).default ?? traverseModule;
 const generate = (generateModule as any).default ?? generateModule;
@@ -17,24 +17,24 @@ const RUNTIME_FORMAT = "__autoI18nFormat";
  * `t(id, source)` calls that resolve against the catalogues loaded by RUNTIME_MODULE.
  * Messages written in `sourceLocale` are emitted as-is.
  */
-export function transformSource(code: string, filename: string, messages: ExtractedMessage[], locale: string, catalog: Catalog, runtime = false, sourceLocale = "en"): { code: string; map: any } {
+export function transformSource(code: string, filename: string, messages: ResolvedMessage[], locale: string, catalog: Catalog, runtime = false, sourceLocale = "en"): { code: string; map: any } {
   const ast = parse(code, { sourceType: "unambiguous", sourceFilename: filename, plugins: ["jsx", "typescript", "decorators-legacy"] });
   const byStart = new Map(messages.map(m => [m.start, m]));
   let usesRuntime = false;
   let usesFormat = false;
 
-  const lookup = (message: ExtractedMessage): t.Expression => {
+  const lookup = (message: ResolvedMessage): t.Expression => {
     if (runtime) {
       usesRuntime = true;
-      return t.callExpression(t.identifier(RUNTIME_LOOKUP), [t.stringLiteral(message.id!), t.stringLiteral(message.source)]);
+      return t.callExpression(t.identifier(RUNTIME_LOOKUP), [t.stringLiteral(message.id), t.stringLiteral(message.source)]);
     }
-    return t.stringLiteral(locale === sourceLocale ? message.source : catalog[message.id!] ?? message.source);
+    return t.stringLiteral(locale === sourceLocale ? message.source : catalog[message.id] ?? message.source);
   };
 
   traverse(ast, {
     JSXElement(p: NodePath<t.JSXElement>) {
       const message = byStart.get(p.node.start ?? -1);
-      if (message?.kind !== "mixed" || !message.id) return;
+      if (message?.kind !== "mixed") return;
       const names = message.placeholders ?? [];
       const expressions = p.node.children.filter((c): c is t.JSXExpressionContainer => t.isJSXExpressionContainer(c)).map(c => c.expression as t.Expression);
       const prefix = message.prefix ?? "";
@@ -64,7 +64,7 @@ export function transformSource(code: string, filename: string, messages: Extrac
     },
     JSXText(p: NodePath<t.JSXText>) {
       const message = byStart.get(p.node.start ?? -1);
-      if (!message?.id) return;
+      if (!message) return;
       const parts: t.Expression[] = [];
       if (runtime) {
         if (message.prefix) parts.push(t.stringLiteral(message.prefix));
@@ -81,7 +81,7 @@ export function transformSource(code: string, filename: string, messages: Extrac
       const valueNode = p.node.value;
       if (!t.isStringLiteral(valueNode)) return;
       const message = byStart.get(valueNode.start ?? -1);
-      if (!message?.id) return;
+      if (!message) return;
       p.node.value = runtime ? t.jsxExpressionContainer(lookup(message)) : (lookup(message) as t.StringLiteral);
     }
   });

@@ -1,3 +1,5 @@
+import { mapWithConcurrency } from "../concurrency.js";
+import { PartialTranslationError } from "../errors.js";
 import type { TranslationProvider, TranslationRequest, Catalog } from "../types.js";
 
 export interface OpenAICompatibleOptions {
@@ -12,6 +14,8 @@ export interface OpenAICompatibleOptions {
   maxRetries?: number;
   /** Base delay before a retry; doubles on each attempt. Default 500. */
   retryDelayMs?: number;
+  /** Batches sent in parallel. Default 4. */
+  concurrency?: number;
 }
 
 class ProviderError extends Error {
@@ -25,13 +29,32 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export class OpenAICompatibleProvider implements TranslationProvider {
   constructor(private options: OpenAICompatibleOptions) {}
 
+  /**
+   * Translates in parallel batches. If every batch fails, the first error is thrown. If only some fail,
+   * a PartialTranslationError carries the translations that succeeded.
+   */
   async translate(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog> {
     const batchSize = Math.max(1, this.options.batchSize ?? 40);
+    const batches: TranslationRequest[][] = [];
+    for (let start = 0; start < input.messages.length; start += batchSize) batches.push(input.messages.slice(start, start + batchSize));
+
+    const settled = await mapWithConcurrency(batches, this.options.concurrency ?? 4, batch => this.translateBatch({ ...input, messages: batch }));
     const result: Catalog = {};
-    for (let start = 0; start < input.messages.length; start += batchSize) {
-      Object.assign(result, await this.translateBatch({ ...input, messages: input.messages.slice(start, start + batchSize) }));
-    }
-    return result;
+    const errors: unknown[] = [];
+    let failed = 0;
+    let succeeded = 0;
+    settled.forEach((outcome, index) => {
+      if (outcome.status === "fulfilled") {
+        succeeded++;
+        Object.assign(result, outcome.value);
+      } else {
+        errors.push(outcome.reason);
+        failed += batches[index].length;
+      }
+    });
+    if (!errors.length) return result;
+    if (!succeeded) throw errors[0];
+    throw new PartialTranslationError(`${failed} messages failed to translate: ${(errors[0] as Error).message}`, result, failed);
   }
 
   private async translateBatch(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog> {

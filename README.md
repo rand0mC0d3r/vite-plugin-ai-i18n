@@ -11,7 +11,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Supports a pluggable translation provider; includes an OpenAI-compatible implementation.
 - Writes locale JSON catalogues and keeps source English as fallback.
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
-- Re-translates a message when its source text changes, tracked in `.autoi18n/locales/<locale>.sources.json`.
+- Re-translates a message when its source text changes, tracked in the `sources` map of `.autoi18n/locales/<locale>.json`.
 - Includes a deliberately varied document-dashboard example.
 
 ## 📦 Installation
@@ -82,7 +82,11 @@ npm run example:dev     # dev server
 npm run example:build   # production build into example/dist
 ```
 
-Run Vite. The plugin writes `.autoi18n/registry.json`, `.autoi18n/locales/<locale>.json` and `.autoi18n/locales/<locale>.sources.json`. The sidecar records the source text each translation was made from; if the source changes, that message is re-translated on the next build.
+Run Vite. The plugin writes `.autoi18n/registry.json` and `.autoi18n/locales/<locale>.json`. Each locale file has two parts: `messages` (the translations) and `sources` (the source text each translation was made from). If the source changes, that message is re-translated on the next build.
+
+Upgrading from an earlier version: the old flat locale files and `*.sources.json` sidecars are not read. Every message is re-translated once on the first build, and the sidecars are deleted.
+
+If a translation batch fails, the other batches are still stored. The failed messages fall back to the source text until the next build. If every batch for a locale fails, that locale keeps its previous file and the build reports the error after writing the other locales.
 
 🔑 Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 
@@ -92,7 +96,7 @@ Ambiguous identity matches (duplicate identical strings whose count changed) are
 
 Messages removed from the source are kept as orphans in `registry.json` so their IDs can be reused if the text returns. Orphans not seen for `orphanRetentionMinutes` minutes (default `43200`, i.e. 30 days) are deleted on the next build, and the build logs how many were removed. Use `0` to delete them immediately or `Infinity` to keep them forever. Once deleted, a returning message gets a new ID and is translated again.
 
-🧹 To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from `locales/*.json` and `locales/*.sources.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-autoi18n/dist/cli/prune.js` with the same options.
+🧹 To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from the `messages` and `sources` maps of `locales/*.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-autoi18n/dist/cli/prune.js` with the same options.
 
 🐞 Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
 

@@ -1,5 +1,6 @@
 // Matches `{name}` placeholders in mixed-content messages such as "You have {count} documents".
-export const PLACEHOLDER = /\{([^{}]+)\}/g;
+export const PLACEHOLDER_PATTERN = "\\{([^{}]+)\\}";
+export const PLACEHOLDER = new RegExp(PLACEHOLDER_PATTERN, "g");
 
 export function placeholderNames(text: string): string[] {
   return [...text.matchAll(PLACEHOLDER)].map(match => match[1]);
