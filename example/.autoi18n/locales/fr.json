@@ -29,5 +29,8 @@
   "msg_c87cf2f644564a09": "Exemple de code pour garçons et filles",
   "msg_78ec7157b23148c0": "Exemple de code pour les personnes",
   "msg_c50a850bf6584962": "Exemple de code pour les personnes",
-  "msg_38074289edc54f37": "Exemple de code pour les personnes"
+  "msg_38074289edc54f37": "Exemple de code pour les personnes",
+  "msg_0afc9500eeec4642": "Êtes-vous sûr de vouloir supprimer les {count} documents sélectionnés ?",
+  "msg_192a5c8ba8a5444f": "Vous avez {selected} documents sélectionnés.",
+  "msg_652be753bdee496b": "Filtres, animaux de compagnie et articles ménagers"
 }

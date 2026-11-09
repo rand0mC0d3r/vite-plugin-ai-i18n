@@ -29,5 +29,8 @@
   "msg_c87cf2f644564a09": "Beispielcode für Jungen und Mädchen",
   "msg_78ec7157b23148c0": "Beispielcode für Personen",
   "msg_c50a850bf6584962": "Beispielcode für Personen",
-  "msg_38074289edc54f37": "Beispielcode für Personen"
+  "msg_38074289edc54f37": "Beispielcode für Personen",
+  "msg_0afc9500eeec4642": "Möchten Sie wirklich {count} ausgewählte Dokumente löschen?",
+  "msg_192a5c8ba8a5444f": "Sie haben {selected} Dokumente ausgewählt.",
+  "msg_652be753bdee496b": "Filter, Haustiere und Haushaltsgegenstände"
 }

@@ -10,7 +10,7 @@ function DocumentToolbar({ onSave, onSaveAs, onCancel }: { onSave: () => void; o
 
 function FilterPanel({ onSave }: { onSave: () => void }) {
   return <aside>
-    <h2>Filters</h2>
+    <h2>Filters and pets and household items</h2>
     <label>Document name <input placeholder="Search documents" /></label>
     <button onClick={onSave} aria-label="Save these filter settings">Save</button>
   </aside>;
