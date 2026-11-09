@@ -1,12 +1,14 @@
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import fg from "fast-glob";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { readFile, mkdir, writeFile } from "node:fs/promises";
-import { extractMessages, relativeFile } from "./compiler/extract.js";
-import { placeholderNames, sameNames } from "./compiler/placeholders.js";
+import { extractMessages } from "./compiler/extract.js";
 import { RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
 import { loadRegistry, reconcile, saveRegistry } from "./identity/registry.js";
+import { readJsonFile, writeFileAtomic } from "./io.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
+import { translateLocale } from "./translate.js";
 import type { Catalog, ExtractedMessage, TranslationProvider } from "./types.js";
 
 export interface AutoI18nOptions {
@@ -28,10 +30,14 @@ export interface AutoI18nOptions {
 }
 
 const UPDATE_EVENT = "autoi18n:update";
+const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
+const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
+const WATCH_DEBOUNCE_MS = 150;
 
-async function readJson(file: string): Promise<Catalog> {
-  try { return JSON.parse(await readFile(file, "utf8")) as Catalog; } catch { return {}; }
-}
+const hashOf = (code: string): string => createHash("sha1").update(code).digest("hex");
+const toJson = (value: unknown): string => JSON.stringify(value, null, 2) + "\n";
+// `path.matchesGlob` is only available on newer Node versions, so it is optional here.
+const pathWithGlob = path as unknown as { matchesGlob?: (file: string, pattern: string) => boolean };
 
 export default function autoI18n(options: AutoI18nOptions): Plugin {
   const sourceLocale = options.sourceLocale ?? "en";
@@ -40,62 +46,84 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   let config: ResolvedConfig;
   let registryFile = "";
   let catalogFiles: Record<string, string> = {};
-  const fileMessages = new Map<string, ExtractedMessage[]>();
-  const catalogs = new Map<string, Catalog>();
+  let fileMessages = new Map<string, ExtractedMessage[]>();
+  let fileHashes = new Map<string, string>();
+  let catalogs = new Map<string, Catalog>();
+  const warnedFiles = new Set<string>();
 
-  interface Reporter { info(message: string): void; error(message: string): void }
+  interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
   let server: ViteDevServer | undefined;
   let queue: Promise<void> = Promise.resolve();
-  const devReporter = (): Reporter => ({ info: m => config.logger.info(m), error: m => config.logger.error(m) });
+  let watchTimer: ReturnType<typeof setTimeout> | undefined;
+  const devReporter = (): Reporter => ({ info: m => config.logger.info(m), warn: m => config.logger.warn(m), error: m => config.logger.error(m) });
+  const selectedLocale = (): string => options.locale ?? process.env.AUTOI18N_LOCALE ?? sourceLocale;
+
+  // With build delivery and an explicit locale (for example one CI matrix job), only that catalogue is needed.
+  function localesToTranslate(): string[] {
+    const others = options.locales.filter(x => x !== sourceLocale);
+    const explicit = options.locale ?? process.env.AUTOI18N_LOCALE;
+    if (delivery === "build" && explicit && config.command !== "serve") return others.filter(x => x === explicit);
+    return others;
+  }
 
   // Re-indexes every source file, translates only missing or stale messages and writes the catalogues.
+  // Results are built locally and swapped in at the end, so a transform never sees half-updated state.
   async function sync(report: Reporter): Promise<void> {
-    fileMessages.clear(); catalogs.clear();
-    const files = await fg(options.include ?? ["src/**/*.{tsx,jsx,ts,js}"], { cwd: config.root, ignore: options.exclude ?? ["**/*.test.*", "**/node_modules/**"] , absolute: true });
+    const files = await fg(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
     const all: ExtractedMessage[] = [];
+    const nextMessages = new Map<string, ExtractedMessage[]>();
+    const nextHashes = new Map<string, string>();
     for (const file of files) {
       const code = await readFile(file, "utf8");
       const messages = extractMessages(code, file);
-      fileMessages.set(file, messages); all.push(...messages);
+      nextMessages.set(file, messages);
+      nextHashes.set(file, hashOf(code));
+      all.push(...messages);
     }
-    const registry = reconcile(await loadRegistry(registryFile), all);
+    const { registry, ambiguous } = reconcile(await loadRegistry(registryFile, report.warn), all);
     await saveRegistry(registryFile, registry);
+    if (ambiguous.length) {
+      const message = `autoi18n: ${ambiguous.length} duplicated texts changed occurrence count, so their IDs may have moved (e.g. "${ambiguous[0]}").`;
+      if (options.onAmbiguous === "error") report.error(message);
+      else report.warn(message);
+    }
 
     const outDir = path.resolve(config.root, directory, "locales");
-    await mkdir(outDir, { recursive: true });
     const sourceCatalog: Catalog = {};
     for (const m of all) if (m.id) sourceCatalog[m.id] = m.source;
-    await writeFile(path.join(outDir, `${sourceLocale}.json`), JSON.stringify(sourceCatalog, null, 2) + "\n");
+    await writeFileAtomic(path.join(outDir, `${sourceLocale}.json`), toJson(sourceCatalog));
 
     const requests = all.filter(m => m.id).map(m => ({ id: m.id!, source: m.source, context: `${m.component} > ${m.context}`, kind: m.kind, placeholders: m.placeholders }));
-    catalogFiles = Object.fromEntries(options.locales.map(locale => [locale, path.join(outDir, `${locale}.json`)]));
-    for (const locale of options.locales.filter(x => x !== sourceLocale)) {
-      const catalogPath = path.join(outDir, `${locale}.json`);
+    const nextFiles = Object.fromEntries(options.locales.map(locale => [locale, path.join(outDir, `${locale}.json`)]));
+    const nextCatalogs = new Map<string, Catalog>([[sourceLocale, sourceCatalog]]);
+    for (const locale of localesToTranslate()) {
+      const catalogPath = nextFiles[locale];
       const sourcesPath = path.join(outDir, `${locale}.sources.json`);
-      const previous = await readJson(catalogPath);
-      const previousSources = await readJson(sourcesPath);
-      // Translations are stale when the source text changed under the same ID; re-request them.
-      const missing = requests.filter(x => previous[x.id] === undefined || previousSources[x.id] !== x.source);
-      let translated: Catalog = {};
-      if (missing.length && options.provider) translated = await options.provider.translate({ sourceLocale, targetLocale: locale, messages: missing });
-      else if (missing.length && options.failOnMissingProvider) report.error(`Missing ${missing.length} ${locale} translations and no provider is configured.`);
-      const merged: Catalog = { ...previous };
-      const sources: Catalog = { ...previousSources };
-      let rejected = 0;
-      for (const x of missing) {
-        delete merged[x.id]; delete sources[x.id];
-        const text = translated[x.id];
-        if (typeof text !== "string") continue;
-        // A translation that changes the placeholders would render the wrong values, so it is not stored and is requested again next time.
-        if (x.kind === "mixed" && !sameNames(placeholderNames(text), x.placeholders ?? [])) { rejected++; continue; }
-        merged[x.id] = text; sources[x.id] = x.source;
+      const result = await translateLocale({
+        provider: options.provider,
+        sourceLocale,
+        locale,
+        requests,
+        previous: await readJsonFile<Catalog>(catalogPath, {}, report.warn),
+        previousSources: await readJsonFile<Catalog>(sourcesPath, {}, report.warn)
+      });
+      if (result.requested && !options.provider && options.failOnMissingProvider) {
+        report.error(`Missing ${result.requested} ${locale} translations and no provider is configured.`);
       }
-      if (rejected) report.info(`autoi18n: rejected ${rejected} ${locale} translations with changed placeholders.`);
-      catalogs.set(locale, merged);
-      await writeFile(catalogPath, JSON.stringify(merged, null, 2) + "\n");
-      await writeFile(sourcesPath, JSON.stringify(sources, null, 2) + "\n");
+      if (result.rejected) report.info(`autoi18n: rejected ${result.rejected} ${locale} translations with changed placeholders.`);
+      if (result.untranslated) {
+        const log = options.provider ? report.warn : report.info;
+        log(`autoi18n: ${result.untranslated} ${locale} messages have no translation and fall back to the source text.`);
+      }
+      await writeFileAtomic(catalogPath, toJson(result.catalog));
+      await writeFileAtomic(sourcesPath, toJson(result.sources));
+      nextCatalogs.set(locale, result.catalog);
     }
-    catalogs.set(sourceLocale, sourceCatalog);
+
+    fileMessages = nextMessages;
+    fileHashes = nextHashes;
+    catalogs = nextCatalogs;
+    catalogFiles = nextFiles;
     if (all.length) report.info(`autoi18n: indexed ${all.length} messages across ${files.length} files.`);
   }
 
@@ -119,27 +147,61 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     }
   }
 
+  // A burst of added or removed files (for example a git checkout) causes one re-index instead of one per file.
+  function scheduleRetranslate(): void {
+    clearTimeout(watchTimer);
+    watchTimer = setTimeout(() => void retranslate(), WATCH_DEBOUNCE_MS);
+  }
+
+  function isSourceCandidate(file: string): boolean {
+    if (!/\.[jt]sx?$/.test(file)) return false;
+    if (!pathWithGlob.matchesGlob) return true;
+    const relative = path.relative(config.root, file).split(path.sep).join("/");
+    const matches = pathWithGlob.matchesGlob;
+    return (options.include ?? DEFAULT_INCLUDE).some(p => matches(relative, p))
+      && !(options.exclude ?? DEFAULT_EXCLUDE).some(p => matches(relative, p));
+  }
+
   return {
     name: "vite-plugin-autoi18n",
     enforce: "pre",
-    configResolved(resolved) { config = resolved; registryFile = path.resolve(config.root, directory, "registry.json"); },
+    configResolved(resolved) {
+      config = resolved;
+      registryFile = path.resolve(config.root, directory, "registry.json");
+      const selected = selectedLocale();
+      if (selected !== sourceLocale && !options.locales.includes(selected)) {
+        throw new Error(`autoi18n: locale "${selected}" is not one of the configured locales (${options.locales.join(", ")}).`);
+      }
+    },
     resolveId(id) { if (id === RUNTIME_MODULE) return `\0${RUNTIME_MODULE}`; },
     load(id) { if (id === `\0${RUNTIME_MODULE}`) return createRuntimeModule(catalogFiles, sourceLocale); },
     configureServer(devServer) {
       server = devServer;
       // Adding or removing a file cannot go through handleHotUpdate, so re-index here.
-      devServer.watcher.on("add", file => { if (/\.[jt]sx?$/.test(file)) void retranslate(); });
-      devServer.watcher.on("unlink", file => { if (fileMessages.has(file)) void retranslate(); });
+      devServer.watcher.on("add", file => { if (isSourceCandidate(file)) scheduleRetranslate(); });
+      devServer.watcher.on("unlink", file => { if (fileMessages.has(file)) scheduleRetranslate(); });
     },
+    closeBundle() { clearTimeout(watchTimer); },
     async buildStart() {
-      await sync({ info: m => this.info(m), error: m => this.error(m) });
+      await sync({ info: m => this.info(m), warn: m => this.warn(m), error: m => this.error(m) });
     },
-    transform(code, id) {
+    async transform(code, id) {
       const file = id.split("?")[0];
+      if (!fileMessages.has(file)) return null;
+      if (hashOf(code) !== fileHashes.get(file)) {
+        // The file changed after it was indexed, e.g. the watcher has not fired yet; re-index once.
+        await runSync(devReporter());
+      }
       const messages = fileMessages.get(file);
-      if (!messages) return null;
-      const selectedLocale = config.command === "serve" ? sourceLocale : (options.locale ?? process.env.AUTOI18N_LOCALE ?? sourceLocale);
-      const result = transformSource(code, file, messages, selectedLocale, catalogs.get(selectedLocale) ?? {}, delivery === "runtime");
+      if (!messages || hashOf(code) !== fileHashes.get(file)) {
+        if (!warnedFiles.has(file)) {
+          warnedFiles.add(file);
+          this.warn(`autoi18n: ${file} changed while it was being indexed; its messages are left untranslated.`);
+        }
+        return null;
+      }
+      const locale = config.command === "serve" ? sourceLocale : selectedLocale();
+      const result = transformSource(code, file, messages, locale, catalogs.get(locale) ?? {}, delivery === "runtime", sourceLocale);
       return { code: result.code, map: result.map };
     },
     async handleHotUpdate({ file }) {
@@ -152,5 +214,5 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
 }
 
 export { OpenAICompatibleProvider } from "./ai/provider.js";
-export { createLocaleLoader, resolveLocale } from "./runtime/index.js";
+export type { OpenAICompatibleOptions } from "./ai/provider.js";
 export type * from "./types.js";

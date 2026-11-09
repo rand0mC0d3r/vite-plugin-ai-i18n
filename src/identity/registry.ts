@@ -1,19 +1,35 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import type { ExtractedMessage, Registry, RegistryEntry } from "../types.js";
+import { readJsonFile, writeFileAtomic } from "../io.js";
 
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
-export async function loadRegistry(file: string): Promise<Registry> {
-  try {
-    const parsed = JSON.parse(await readFile(file, "utf8")) as Registry;
-    if (parsed.version !== 1 || !parsed.entries) return emptyRegistry();
-    return parsed;
-  } catch { return emptyRegistry(); }
+export async function loadRegistry(file: string, warn?: (message: string) => void): Promise<Registry> {
+  const parsed = await readJsonFile<Partial<Registry> | null>(file, null, warn);
+  if (!parsed || parsed.version !== 1 || !parsed.entries) {
+    if (parsed) warn?.(`autoi18n: ${file} has an unsupported format; message IDs will be regenerated.`);
+    return emptyRegistry();
+  }
+  return parsed as Registry;
 }
 
-export function reconcile(registry: Registry, messages: ExtractedMessage[]): Registry {
+/** One ordering key for both old and new occurrences, so IDs follow the same position in each list. */
+function orderKey(file: string, start: number): string {
+  return `${file}:${String(start).padStart(12, "0")}`;
+}
+
+function locationKey(location: string): string {
+  const split = location.lastIndexOf(":");
+  return orderKey(location.slice(0, split), Number(location.slice(split + 1)));
+}
+
+export interface ReconcileResult {
+  registry: Registry;
+  /** Sources whose duplicate count changed; their IDs may have moved between occurrences. */
+  ambiguous: string[];
+}
+
+export function reconcile(registry: Registry, messages: ExtractedMessage[]): ReconcileResult {
   const now = new Date().toISOString();
   const oldEntries = Object.values(registry.entries);
   const groups = new Map<string, RegistryEntry[]>();
@@ -30,13 +46,17 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Reg
   }
 
   const seen = new Set<string>();
+  const ambiguous: string[] = [];
   for (const [fingerprint, current] of incoming) {
     const previous = (groups.get(fingerprint) ?? []).filter(x => x.status === "active");
     // For repeated identical occurrences, preserve IDs by stable source ordering.
     // This survives line shifts and most edits, but deliberately cannot promise identity
     // when indistinguishable duplicates are reordered or independently moved.
-    current.sort((a, b) => `${a.file}:${String(a.start).padStart(12, "0")}`.localeCompare(`${b.file}:${String(b.start).padStart(12, "0")}`));
-    previous.sort((a, b) => a.location.localeCompare(b.location));
+    current.sort((a, b) => orderKey(a.file, a.start).localeCompare(orderKey(b.file, b.start)));
+    previous.sort((a, b) => locationKey(a.location).localeCompare(locationKey(b.location)));
+    if (current.length !== previous.length && (current.length > 1 || previous.length > 1)) {
+      ambiguous.push(current[0].source);
+    }
     for (let i = 0; i < current.length; i++) {
       const message = current[i];
       const candidate = previous[i];
@@ -62,13 +82,9 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Reg
     }
   }
   for (const entry of Object.values(registry.entries)) if (!seen.has(entry.id)) entry.status = "orphaned";
-  return registry;
+  return { registry, ambiguous };
 }
 
 export async function saveRegistry(file: string, registry: Registry): Promise<void> {
-  await mkdir(path.dirname(file), { recursive: true });
-  const temp = `${file}.tmp`;
-  await writeFile(temp, JSON.stringify(registry, null, 2) + "\n", "utf8");
-  const { rename } = await import("node:fs/promises");
-  await rename(temp, file);
+  await writeFileAtomic(file, JSON.stringify(registry, null, 2) + "\n");
 }

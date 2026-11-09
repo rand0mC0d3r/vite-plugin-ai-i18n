@@ -53,9 +53,15 @@ Run Vite. The plugin writes `.autoi18n/registry.json`, `.autoi18n/locales/<local
 
 Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 
+`OpenAICompatibleProvider` sends messages in batches (`batchSize`, default 40), aborts a request after `timeoutMs` (default 60000), and retries network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
+
+Ambiguous identity matches (duplicate identical strings whose count changed) are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead.
+
+Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and a warning is logged; the plugin continues with an empty state. Writes are atomic, so an interrupted build does not leave a truncated file.
+
 ### Delivery modes
 
-- `delivery: "build"` (default): compiles one locale per build. Use `AUTOI18N_LOCALE=de vite build` (on Windows use `cross-env AUTOI18N_LOCALE=de vite build`) or `locale: "de"` in plugin options, typically in a CI build matrix.
+- `delivery: "build"` (default): compiles one locale per build. Use `AUTOI18N_LOCALE=de vite build` (on Windows use `cross-env AUTOI18N_LOCALE=de vite build`) or `locale: "de"` in plugin options, typically in a CI build matrix. When a locale is set explicitly, only that locale is translated during the build. Without one, all configured locales are translated. An unknown locale fails the build.
 - `delivery: "runtime"`: one bundle for all locales. Text is wrapped in `t(id, source)` calls and catalogues are fetched on demand. Import the API from the virtual module:
 
 ```ts
@@ -63,6 +69,8 @@ import { locales, resolveSupported, setLocale, getLocale, subscribe, t } from "v
 
 setLocale(resolveSupported(navigator.languages)); // call before first render
 ```
+
+`createLocaleLoader` and `resolveLocale` are available from the `vite-plugin-autoi18n/runtime` subpath, not the main entry.
 
 `subscribe(listener)` returns an unsubscribe function. `getVersion()` changes whenever the locale or the catalogues change, so `useSyncExternalStore(subscribe, getVersion, getVersion)` re-renders components that read `t()` during render. Components wrapped in `memo` must subscribe themselves, or they keep the old text until their props change. List `autoI18n()` before `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
 
@@ -74,9 +82,9 @@ This is a compiler MVP, not production-ready localization yet:
 
 1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
 2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders are rejected. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
-3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. A reviewable ambiguity queue is needed for that case.
-4. Dev-server HMR re-indexes the whole project on each saved source file rather than only the changed module. This is simple and correct, but may be slow in very large projects.
-5. Only static JSX text and static string attributes are extracted. JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
+3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`; they are not resolved automatically.
+4. Dev-server HMR re-indexes the whole project after saved or added/removed source files (debounced by 150 ms) rather than only the changed module. This is simple and correct, but may be slow in very large projects.
+5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted. Text inside capitalised components (for example `<Button>Save</Button>`) and other attributes such as `href` are not extracted. JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
 6. The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 7. The initial fingerprint is a heuristic. It excludes file and line position, but component names and nearby semantic signals can still change during refactors.
 

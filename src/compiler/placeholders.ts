@@ -10,3 +10,8 @@ export function sameNames(a: string[], b: string[]): boolean {
   const right = new Set(b);
   return left.size === right.size && [...left].every(name => right.has(name));
 }
+
+/** A translation may be used only if it is non-empty and keeps exactly the source's placeholders. */
+export function isUsableTranslation(text: string, placeholders: string[]): boolean {
+  return text.trim() !== "" && sameNames(placeholderNames(text), placeholders);
+}

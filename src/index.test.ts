@@ -152,7 +152,7 @@ describe("autoI18n build hook", () => {
       buildStart: (this: unknown) => Promise<void>;
     };
     hooks.configResolved({ root });
-    await hooks.buildStart.call({ info() {}, error(message: string) { throw new Error(message); } });
+    await hooks.buildStart.call({ info() {}, warn() {}, error(message: string) { throw new Error(message); } });
   }
 
   it("translates new messages and re-requests those whose source text changed", async () => {
