@@ -5,7 +5,7 @@ import path from "node:path";
 import autoI18n from "./index.js";
 import { extractMessages } from "./compiler/extract.js";
 import { readJsonFile } from "./io.js";
-import { loadRegistry, reconcile } from "./identity/registry.js";
+import { loadRegistry, pruneOrphans, reconcile } from "./identity/registry.js";
 import { OpenAICompatibleProvider } from "./ai/provider.js";
 import type { ExtractedMessage, Registry, TranslationRequest } from "./types.js";
 
@@ -101,6 +101,20 @@ describe("registry identity", () => {
     const registry = reconcile({ version: 1, entries: {} }, [message(1), message(50)]).registry;
     const result = reconcile(registry, [message(1)]);
     expect(result.ambiguous).toEqual(["Save"]);
+  });
+
+  it("prunes only orphans that have been missing longer than the retention window", () => {
+    const now = Date.parse("2026-11-09T00:00:00.000Z");
+    const registry = reconcile({ version: 1, entries: {} }, [message(1), message(20, "Cancel", "fp-cancel")]).registry;
+    reconcile(registry, [message(1)]);
+    const [cancel] = Object.values(registry.entries).filter(e => e.source === "Cancel");
+    expect(cancel.status).toBe("orphaned");
+    cancel.lastSeen = new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString();
+    expect(pruneOrphans(registry, 30, now)).toBe(0);
+    cancel.lastSeen = new Date(now - 31 * 24 * 60 * 60 * 1000).toISOString();
+    expect(pruneOrphans(registry, 30, now)).toBe(1);
+    expect(Object.values(registry.entries).map(e => e.source)).toEqual(["Save"]);
+    expect(pruneOrphans(registry, Infinity, now)).toBe(0);
   });
 });
 

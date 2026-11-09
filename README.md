@@ -7,7 +7,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Extracts JSX text nodes and static string JSX attributes.
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
-- Marks disappeared messages as orphaned instead of deleting them.
+- Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionDays`).
 - Supports a pluggable translation provider; includes an OpenAI-compatible implementation.
 - Writes locale JSON catalogues and keeps source English as fallback.
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
@@ -56,6 +56,8 @@ Translations require a provider. With `failOnMissingProvider: true` the build fa
 `OpenAICompatibleProvider` sends messages in batches (`batchSize`, default 40), aborts a request after `timeoutMs` (default 60000), and retries network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
 
 Ambiguous identity matches (duplicate identical strings whose count changed) are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead.
+
+Messages removed from the source are kept as orphans in `registry.json` so their IDs can be reused if the text returns. Orphans not seen for `orphanRetentionDays` days (default `30`) are deleted on the next build, and the build logs how many were removed. Use `0` to delete them immediately or `Infinity` to keep them forever. Once deleted, a returning message gets a new ID and is translated again.
 
 Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
 

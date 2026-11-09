@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { extractMessages } from "./compiler/extract.js";
 import { RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
-import { loadRegistry, reconcile, saveRegistry } from "./identity/registry.js";
+import { loadRegistry, pruneOrphans, reconcile, saveRegistry } from "./identity/registry.js";
 import { readJsonFile, writeFileAtomic } from "./io.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
 import { translateLocale } from "./translate.js";
@@ -27,6 +27,11 @@ export interface AutoI18nOptions {
   provider?: TranslationProvider;
   failOnMissingProvider?: boolean;
   onAmbiguous?: "warn" | "error";
+  /**
+   * Days an orphaned message (one no longer in the source) is kept in the registry before it is deleted.
+   * Default 30. `0` deletes orphans on the next build; `Infinity` keeps them forever.
+   */
+  orphanRetentionDays?: number;
   /** Log each message sent to the translation provider and each translation received, with timestamps. Default false. */
   debug?: boolean;
 }
@@ -35,6 +40,7 @@ const UPDATE_EVENT = "autoi18n:update";
 const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
 const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
 const WATCH_DEBOUNCE_MS = 150;
+const DEFAULT_ORPHAN_RETENTION_DAYS = 30;
 
 const hashOf = (code: string): string => createHash("sha1").update(code).digest("hex");
 const toJson = (value: unknown): string => JSON.stringify(value, null, 2) + "\n";
@@ -46,6 +52,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   const directory = options.directory ?? ".autoi18n";
   const delivery = options.delivery ?? "build";
   const debug = options.debug ?? false;
+  const orphanRetentionDays = options.orphanRetentionDays ?? DEFAULT_ORPHAN_RETENTION_DAYS;
   let config: ResolvedConfig;
   let registryFile = "";
   let catalogFiles: Record<string, string> = {};
@@ -84,6 +91,8 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       all.push(...messages);
     }
     const { registry, ambiguous } = reconcile(await loadRegistry(registryFile, report.warn), all);
+    const pruned = pruneOrphans(registry, orphanRetentionDays);
+    if (pruned) report.info(`autoi18n: removed ${pruned} registry entries no longer in the source.`);
     await saveRegistry(registryFile, registry);
     if (ambiguous.length) {
       const message = `autoi18n: ${ambiguous.length} duplicated texts changed occurrence count, so their IDs may have moved (e.g. "${ambiguous[0]}").`;
