@@ -110,11 +110,12 @@ describe("registry identity", () => {
     const [cancel] = Object.values(registry.entries).filter(e => e.source === "Cancel");
     expect(cancel.status).toBe("orphaned");
     cancel.lastSeen = new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString();
-    expect(pruneOrphans(registry, 30, now)).toBe(0);
+    expect(pruneOrphans(registry, 30 * 24 * 60, now)).toEqual([]);
     cancel.lastSeen = new Date(now - 31 * 24 * 60 * 60 * 1000).toISOString();
-    expect(pruneOrphans(registry, 30, now)).toBe(1);
+    const removed = pruneOrphans(registry, 30 * 24 * 60, now);
+    expect(removed.map(e => e.source)).toEqual(["Cancel"]);
     expect(Object.values(registry.entries).map(e => e.source)).toEqual(["Save"]);
-    expect(pruneOrphans(registry, Infinity, now)).toBe(0);
+    expect(pruneOrphans(registry, Infinity, now)).toEqual([]);
   });
 });
 

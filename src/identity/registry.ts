@@ -85,20 +85,22 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
   return { registry, ambiguous };
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const MINUTE_MS = 60 * 1000;
+/** 30 days. */
+export const DEFAULT_ORPHAN_RETENTION_MINUTES = 30 * 24 * 60;
 
 /**
- * Deletes orphaned entries that have not been seen in the source for longer than `retentionDays`.
+ * Deletes orphaned entries that have not been seen in the source for longer than `retentionMinutes`.
  * `lastSeen` is only updated while an entry is active, so for orphans it marks when they disappeared.
- * Returns the number of removed entries.
+ * Returns the removed entries.
  */
-export function pruneOrphans(registry: Registry, retentionDays: number, now = Date.now()): number {
-  const cutoff = now - retentionDays * DAY_MS;
-  let removed = 0;
+export function pruneOrphans(registry: Registry, retentionMinutes: number, now = Date.now()): RegistryEntry[] {
+  const cutoff = now - retentionMinutes * MINUTE_MS;
+  const removed: RegistryEntry[] = [];
   for (const [id, entry] of Object.entries(registry.entries)) {
     if (entry.status === "orphaned" && Date.parse(entry.lastSeen) <= cutoff) {
       delete registry.entries[id];
-      removed++;
+      removed.push(entry);
     }
   }
   return removed;

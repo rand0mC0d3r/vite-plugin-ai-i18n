@@ -1,4 +1,5 @@
 import { isUsableTranslation } from "./compiler/placeholders.js";
+import { debugLog } from "./debug.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "./types.js";
 
 export interface LocaleTranslationInput {
@@ -22,8 +23,6 @@ export interface LocaleTranslation {
   /** Messages that needed a translation this run. */
   requested: number;
 }
-
-const debugLog = (message: string): void => console.log(`[autoi18n debug] ${new Date().toISOString()} ${message}`);
 
 /**
  * Brings one locale's catalogue up to date. Messages are re-requested when they are new or when their
