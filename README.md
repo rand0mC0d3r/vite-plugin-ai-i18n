@@ -21,10 +21,10 @@ Implicit build-time localization for JSX: author English directly, let the compi
 In your React + Vite project:
 
 ```sh
-npm install -D vite-plugin-autoi18n
+npm install -D vite-plugin-ai-auto-i18n
 ```
 
-Works the same with `pnpm add -D vite-plugin-autoi18n` or `yarn add -D vite-plugin-autoi18n`. It requires Vite 5 or newer (a peer dependency). For React, also keep `@vitejs/plugin-react` in your Vite config.
+Works the same with `pnpm add -D vite-plugin-ai-auto-i18n` or `yarn add -D vite-plugin-ai-auto-i18n`. It requires Vite 5 or newer (a peer dependency). For React, also keep `@vitejs/plugin-react` in your Vite config.
 
 ### 2️⃣ Add your API key
 
@@ -41,7 +41,7 @@ Add the plugin to `vite.config.ts`. `loadEnv` reads `.env.local` for the config 
 ```ts
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
-import autoI18n, { OpenAICompatibleProvider } from "vite-plugin-autoi18n";
+import autoI18n, { OpenAICompatibleProvider } from "vite-plugin-ai-auto-i18n";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -98,7 +98,7 @@ Ambiguous identity matches (duplicate identical strings whose count changed) are
 
 Messages removed from the source are kept as orphans in `registry.json` so their IDs can be reused if the text returns. Orphans not seen for `orphanRetentionMinutes` minutes (default `43200`, i.e. 30 days) are deleted on the next build, and the build logs how many were removed. Use `0` to delete them immediately or `Infinity` to keep them forever. Once deleted, a returning message gets a new ID and is translated again.
 
-🧹 To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from the `messages` and `sources` maps of `locales/*.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-autoi18n/dist/cli/prune.js` with the same options.
+🧹 To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from the `messages` and `sources` maps of `locales/*.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/prune.js` with the same options.
 
 🐞 Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
 
@@ -117,7 +117,7 @@ import { locales, resolveSupported, setLocale, getLocale, subscribe, t } from "v
 setLocale(resolveSupported(navigator.languages)); // call before first render
 ```
 
-`createLocaleLoader` and `resolveLocale` are available from the `vite-plugin-autoi18n/runtime` subpath, not the main entry.
+`createLocaleLoader` and `resolveLocale` are available from the `vite-plugin-ai-auto-i18n/runtime` subpath, not the main entry.
 
 `subscribe(listener)` returns an unsubscribe function. `getVersion()` changes whenever the locale or the catalogues change, so `useSyncExternalStore(subscribe, getVersion, getVersion)` re-renders components that read `t()` during render. Components wrapped in `memo` must subscribe themselves, or they keep the old text until their props change. List `autoI18n()` before `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
 
