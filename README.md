@@ -192,6 +192,23 @@ Return only the IDs you translated. Omitted IDs stay in the source language and 
 
 The `prune` CLI options (`--directory`, `--retention-minutes`, `--debug`) are described in the orphan paragraph of [Try the bundled example](#-try-the-bundled-example).
 
+## 🧪 Test coverage
+
+Run the suite with coverage (V8 provider, `src/**`):
+
+```bash
+npx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
+```
+
+| Metric | Coverage |
+|---|---|
+| Statements | 99.4% |
+| Branches | 89.4% |
+| Functions | 97.6% |
+| Lines | 99.4% |
+
+Critical modules such as the plugin hooks (`src/index.ts`), translation pipeline (`src/translate.ts`), build engine (`src/engine.ts`), runtime helpers (`src/runtime/`), and prune CLI (`src/cli/prune.ts`) are all at or above 98% statements.
+
 ## ⚠️ Important prototype limitations
 
 This is a compiler MVP, not production-ready localization yet:
