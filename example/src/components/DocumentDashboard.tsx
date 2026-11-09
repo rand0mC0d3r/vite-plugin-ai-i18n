@@ -26,7 +26,7 @@ function DeleteDialog({ count, onClose, onDelete }: { count: number; onClose: ()
 
     <h2>Delete documents</h2>
     <p>This action cannot be undone.</p>
-    <button onClick={onClose}>Cancel</button>
+    <button id="cancel-button" onClick={onClose}>Cancel</button>
     <button onClick={onDelete} title="Permanently delete selected documents">Delete</button>
   </section>;
 }
@@ -37,7 +37,7 @@ export function DocumentDashboard() {
   return <main>
     <h1>Document library</h1>
     <h1>Files for every occasion selected</h1>
-    <h2 translate="no">Sample code for people</h2>
+    <h2>Sample code for people and animals</h2>
     <p>You have {selected} documents selected.</p>
     <DocumentToolbar onSave={() => setSaved(true)} onSaveAs={() => setSaved(true)} onCancel={() => setSelected(0)} />
     <FilterPanel onSave={() => setSaved(true)} />
