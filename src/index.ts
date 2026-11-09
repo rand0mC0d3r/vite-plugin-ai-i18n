@@ -27,6 +27,8 @@ export interface AutoI18nOptions {
   provider?: TranslationProvider;
   failOnMissingProvider?: boolean;
   onAmbiguous?: "warn" | "error";
+  /** Log each message sent to the translation provider and each translation received, with timestamps. Default false. */
+  debug?: boolean;
 }
 
 const UPDATE_EVENT = "autoi18n:update";
@@ -43,6 +45,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   const sourceLocale = options.sourceLocale ?? "en";
   const directory = options.directory ?? ".autoi18n";
   const delivery = options.delivery ?? "build";
+  const debug = options.debug ?? false;
   let config: ResolvedConfig;
   let registryFile = "";
   let catalogFiles: Record<string, string> = {};
@@ -105,7 +108,8 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         locale,
         requests,
         previous: await readJsonFile<Catalog>(catalogPath, {}, report.warn),
-        previousSources: await readJsonFile<Catalog>(sourcesPath, {}, report.warn)
+        previousSources: await readJsonFile<Catalog>(sourcesPath, {}, report.warn),
+        debug
       });
       if (result.requested && !options.provider && options.failOnMissingProvider) {
         report.error(`Missing ${result.requested} ${locale} translations and no provider is configured.`);

@@ -8,6 +8,8 @@ export interface LocaleTranslationInput {
   requests: TranslationRequest[];
   previous: Catalog;
   previousSources: Catalog;
+  /** Logs every message sent to the provider and every translation received, with timestamps. */
+  debug?: boolean;
 }
 
 export interface LocaleTranslation {
@@ -21,16 +23,27 @@ export interface LocaleTranslation {
   requested: number;
 }
 
+const debugLog = (message: string): void => console.log(`[autoi18n debug] ${new Date().toISOString()} ${message}`);
+
 /**
  * Brings one locale's catalogue up to date. Messages are re-requested when they are new or when their
  * source text changed under the same ID. Unusable translations are dropped so they are requested again later.
  */
 export async function translateLocale(input: LocaleTranslationInput): Promise<LocaleTranslation> {
-  const { provider, sourceLocale, locale, requests, previous, previousSources } = input;
+  const { provider, sourceLocale, locale, requests, previous, previousSources, debug } = input;
   const missing = requests.filter(x => previous[x.id] === undefined || previousSources[x.id] !== x.source);
   let translated: Catalog = {};
   if (missing.length && provider) {
+    if (debug) {
+      for (const m of missing) debugLog(`sent ${sourceLocale} -> ${locale} ${m.id}: ${JSON.stringify(m.source)} (context: ${m.context})`);
+    }
     translated = await provider.translate({ sourceLocale, targetLocale: locale, messages: missing });
+    if (debug) {
+      for (const m of missing) {
+        const text = translated[m.id];
+        debugLog(`received ${sourceLocale} -> ${locale} ${m.id}: ${typeof text === "string" ? JSON.stringify(text) : "(no translation)"}`);
+      }
+    }
   }
 
   const catalog: Catalog = { ...previous };

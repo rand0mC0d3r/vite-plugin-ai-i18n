@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
         sourceLocale: "en",
         delivery: "runtime",
         failOnMissingProvider: true,
+        debug: true,
         provider: env.OPENAI_API_KEY
           ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: env.OPENAI_MODEL ?? "gpt-4.1-mini" })
           : undefined

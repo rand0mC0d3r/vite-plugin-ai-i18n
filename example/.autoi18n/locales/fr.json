@@ -32,5 +32,9 @@
   "msg_38074289edc54f37": "Exemple de code pour les personnes",
   "msg_0afc9500eeec4642": "Êtes-vous sûr de vouloir supprimer les {count} documents sélectionnés ?",
   "msg_192a5c8ba8a5444f": "Vous avez {selected} documents sélectionnés.",
-  "msg_652be753bdee496b": "Filtres, animaux de compagnie et articles ménagers"
+  "msg_652be753bdee496b": "Filtres, animaux de compagnie et articles ménagers",
+  "msg_5520d378f5884c09": "Filtres, animaux de compagnie et articles ménagers, vaches, ours, abeilles",
+  "msg_8ef8460f7d6d4ff4": "Supprimer les documents des papiers",
+  "msg_69242ee9e77a45fe": "Supprimer les documents de",
+  "msg_c28aeca4c5e945a4": "Supprimer les documents"
 }

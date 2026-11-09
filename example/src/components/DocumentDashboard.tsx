@@ -10,7 +10,7 @@ function DocumentToolbar({ onSave, onSaveAs, onCancel }: { onSave: () => void; o
 
 function FilterPanel({ onSave }: { onSave: () => void }) {
   return <aside>
-    <h2>Filters and pets and household items</h2>
+    <h2>Filters and pets and household items, cows, bears, bees</h2>
     <label>Document name <input placeholder="Search documents" /></label>
     <button onClick={onSave} aria-label="Save these filter settings">Save</button>
   </aside>;
@@ -18,8 +18,13 @@ function FilterPanel({ onSave }: { onSave: () => void }) {
 
 function DeleteDialog({ count, onClose, onDelete }: { count: number; onClose: () => void; onDelete: () => void }) {
   return <section role="dialog" aria-modal="true" aria-label="Delete documents">
-    <h2>Delete documents</h2>
+
+
+
+
     <p>Are you sure you want to delete {count} selected documents?</p>
+
+    <h2>Delete documents</h2>
     <p>This action cannot be undone.</p>
     <button onClick={onClose}>Cancel</button>
     <button onClick={onDelete} title="Permanently delete selected documents">Delete</button>
