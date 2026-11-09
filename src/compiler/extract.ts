@@ -10,6 +10,14 @@ const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
 // Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
 const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
 
+// `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
+const IGNORE_ATTR = "translate";
+const IGNORE_VALUE = "no";
+
+function hasIgnoreMarker(opening: t.JSXOpeningElement): boolean {
+  return opening.attributes.some(a => t.isJSXAttribute(a) && t.isJSXIdentifier(a.name, { name: IGNORE_ATTR }) && t.isStringLiteral(a.value, { value: IGNORE_VALUE }));
+}
+
 // Only intrinsic elements (lowercase DOM tags) carry copy; capitalised components receive data as children or props.
 function isExtractableTag(name: t.JSXOpeningElement["name"]): name is t.JSXIdentifier {
   return t.isJSXIdentifier(name) && !COMPONENT_TAG.test(name.name) && !IGNORED_TAGS.has(name.name);
@@ -54,8 +62,18 @@ export function extractMessages(code: string, filename: string): ExtractedMessag
     return [tag, attr ?? "", attrs, handlers].filter(Boolean).join(" | ");
   }
 
+  // True when the node or any ancestor element is marked with translate="no".
+  function isMarkedUntranslated(nodePath: NodePath): boolean {
+    for (let p: NodePath | null = nodePath; p; p = p.parentPath) {
+      const opening = p.isJSXOpeningElement() ? p.node : p.isJSXElement() ? p.node.openingElement : undefined;
+      if (opening && hasIgnoreMarker(opening)) return true;
+    }
+    return false;
+  }
+
   traverse(ast, {
     JSXElement(p) {
+      if (isMarkedUntranslated(p)) return;
       const children = p.node.children;
       const expressions = children.filter((child): child is t.JSXExpressionContainer => t.isJSXExpressionContainer(child));
       if (!expressions.length) return;
@@ -86,6 +104,7 @@ export function extractMessages(code: string, filename: string): ExtractedMessag
       found.push(item);
     },
     JSXText(p) {
+      if (isMarkedUntranslated(p)) return;
       const raw = p.node.value;
       const source = normalizeSource(raw);
       if (!source) return;
@@ -108,6 +127,7 @@ export function extractMessages(code: string, filename: string): ExtractedMessag
     JSXAttribute(p) {
       const attr = p.node;
       if (!t.isJSXIdentifier(attr.name) || !TRANSLATABLE_ATTRS.has(attr.name.name)) return;
+      if (isMarkedUntranslated(p)) return;
       if (!t.isStringLiteral(attr.value)) return;
       const source = normalizeSource(attr.value.value);
       if (!source || !/[A-Za-z]/.test(source)) return;

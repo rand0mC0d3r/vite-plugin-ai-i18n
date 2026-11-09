@@ -78,6 +78,27 @@ describe("mixed-content messages", () => {
   });
 });
 
+describe("translate=\"no\" opt-out", () => {
+  it("skips text, mixed content and translatable attributes of the marked element", () => {
+    const code = `export const A = ({ n }) => <div>
+      <p translate="no">Keep this as is</p>
+      <button translate="no" title="Do not translate me">Save</button>
+      <p translate="no">Count {n} items here</p>
+    </div>;\n`;
+    expect(extractMessages(code, "A.tsx")).toEqual([]);
+  });
+
+  it("skips descendants of a marked element, like the HTML attribute", () => {
+    const code = `export const A = () => <section translate="no"><h2>Sample code</h2><span title="Hidden copy">x</span></section>;\n`;
+    expect(extractMessages(code, "A.tsx")).toEqual([]);
+  });
+
+  it("still extracts copy outside the marked element and ignores other translate values", () => {
+    const code = `export const A = () => <main><p translate="no">Skip</p><p translate="yes">Translate me</p><p>Also me</p></main>;\n`;
+    expect(extractMessages(code, "A.tsx").map(m => m.source)).toEqual(["Translate me", "Also me"]);
+  });
+});
+
 describe("runtime module", () => {
   it("lists every catalogue and resolves unknown locales to the source", () => {
     const code = createRuntimeModule({ en: "/x/en.json", de: "/x/de.json" }, "en");

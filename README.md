@@ -59,6 +59,8 @@ Ambiguous identity matches (duplicate identical strings whose count changed) are
 
 Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
 
+To keep copy out of automatic translation, add `translate="no"` to the element (for example `<h2 translate="no">Sample code</h2>`). This is the standard HTML marker, and it also covers the element's descendants and attributes such as `title`.
+
 Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and a warning is logged; the plugin continues with an empty state. Writes are atomic, so an interrupted build does not leave a truncated file.
 
 ### Delivery modes
