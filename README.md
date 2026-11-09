@@ -10,6 +10,8 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Marks disappeared messages as orphaned instead of deleting them.
 - Supports a pluggable translation provider; includes an OpenAI-compatible implementation.
 - Writes locale JSON catalogues and keeps source English as fallback.
+- Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
+- Re-translates a message when its source text changes, tracked in `.autoi18n/locales/<locale>.sources.json`.
 - Includes a deliberately varied document-dashboard example.
 
 ## Install / try
@@ -47,13 +49,28 @@ npm run example:dev     # dev server
 npm run example:build   # production build into example/dist
 ```
 
-Run Vite. The plugin writes `.autoi18n/registry.json` and `.autoi18n/locales/*.json`. To compile German: `AUTOI18N_LOCALE=de vite build` (on Windows use `cross-env AUTOI18N_LOCALE=de vite build`) or set `locale: "de"` in plugin options.
+Run Vite. The plugin writes `.autoi18n/registry.json`, `.autoi18n/locales/<locale>.json` and `.autoi18n/locales/<locale>.sources.json`. The sidecar records the source text each translation was made from; if the source changes, that message is re-translated on the next build.
+
+Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
+
+### Delivery modes
+
+- `delivery: "build"` (default): compiles one locale per build. Use `AUTOI18N_LOCALE=de vite build` (on Windows use `cross-env AUTOI18N_LOCALE=de vite build`) or `locale: "de"` in plugin options, typically in a CI build matrix.
+- `delivery: "runtime"`: one bundle for all locales. Text is wrapped in `t(id, source)` calls and catalogues are fetched on demand. Import the API from the virtual module:
+
+```ts
+import { locales, resolveSupported, setLocale, getLocale, subscribe, t } from "virtual:autoi18n";
+
+setLocale(resolveSupported(navigator.languages)); // call before first render
+```
+
+`subscribe(listener)` returns an unsubscribe function and is suitable for `useSyncExternalStore`. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
 
 ## Important prototype limitations
 
 This is a compiler MVP, not production-ready localization yet:
 
-1. The MVP compiles one locale per build. Set `locale: "de"` or `AUTOI18N_LOCALE=de` in a CI build matrix. Runtime locale negotiation / lazy switching is a follow-up integration.
+1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
 2. Mixed JSX sentences containing expressions (`You have {count} documents`) are intentionally left entirely in the source language. Expression-aware message grouping and ICU plural generation are not implemented yet; this avoids producing broken translations by translating sentence fragments independently.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. A reviewable ambiguity queue is needed for that case.
 4. Dev-server HMR currently requests a full reload; it does not yet re-run the full extraction pipeline per changed module.

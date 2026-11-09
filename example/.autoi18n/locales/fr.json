@@ -1,1 +1,24 @@
-{}
+{
+  "msg_5c0b5e58f5574836": "Langue",
+  "msg_097637639cc242a7": "Enregistrer le document actuel",
+  "msg_8ba6a5bf4a764bd9": "Enregistrer",
+  "msg_3571f583fdee4a74": "Enregistrer une copie sous un autre nom",
+  "msg_d6200ee7be5d438f": "Enregistrer sous...",
+  "msg_c7af800217c04463": "Annuler",
+  "msg_1dd2360fc4a24e7d": "Filtres",
+  "msg_6f5e12bdbc7a4804": "Nom du document",
+  "msg_d006bbf33896407a": "Rechercher des documents",
+  "msg_ff1e056f660a44a0": "Enregistrer ces paramètres de filtre",
+  "msg_e42948e581394e0b": "Enregistrer",
+  "msg_c37f5b72d96b4df5": "dialog",
+  "msg_21834694bde84dd9": "true",
+  "msg_529b94f5893d4bd3": "Supprimer les documents",
+  "msg_d3a5e57013784547": "Supprimer les documents",
+  "msg_cfc05d16f46b49e0": "Cette action est irréversible.",
+  "msg_bf90195ed3344519": "Annuler",
+  "msg_4fdcd7c7943d4539": "Supprimer définitivement les documents sélectionnés",
+  "msg_963569cfbfba4d0f": "Supprimer",
+  "msg_0a6882d6d286499c": "Bibliothèque de documents",
+  "msg_e1a659e0d6db4f00": "statut",
+  "msg_0be55b4a9c9344d7": "Modifications enregistrées avec succès."
+}
