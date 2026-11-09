@@ -33,6 +33,11 @@ export interface AutoI18nOptions {
    * Default 43200 (30 days). `0` deletes orphans on the next build; `Infinity` keeps them forever.
    */
   orphanRetentionMinutes?: number;
+  /**
+   * Locales translated at the same time. Default 2. Batches within a locale are limited separately by
+   * `OpenAICompatibleOptions.concurrency`. Lower this if your provider rate-limits per account.
+   */
+  localeConcurrency?: number;
   /** Log each message sent to the translation provider and each translation received, with timestamps. Default false. */
   debug?: boolean;
 }
@@ -112,6 +117,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       orphanRetentionMinutes,
       sourceLocale,
       locales,
+      localeConcurrency: Math.max(1, Math.floor(options.localeConcurrency ?? 2)),
       previous,
       provider: options.provider,
       debug

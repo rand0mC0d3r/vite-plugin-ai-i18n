@@ -4,8 +4,6 @@ import { translateLocale, type LocaleTranslation } from "./translate.js";
 import { pruneOrphans, reconcile } from "./identity/registry.js";
 import type { Catalog, ExtractedMessage, Registry, RegistryEntry, ResolvedMessage, TranslationProvider } from "./types.js";
 
-const LOCALE_CONCURRENCY = 2;
-
 export interface CatalogBuildInput {
   /** Messages extracted from each source file, in the order the files were found. */
   files: { file: string; messages: ExtractedMessage[] }[];
@@ -14,6 +12,8 @@ export interface CatalogBuildInput {
   sourceLocale: string;
   /** Locales to translate in this run. The source locale is never translated. */
   locales: string[];
+  /** Locales translated in parallel. */
+  localeConcurrency: number;
   /** The current contents of each locale file, keyed by locale. Missing locales start empty. */
   previous: Map<string, LocaleFile>;
   provider?: TranslationProvider;
@@ -47,7 +47,7 @@ export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBu
   for (const m of messages) sourceCatalog[m.id] = m.source;
   const requests = messages.map(m => ({ id: m.id, source: m.source, context: `${m.component} > ${m.context}`, kind: m.kind, placeholders: m.placeholders }));
 
-  const outcomes = await mapWithConcurrency(input.locales, LOCALE_CONCURRENCY, locale => translateLocale({
+  const outcomes = await mapWithConcurrency(input.locales, input.localeConcurrency, locale => translateLocale({
     provider: input.provider,
     sourceLocale: input.sourceLocale,
     locale,

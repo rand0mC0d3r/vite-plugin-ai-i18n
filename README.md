@@ -90,7 +90,9 @@ If a translation batch fails, the other batches are still stored. The failed mes
 
 🔑 Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 
-`OpenAICompatibleProvider` sends messages in batches (`batchSize`, default 40), aborts a request after `timeoutMs` (default 60000), and retries network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
+`OpenAICompatibleProvider` sends messages in batches (`batchSize`, default 40), runs up to `concurrency` batches at once (default 4), aborts a request after `timeoutMs` (default 60000), and retries network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
+
+The plugin translates up to `localeConcurrency` locales at once (default 2). Total parallel requests are roughly `localeConcurrency × concurrency`, so lower one or both if your provider rate-limits your account.
 
 Ambiguous identity matches (duplicate identical strings whose count changed) are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead.
 
