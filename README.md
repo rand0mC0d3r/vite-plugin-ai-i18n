@@ -39,6 +39,14 @@ Then write ordinary JSX:
 <button title="Save the current document">Save</button>
 ```
 
+To try the bundled example (a React document dashboard under `example/`):
+
+```sh
+npm install
+npm run example:dev     # dev server
+npm run example:build   # production build into example/dist
+```
+
 Run Vite. The plugin writes `.autoi18n/registry.json` and `.autoi18n/locales/*.json`. To compile German: `AUTOI18N_LOCALE=de vite build` (on Windows use `cross-env AUTOI18N_LOCALE=de vite build`) or set `locale: "de"` in plugin options.
 
 ## Important prototype limitations
