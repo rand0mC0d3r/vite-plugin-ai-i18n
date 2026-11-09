@@ -10,6 +10,16 @@ const COMPONENT_TAG = /^[A-Z]/;
 const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
 const IGNORE_ATTRS = new Set(["key", "ref", "id", "className", "style", "data-testid"]);
 
+// Only side-effect-free references can become placeholders, so moving them inside a translated sentence is safe.
+function placeholderExpressionName(expression: any): string | undefined {
+  if (t.isIdentifier(expression)) return expression.name;
+  if (t.isMemberExpression(expression) && !expression.computed && t.isIdentifier(expression.property)) {
+    const object = placeholderExpressionName(expression.object);
+    return object ? `${object}.${expression.property.name}` : undefined;
+  }
+  return undefined;
+}
+
 export function extractMessages(code: string, filename: string): ExtractedMessage[] {
   const ast = parse(code, { sourceType: "unambiguous", sourceFilename: filename, plugins: ["jsx", "typescript", "decorators-legacy"] });
   const found: ExtractedMessage[] = [];
@@ -39,14 +49,43 @@ export function extractMessages(code: string, filename: string): ExtractedMessag
   }
 
   traverse(ast, {
+    JSXElement(p: any) {
+      const children: any[] = p.node.children;
+      const expressions = children.filter(child => t.isJSXExpressionContainer(child));
+      if (!expressions.length) return;
+      if (children.some(child => !t.isJSXText(child) && !t.isJSXExpressionContainer(child))) return;
+      if (!expressions.every(child => placeholderExpressionName(child.expression) !== undefined)) return;
+      if (!children.some(child => t.isJSXText(child) && /[A-Za-z]/.test(child.value))) return;
+      const rawTag = p.node.openingElement.name;
+      if (!t.isJSXIdentifier(rawTag) || IGNORED_TAGS.has(rawTag.name)) return;
+      const names: string[] = [];
+      for (const child of expressions) {
+        const base = placeholderExpressionName(child.expression)!;
+        let name = base;
+        for (let suffix = 2; names.includes(name); suffix++) name = `${base}_${suffix}`;
+        names.push(name);
+      }
+      let raw = "";
+      let index = 0;
+      for (const child of children) raw += t.isJSXText(child) ? child.value : `{${names[index++]}}`;
+      const source = normalizeSource(raw);
+      if (!source) return;
+      const tag = rawTag.name;
+      const item: ExtractedMessage = {
+        source, prefix: raw.match(/^\s*/)?.[0] ?? "", suffix: raw.match(/\s*$/)?.[0] ?? "",
+        kind: "mixed", placeholders: names, file: filename, start: p.node.start ?? 0, end: p.node.end ?? 0,
+        tag, component: componentName(p), context: elementContext(p, tag), fingerprint: ""
+      };
+      item.fingerprint = createFingerprint(item);
+      found.push(item);
+    },
     JSXText(p: any) {
       const raw = p.node.value as string;
       const source = normalizeSource(raw);
       if (!source) return;
       const element = p.findParent((x: any) => x.isJSXElement());
       if (!element) return;
-      // Until expression-aware ICU grouping exists, leave an entire mixed-content sentence
-      // in its source language rather than translating fragments into ungrammatical copy.
+      // Mixed-content elements are handled as a whole by the JSXElement visitor, never fragment by fragment.
       if (element.node.children.some((child: any) => t.isJSXExpressionContainer(child))) return;
       const rawTag = element.node.openingElement.name;
       if (!t.isJSXIdentifier(rawTag) || IGNORED_TAGS.has(rawTag.name)) return;

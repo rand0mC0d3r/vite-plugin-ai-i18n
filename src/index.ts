@@ -3,6 +3,7 @@ import fg from "fast-glob";
 import path from "node:path";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
 import { extractMessages, relativeFile } from "./compiler/extract.js";
+import { placeholderNames, sameNames } from "./compiler/placeholders.js";
 import { RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
 import { loadRegistry, reconcile, saveRegistry } from "./identity/registry.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
@@ -66,7 +67,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     for (const m of all) if (m.id) sourceCatalog[m.id] = m.source;
     await writeFile(path.join(outDir, `${sourceLocale}.json`), JSON.stringify(sourceCatalog, null, 2) + "\n");
 
-    const requests = all.filter(m => m.id).map(m => ({ id: m.id!, source: m.source, context: `${m.component} > ${m.context}`, kind: m.kind }));
+    const requests = all.filter(m => m.id).map(m => ({ id: m.id!, source: m.source, context: `${m.component} > ${m.context}`, kind: m.kind, placeholders: m.placeholders }));
     catalogFiles = Object.fromEntries(options.locales.map(locale => [locale, path.join(outDir, `${locale}.json`)]));
     for (const locale of options.locales.filter(x => x !== sourceLocale)) {
       const catalogPath = path.join(outDir, `${locale}.json`);
@@ -80,10 +81,16 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       else if (missing.length && options.failOnMissingProvider) report.error(`Missing ${missing.length} ${locale} translations and no provider is configured.`);
       const merged: Catalog = { ...previous };
       const sources: Catalog = { ...previousSources };
+      let rejected = 0;
       for (const x of missing) {
         delete merged[x.id]; delete sources[x.id];
-        if (typeof translated[x.id] === "string") { merged[x.id] = translated[x.id]; sources[x.id] = x.source; }
+        const text = translated[x.id];
+        if (typeof text !== "string") continue;
+        // A translation that changes the placeholders would render the wrong values, so it is not stored and is requested again next time.
+        if (x.kind === "mixed" && !sameNames(placeholderNames(text), x.placeholders ?? [])) { rejected++; continue; }
+        merged[x.id] = text; sources[x.id] = x.source;
       }
+      if (rejected) report.info(`autoi18n: rejected ${rejected} ${locale} translations with changed placeholders.`);
       catalogs.set(locale, merged);
       await writeFile(catalogPath, JSON.stringify(merged, null, 2) + "\n");
       await writeFile(sourcesPath, JSON.stringify(sources, null, 2) + "\n");

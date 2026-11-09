@@ -73,7 +73,7 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 This is a compiler MVP, not production-ready localization yet:
 
 1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
-2. Mixed JSX sentences containing expressions (`You have {count} documents`) are intentionally left entirely in the source language. Expression-aware message grouping and ICU plural generation are not implemented yet; this avoids producing broken translations by translating sentence fragments independently.
+2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders are rejected. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. A reviewable ambiguity queue is needed for that case.
 4. Dev-server HMR re-indexes the whole project on each saved source file rather than only the changed module. This is simple and correct, but may be slow in very large projects.
 5. Only static JSX text and static string attributes are extracted. JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.

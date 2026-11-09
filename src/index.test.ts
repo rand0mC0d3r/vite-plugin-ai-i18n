@@ -35,12 +35,56 @@ describe("transformSource", () => {
   });
 });
 
+describe("mixed-content messages", () => {
+  const MIXED = `export function Dialog({ count, doc }) { return <p>You have {count} documents, {doc.name} is {count} selected.</p>; }\n`;
+  const messages = withIds(extractMessages(MIXED, "Dialog.tsx"));
+
+  it("extracts a sentence with simple expressions as one message with named placeholders", () => {
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
+      kind: "mixed",
+      source: "You have {count} documents, {doc.name} is {count_2} selected.",
+      placeholders: ["count", "doc.name", "count_2"]
+    });
+  });
+
+  it("rebuilds the children from the translation in build mode, keeping the expression values", () => {
+    const catalog = { msg_0: "{doc.name} hat {count} Dokumente, {count_2} gewählt." };
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", catalog);
+    expect(code).toContain('{" Dokumente, "}');
+    expect(code).toContain("{doc.name}");
+    expect(code).toContain("{count}");
+    expect(code).not.toContain("{count_2}");
+    expect(code).not.toContain("virtual:autoi18n");
+  });
+
+  it("falls back to the source when a translation changes the placeholders", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "Viele Dokumente" });
+    expect(code).toContain('"You have "');
+    expect(code).toContain('" documents, "');
+  });
+
+  it("formats runtime translations through the runtime helper with the expression values", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", {}, true);
+    expect(code).toContain('import { t as __autoI18nT, format as __autoI18nFormat } from "virtual:autoi18n"');
+    expect(code).toContain('__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc.name} is {count_2} selected."), {');
+    expect(code).toContain('"doc.name": doc.name');
+    expect(code).toContain('"count_2": count');
+  });
+
+  it("does not extract sentences whose expressions are not plain references", () => {
+    const code = `export const A = () => <p>You have {getCount()} documents</p>;\n`;
+    expect(extractMessages(code, "A.tsx")).toEqual([]);
+  });
+});
+
 describe("runtime module", () => {
   it("lists every catalogue and resolves unknown locales to the source", () => {
     const code = createRuntimeModule({ en: "/x/en.json", de: "/x/de.json" }, "en");
     expect(code).toContain('"de": () => import("/x/de.json")');
     expect(code).toContain('const sourceLocale = "en"');
     expect(code).toContain("export function t(id, source)");
+    expect(code).toContain("export function format(text, values)");
   });
 });
 
@@ -140,6 +184,19 @@ describe("autoI18n build hook", () => {
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
     expect(provider.calls).toHaveLength(3);
     expect(provider.calls[2].map(m => m.id)).toEqual([staleId]);
+  });
+
+  it("does not store translations whose placeholders changed, and requests them again", async () => {
+    await writeFile(path.join(root, "src/App.tsx"), `export function App({ count }) { return <p>You have {count} documents</p>; }\n`);
+    const broken: TranslationProvider = { async translate({ messages }) { return Object.fromEntries(messages.map(m => [m.id, "Viele Dokumente"])); } };
+    await runBuild(autoI18n({ locales: ["en", "de"], provider: broken }));
+    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8"));
+    expect(catalog).toEqual({});
+
+    const provider = fakeProvider();
+    await runBuild(autoI18n({ locales: ["en", "de"], provider }));
+    expect(provider.calls).toHaveLength(1);
+    expect(Object.values(JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")))).toEqual(["DE:You have {count} documents"]);
   });
 
   it("fails when translations are missing and no provider is configured", async () => {
