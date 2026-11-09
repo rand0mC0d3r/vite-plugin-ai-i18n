@@ -1,10 +1,12 @@
 import { StrictMode, useSyncExternalStore } from "react";
 import { createRoot } from "react-dom/client";
 import { DocumentDashboard } from "./components/DocumentDashboard";
-import { getLocale, locales, resolveSupported, setLocale, subscribe } from "virtual:autoi18n";
+import { getLocale, getVersion, locales, resolveSupported, setLocale, subscribe } from "virtual:autoi18n";
 
 function App() {
-  const locale = useSyncExternalStore(subscribe, getLocale, getLocale);
+  // Re-render on locale switches and on live catalogue updates; getLocale() is read below.
+  useSyncExternalStore(subscribe, getVersion, getVersion);
+  const locale = getLocale();
   return (
     <>
       <label>

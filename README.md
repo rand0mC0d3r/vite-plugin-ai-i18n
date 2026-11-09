@@ -64,7 +64,9 @@ import { locales, resolveSupported, setLocale, getLocale, subscribe, t } from "v
 setLocale(resolveSupported(navigator.languages)); // call before first render
 ```
 
-`subscribe(listener)` returns an unsubscribe function and is suitable for `useSyncExternalStore`. List `autoI18n()` before `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
+`subscribe(listener)` returns an unsubscribe function. `getVersion()` changes whenever the locale or the catalogues change, so `useSyncExternalStore(subscribe, getVersion, getVersion)` re-renders components that read `t()` during render. Components wrapped in `memo` must subscribe themselves, or they keep the old text until their props change. List `autoI18n()` before `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
+
+In dev, saving a source file re-indexes the project, translates only new or changed messages and pushes the updated catalogues to the browser over an `autoi18n:update` event. Files added or removed are indexed as well. The page is not reloaded, so new JSX text appears once its translation is ready.
 
 ## Important prototype limitations
 
@@ -73,7 +75,7 @@ This is a compiler MVP, not production-ready localization yet:
 1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
 2. Mixed JSX sentences containing expressions (`You have {count} documents`) are intentionally left entirely in the source language. Expression-aware message grouping and ICU plural generation are not implemented yet; this avoids producing broken translations by translating sentence fragments independently.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. A reviewable ambiguity queue is needed for that case.
-4. Dev-server HMR currently requests a full reload; it does not yet re-run the full extraction pipeline per changed module.
+4. Dev-server HMR re-indexes the whole project on each saved source file rather than only the changed module. This is simple and correct, but may be slow in very large projects.
 5. Only static JSX text and static string attributes are extracted. JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
 6. The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 7. The initial fingerprint is a heuristic. It excludes file and line position, but component names and nearby semantic signals can still change during refactors.

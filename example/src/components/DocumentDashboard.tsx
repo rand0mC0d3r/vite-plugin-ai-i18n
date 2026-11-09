@@ -32,6 +32,7 @@ export function DocumentDashboard() {
   return <main>
     <h1>Document library</h1>
     <h1>Files for every occasion selected</h1>
+    <h1>Sample code for boys and girls</h1>
     <p>You have {selected} documents selected.</p>
     <DocumentToolbar onSave={() => setSaved(true)} onSaveAs={() => setSaved(true)} onCancel={() => setSelected(0)} />
     <FilterPanel onSave={() => setSaved(true)} />
