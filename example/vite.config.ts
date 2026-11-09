@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       // Must precede react(): @vitejs/plugin-react transforms JSX first in dev, removing the text nodes autoI18n extracts.
       autoI18n({
-        locales: ["en", "de", "fr", "it"],
+        locales: ["en", "de"],
         sourceLocale: "en",
         delivery: "runtime",
         failOnMissingProvider: true,

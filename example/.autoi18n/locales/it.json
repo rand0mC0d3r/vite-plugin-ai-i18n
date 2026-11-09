@@ -22,7 +22,12 @@
     "msg_bb9f33c81b5b46ce": "File per ogni occasione selezionati",
     "msg_f4bccb107d534b74": "Codice di esempio per persone e animali",
     "msg_192a5c8ba8a5444f": "Hai selezionato {selected} documenti.",
-    "msg_0be55b4a9c9344d7": "Modifiche salvate con successo."
+    "msg_0be55b4a9c9344d7": "Modifiche salvate con successo.",
+    "msg_77d9438905494059": "Elenco documenti",
+    "msg_e81c69c9f36b4b98": "Documenti recenti",
+    "msg_8562dc6b66e746c8": "{doc.pages} pagine",
+    "msg_5cbf114b25df492e": "Condiviso con il tuo team",
+    "msg_82d19a7943de4952": "Privato"
   },
   "sources": {
     "msg_5c0b5e58f5574836": "Language",
@@ -47,6 +52,11 @@
     "msg_bb9f33c81b5b46ce": "Files for every occasion selected",
     "msg_f4bccb107d534b74": "Sample code for people and animals",
     "msg_192a5c8ba8a5444f": "You have {selected} documents selected.",
-    "msg_0be55b4a9c9344d7": "Changes saved successfully."
+    "msg_0be55b4a9c9344d7": "Changes saved successfully.",
+    "msg_77d9438905494059": "Document list",
+    "msg_e81c69c9f36b4b98": "Recent documents",
+    "msg_8562dc6b66e746c8": "{doc.pages} pages",
+    "msg_5cbf114b25df492e": "Shared with your team",
+    "msg_82d19a7943de4952": "Private"
   }
 }

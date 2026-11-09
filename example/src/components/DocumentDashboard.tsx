@@ -18,16 +18,37 @@ function FilterPanel({ onSave }: { onSave: () => void }) {
 
 function DeleteDialog({ count, onClose, onDelete }: { count: number; onClose: () => void; onDelete: () => void }) {
   return <section role="dialog" aria-modal="true" aria-label="Delete documents">
-
-
-
-
     <p>Are you sure you want to delete {count} selected documents?</p>
-
     <h2>Delete documents</h2>
     <p>This action cannot be undone.</p>
     <button id="cancel-button" onClick={onClose}>Cancel</button>
     <button onClick={onDelete} title="Permanently delete selected documents">Delete</button>
+  </section>;
+}
+
+interface DocumentItem {
+  id: number;
+  name: string;
+  pages: number;
+  shared: boolean;
+}
+
+const documents: DocumentItem[] = [
+  { id: 1, name: "Quarterly report.pdf", pages: 12, shared: true },
+  { id: 2, name: "Onboarding checklist.docx", pages: 3, shared: false },
+  { id: 3, name: "Budget 2027.xlsx", pages: 1, shared: true },
+];
+
+function DocumentList({ items }: { items: DocumentItem[] }) {
+  return <section aria-label="Document list">
+    <h2>Recent documents</h2>
+    <ul>
+      {items.map(doc => <li key={doc.id}>
+        <strong>{doc.name}</strong>{" "}
+        <span>{doc.pages} pages</span>{" "}
+        {doc.shared ? <em>Shared with your team</em> : <em>Private</em>}
+      </li>)}
+    </ul>
   </section>;
 }
 
@@ -41,6 +62,7 @@ export function DocumentDashboard() {
     <p>You have {selected} documents selected.</p>
     <DocumentToolbar onSave={() => setSaved(true)} onSaveAs={() => setSaved(true)} onCancel={() => setSelected(0)} />
     <FilterPanel onSave={() => setSaved(true)} />
+    <DocumentList items={documents} />
     {saved && <p role="status">Changes saved successfully.</p>}
     <DeleteDialog count={selected} onClose={() => setSelected(0)} onDelete={() => setSelected(0)} />
   </main>;
