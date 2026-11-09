@@ -1,8 +1,8 @@
-# vite-plugin-autoi18n — MVP sketch
+# 🌍 vite-plugin-autoi18n — MVP sketch 🚀
 
 Implicit build-time localization for JSX: author English directly, let the compiler extract user-facing copy, persist message identities, and optionally translate through an AI provider.
 
-## Current MVP scope
+## 🧩 Current MVP scope
 
 - Extracts JSX text nodes and static string JSX attributes.
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
@@ -14,26 +14,57 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Re-translates a message when its source text changes, tracked in `.autoi18n/locales/<locale>.sources.json`.
 - Includes a deliberately varied document-dashboard example.
 
-## Install / try
+## 📦 Installation
 
-This repository is a plugin prototype. Add dependencies from `package.json`, then configure it in Vite:
+### 1️⃣ Install the package
+
+In your React + Vite project:
+
+```sh
+npm install -D vite-plugin-autoi18n
+```
+
+Works the same with `pnpm add -D vite-plugin-autoi18n` or `yarn add -D vite-plugin-autoi18n`. It requires Vite 5 or newer (a peer dependency). For React, also keep `@vitejs/plugin-react` in your Vite config.
+
+### 2️⃣ Add your API key
+
+Put the key in `.env.local` and keep that file out of git:
+
+```sh
+OPENAI_API_KEY=your-key-here
+```
+
+### 3️⃣ Configure Vite
+
+Add the plugin to `vite.config.ts`. `loadEnv` reads `.env.local` for the config file:
 
 ```ts
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
 import autoI18n, { OpenAICompatibleProvider } from "vite-plugin-autoi18n";
 
-export default defineConfig({
-  plugins: [
-    autoI18n({
-      locales: ["en", "de", "fr"],
-      sourceLocale: "en",
-      provider: new OpenAICompatibleProvider({
-        apiKey: process.env.OPENAI_API_KEY!,
-        model: "gpt-4.1-mini"
-      })
-    })
-  ]
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+
+  return {
+    plugins: [
+      autoI18n({
+        locales: ["en", "de", "fr"],
+        sourceLocale: "en",
+        provider: new OpenAICompatibleProvider({
+          apiKey: env.OPENAI_API_KEY!,
+          model: "gpt-4.1-mini"
+        })
+      }),
+      react() // in runtime delivery, keep autoI18n before the React plugin
+    ]
+  };
 });
 ```
+
+### 4️⃣ Commit the generated files
+
+The build writes `.autoi18n/` (registry and catalogues). Commit it so existing translations are reused instead of requested again. ✅
 
 Then write ordinary JSX:
 
@@ -41,7 +72,9 @@ Then write ordinary JSX:
 <button title="Save the current document">Save</button>
 ```
 
-To try the bundled example (a React document dashboard under `example/`):
+### 🧪 Try the bundled example
+
+A React document dashboard under `example/`:
 
 ```sh
 npm install
@@ -51,7 +84,7 @@ npm run example:build   # production build into example/dist
 
 Run Vite. The plugin writes `.autoi18n/registry.json`, `.autoi18n/locales/<locale>.json` and `.autoi18n/locales/<locale>.sources.json`. The sidecar records the source text each translation was made from; if the source changes, that message is re-translated on the next build.
 
-Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
+🔑 Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 
 `OpenAICompatibleProvider` sends messages in batches (`batchSize`, default 40), aborts a request after `timeoutMs` (default 60000), and retries network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
 
@@ -59,15 +92,15 @@ Ambiguous identity matches (duplicate identical strings whose count changed) are
 
 Messages removed from the source are kept as orphans in `registry.json` so their IDs can be reused if the text returns. Orphans not seen for `orphanRetentionMinutes` minutes (default `43200`, i.e. 30 days) are deleted on the next build, and the build logs how many were removed. Use `0` to delete them immediately or `Infinity` to keep them forever. Once deleted, a returning message gets a new ID and is translated again.
 
-To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from `locales/*.json` and `locales/*.sources.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-autoi18n/dist/cli/prune.js` with the same options.
+🧹 To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from `locales/*.json` and `locales/*.sources.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-autoi18n/dist/cli/prune.js` with the same options.
 
-Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
+🐞 Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
 
-To keep copy out of automatic translation, add `translate="no"` to the element (for example `<h2 translate="no">Sample code</h2>`). This is the standard HTML marker, and it also covers the element's descendants and attributes such as `title`.
+🙈 To keep copy out of automatic translation, add `translate="no"` to the element (for example `<h2 translate="no">Sample code</h2>`). This is the standard HTML marker, and it also covers the element's descendants and attributes such as `title`.
 
 Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and a warning is logged; the plugin continues with an empty state. Writes are atomic, so an interrupted build does not leave a truncated file.
 
-### Delivery modes
+### 🚚 Delivery modes
 
 - `delivery: "build"` (default): compiles one locale per build. Use `AUTOI18N_LOCALE=de vite build` (on Windows use `cross-env AUTOI18N_LOCALE=de vite build`) or `locale: "de"` in plugin options, typically in a CI build matrix. When a locale is set explicitly, only that locale is translated during the build. Without one, all configured locales are translated. An unknown locale fails the build.
 - `delivery: "runtime"`: one bundle for all locales. Text is wrapped in `t(id, source)` calls and catalogues are fetched on demand. Import the API from the virtual module:
@@ -84,7 +117,7 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 
 In dev, saving a source file re-indexes the project, translates only new or changed messages and pushes the updated catalogues to the browser over an `autoi18n:update` event. Files added or removed are indexed as well. The page is not reloaded, so new JSX text appears once its translation is ready.
 
-## Important prototype limitations
+## ⚠️ Important prototype limitations
 
 This is a compiler MVP, not production-ready localization yet:
 
@@ -96,7 +129,7 @@ This is a compiler MVP, not production-ready localization yet:
 6. The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 7. The initial fingerprint is a heuristic. It excludes file and line position, but component names and nearby semantic signals can still change during refactors.
 
-## Design rules
+## 🧭 Design rules
 
 - IDs are opaque and persistent; never expose semantic fingerprints as runtime keys.
 - AI suggestions never silently overwrite an existing translation.
