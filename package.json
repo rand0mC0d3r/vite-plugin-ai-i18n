@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-ai-auto-i18n",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "license": "ISC",
@@ -8,7 +8,7 @@
         "node": ">=26.0.0"
     },
     "keywords": [
-      "vite-plugin"
+        "vite-plugin"
     ],
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -27,7 +27,7 @@
     ],
     "scripts": {
         "build": "tsdown",
-        "publish": "npm run build && npm publish",
+        "prepublishOnly": "npm run build",
         "prune": "npm run build && node dist/cli/prune.js --directory example/.autoi18n --retention-minutes 0",
         "example:dev": "vite example",
         "example:build": "vite build example",

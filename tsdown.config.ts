@@ -11,4 +11,5 @@ export default defineConfig({
     treeshake: true,
     target: "node26",
     failOnWarn: true,
+    suppressWarnings: [/TypeScript Go is experimental/],
 });
