@@ -50,7 +50,7 @@
         "@vitest/coverage-v8": "^2.1.9",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
-        "tsup": "^8.5.1",
+        "tsup": "^9.0.0",
         "typescript": "^5.9.3",
         "vite": "^6.4.6",
         "vitest": "^2.1.9"
