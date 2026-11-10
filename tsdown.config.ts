@@ -6,4 +6,9 @@ export default defineConfig({
     dts: true,
     clean: true,
     fixedExtension: false,
+    unbundle: false,
+    minify: true,
+    treeshake: true,
+    target: "node26",
+    failOnWarn: true,
 });
