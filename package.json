@@ -3,9 +3,13 @@
     "version": "0.3.1",
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
+    "license": "ISC",
     "engines": {
         "node": ">=26.0.0"
     },
+    "keywords": [
+      "vite-plugin"
+    ],
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "exports": {
