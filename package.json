@@ -4,7 +4,7 @@
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "engines": {
-        "node": ">=20.17.0 <21 || >=22.5.0"
+        "node": "^22.18.0 || >=24.11.0"
     },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -35,10 +35,10 @@
         "vite": ">=5"
     },
     "dependencies": {
-        "@babel/generator": "^7.29.13",
-        "@babel/parser": "^7.29.13",
-        "@babel/traverse": "^7.29.13",
-        "@babel/types": "^7.29.11",
+        "@babel/generator": "^8.1.0",
+        "@babel/parser": "^8.1.0",
+        "@babel/traverse": "^8.1.0",
+        "@babel/types": "^8.1.0",
         "fast-glob": "^3.3.3",
         "zod": "^4.6.7"
     },
