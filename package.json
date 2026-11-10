@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-ai-auto-i18n",
-    "version": "0.4.2",
+    "version": "0.5.0",
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "license": "ISC",
@@ -39,16 +39,12 @@
         "vite": "^8.3.7"
     },
     "dependencies": {
-        "@babel/generator": "^8.1.0",
-        "@babel/parser": "^8.1.0",
-        "@babel/traverse": "^8.1.0",
-        "@babel/types": "^8.1.0",
+        "magic-string": "^1.4.5",
+        "oxc-parser": "^0.158.0",
         "tinyglobby": "^0.2.17",
         "zod": "^4.6.7"
     },
     "devDependencies": {
-        "@types/babel__generator": "^7.27.0",
-        "@types/babel__traverse": "^7.28.0",
         "@types/node": "^26.6.6",
         "@vitejs/plugin-react": "^6.3.0",
         "@vitest/coverage-v8": "^5.1.0",
