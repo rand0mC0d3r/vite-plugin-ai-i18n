@@ -1,5 +1,5 @@
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "./debug.js";
@@ -103,7 +103,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   // Files whose content hash is unchanged reuse their extraction. In-memory state is swapped in before any
   // translation error is rethrown, so a transform never sees a half-updated index.
   async function sync(report: Reporter): Promise<void> {
-    const files = await fg(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
+    const files = await glob(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
