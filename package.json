@@ -4,7 +4,7 @@
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "engines": {
-        "node": "^22.18.0 || >=24.11.0"
+        "node": ">=26.0.0"
     },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -22,7 +22,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsup --clean src/index.ts src/runtime/index.ts src/cli/prune.ts --format esm --dts",
+        "build": "tsdown",
         "publish": "npm run build && npm publish",
         "prune": "npm run build && node dist/cli/prune.js --directory example/.autoi18n --retention-minutes 0",
         "example:dev": "vite example",
@@ -32,7 +32,7 @@
         "typecheck": "tsc --noEmit"
     },
     "peerDependencies": {
-        "vite": ">=5"
+        "vite": "^8"
     },
     "dependencies": {
         "@babel/generator": "^8.1.0",
@@ -45,14 +45,14 @@
     "devDependencies": {
         "@types/babel__generator": "^7.27.0",
         "@types/babel__traverse": "^7.28.0",
-        "@types/node": "^22.20.5",
-        "@vitejs/plugin-react": "^4.7.0",
-        "@vitest/coverage-v8": "^2.1.9",
+        "@types/node": "^26.6.6",
+        "@vitejs/plugin-react": "^6.3.0",
+        "@vitest/coverage-v8": "^5.1.0",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
-        "tsup": "^9.0.0",
-        "typescript": "^5.9.3",
-        "vite": "^6.4.6",
-        "vitest": "^2.1.9"
+        "tsdown": "^0.23.7",
+        "typescript": "^7.0.2",
+        "vite": "^8.3.7",
+        "vitest": "^5.1.0"
     }
 }
