@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-ai-auto-i18n",
-    "version": "0.2.2",
+    "version": "0.3.1",
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "engines": {
@@ -39,7 +39,8 @@
         "@babel/parser": "^7.26.0",
         "@babel/traverse": "^7.26.0",
         "@babel/types": "^7.26.0",
-        "fast-glob": "^3.3.2"
+        "fast-glob": "^3.3.2",
+        "zod": "^4.6.7"
     },
     "devDependencies": {
         "@types/babel__generator": "^7.6.8",

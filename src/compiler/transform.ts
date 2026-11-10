@@ -23,12 +23,14 @@ export function transformSource(code: string, filename: string, messages: Resolv
   let usesRuntime = false;
   let usesFormat = false;
 
+  const textFor = (message: ResolvedMessage): string => locale === sourceLocale ? message.source : catalog[message.id] ?? message.source;
+
   const lookup = (message: ResolvedMessage): t.Expression => {
     if (runtime) {
       usesRuntime = true;
       return t.callExpression(t.identifier(RUNTIME_LOOKUP), [t.stringLiteral(message.id), t.stringLiteral(message.source)]);
     }
-    return t.stringLiteral(locale === sourceLocale ? message.source : catalog[message.id] ?? message.source);
+    return t.stringLiteral(textFor(message));
   };
 
   traverse(ast, {
@@ -47,7 +49,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
         p.node.children = [t.jsxExpressionContainer(t.callExpression(t.identifier(RUNTIME_FORMAT), [joined, values]))];
         return;
       }
-      const translated = locale === sourceLocale ? message.source : catalog[message.id] ?? message.source;
+      const translated = textFor(message);
       // A translation that drops, adds or renames a placeholder, or is blank, would render wrong text, so the source is used instead.
       const text = isUsableTranslation(translated, names) ? translated : message.source;
       const children: t.JSXElement["children"] = [];
@@ -71,8 +73,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
         parts.push(lookup(message));
         if (message.suffix) parts.push(t.stringLiteral(message.suffix));
       } else {
-        const translated = (lookup(message) as t.StringLiteral).value;
-        parts.push(t.stringLiteral(`${message.prefix ?? ""}${translated}${message.suffix ?? ""}`));
+        parts.push(t.stringLiteral(`${message.prefix ?? ""}${textFor(message)}${message.suffix ?? ""}`));
       }
       const expression = parts.reduce((left, right) => t.binaryExpression("+", left, right));
       p.replaceWith(t.jsxExpressionContainer(expression));
@@ -83,6 +84,11 @@ export function transformSource(code: string, filename: string, messages: Resolv
       const message = byStart.get(valueNode.start ?? -1);
       if (!message) return;
       p.node.value = runtime ? t.jsxExpressionContainer(lookup(message)) : (lookup(message) as t.StringLiteral);
+    },
+    StringLiteral(p: NodePath<t.StringLiteral>) {
+      const message = byStart.get(p.node.start ?? -1);
+      if (message?.kind !== "string") return;
+      p.replaceWith(lookup(message));
     }
   });
 

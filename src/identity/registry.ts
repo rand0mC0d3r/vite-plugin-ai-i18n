@@ -1,16 +1,29 @@
 import { randomUUID } from "node:crypto";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
 import { readJsonFile, toJson, writeFileAtomic } from "../io.js";
+import { registryEntrySchema, registryFileSchema } from "../schemas.js";
 
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
+/**
+ * Loads the registry. Invalid entries are dropped individually so the IDs of the valid ones stay stable;
+ * a file with the wrong top-level shape is replaced by an empty registry.
+ */
 export async function loadRegistry(file: string, warn?: (message: string) => void): Promise<Registry> {
-  const parsed = await readJsonFile<Partial<Registry> | null>(file, null, warn);
-  if (!parsed || parsed.version !== 1 || !parsed.entries) {
-    if (parsed) warn?.(`autoi18n: ${file} has an unsupported format; message IDs will be regenerated.`);
+  const parsed = await readJsonFile<unknown>(file, null, warn);
+  if (parsed === null) return emptyRegistry();
+  const header = registryFileSchema.safeParse(parsed);
+  if (!header.success) {
+    warn?.(`autoi18n: ${file} has an unsupported format; message IDs will be regenerated.`);
     return emptyRegistry();
   }
-  return parsed as Registry;
+  const entries: Record<string, RegistryEntry> = {};
+  for (const [key, value] of Object.entries(header.data.entries)) {
+    const entry = registryEntrySchema.safeParse(value);
+    if (entry.success) entries[key] = entry.data;
+    else warn?.(`autoi18n: dropped invalid registry entry "${key}" in ${file}.`);
+  }
+  return { version: 1, entries };
 }
 
 /** One ordering key for both old and new occurrences, so IDs follow the same position in each list. */

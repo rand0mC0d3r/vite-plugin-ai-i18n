@@ -30,13 +30,13 @@ interface DocumentItem {
   id: number;
   name: string;
   pages: number;
-  shared: boolean;
+  status: string;
 }
 
 const documents: DocumentItem[] = [
-  { id: 1, name: "Quarterly report.pdf", pages: 12, shared: true },
-  { id: 2, name: "Onboarding checklist.docx", pages: 3, shared: false },
-  { id: 3, name: "Budget 2027.xlsx", pages: 1, shared: true },
+  { id: 1, name: /* i18n */ "Quarterly report.pdf", pages: 12, status: /* i18n */ "Shared with your team" },
+  { id: 2, name: /* i18n */ "Onboarding checklist.docx", pages: 3, status: /* i18n */ "Private" },
+  { id: 3, name: /* i18n */ "Budget 2027.xlsx", pages: 1, status: /* i18n */ "Shared with your team" },
 ];
 
 function DocumentList({ items }: { items: DocumentItem[] }) {
@@ -46,7 +46,7 @@ function DocumentList({ items }: { items: DocumentItem[] }) {
       {items.map(doc => <li key={doc.id}>
         <strong>{doc.name}</strong>{" "}
         <span>{doc.pages} pages</span>{" "}
-        {doc.shared ? <em>Shared with your team</em> : <em>Private</em>}
+        <em>{doc.status}</em>
       </li>)}
     </ul>
   </section>;

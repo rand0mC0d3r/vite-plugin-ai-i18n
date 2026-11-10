@@ -5,6 +5,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 ## 🧩 Current MVP scope
 
 - Extracts JSX text nodes and static string JSX attributes.
+- Extracts string literals outside JSX only when they are marked with a leading `/* i18n */` comment.
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
 - Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionMinutes`).
@@ -104,6 +105,8 @@ Messages removed from the source are kept as orphans in `registry.json` so their
 
 🙈 To keep copy out of automatic translation, add `translate="no"` to the element (for example `<h2 translate="no">Sample code</h2>`). This is the standard HTML marker, and it also covers the element's descendants and attributes such as `title`.
 
+🏷️ To translate copy outside JSX, put a `/* i18n */` block comment directly before the string literal, for example `const items = [{ label: /* i18n */ "Shared with your team" }];`. Marked strings are translated in both build and runtime delivery. Unmarked string literals are never extracted.
+
 Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and a warning is logged; the plugin continues with an empty state. Writes are atomic, so an interrupted build does not leave a truncated file.
 
 ### 🚚 Delivery modes
@@ -175,7 +178,7 @@ interface TranslationRequest {
   id: string;             // opaque ID to echo back in the result
   source: string;         // English text
   context: string;        // for example "Toolbar > Save button"
-  kind: "text" | "attribute" | "mixed"; // text node, static attribute, or both in one message
+  kind: "text" | "attribute" | "mixed" | "string"; // text node, static attribute, JSX with expressions, or a /* i18n */-marked string literal
   placeholders?: string[]; // {name} placeholders that must survive translation
 }
 ```
@@ -217,7 +220,7 @@ This is a compiler MVP, not production-ready localization yet:
 2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders are rejected. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`; they are not resolved automatically.
 4. Dev-server HMR re-indexes the whole project after saved or added/removed source files (debounced by 150 ms) rather than only the changed module. This is simple and correct, but may be slow in very large projects.
-5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted. Text inside capitalised components (for example `<Button>Save</Button>`) and other attributes such as `href` are not extracted. JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
+5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted automatically. String literals outside JSX are extracted only when marked with `/* i18n */`. Text inside capitalised components (for example `<Button>Save</Button>`) and other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
 6. The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 7. The initial fingerprint is a heuristic. It excludes file and line position, but component names and nearby semantic signals can still change during refactors.
 

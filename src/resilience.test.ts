@@ -6,6 +6,7 @@ import autoI18n from "./index.js";
 import { extractMessages } from "./compiler/extract.js";
 import { readJsonFile } from "./io.js";
 import { loadRegistry, pruneOrphans, reconcile } from "./identity/registry.js";
+import { readLocaleFile } from "./catalog.js";
 import { OpenAICompatibleProvider } from "./ai/provider.js";
 import type { ExtractedMessage, Registry, TranslationRequest } from "./types.js";
 
@@ -66,6 +67,15 @@ describe("OpenAICompatibleProvider", () => {
     await expect(provider().translate(input([request("a")]))).rejects.toThrow(/401/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("honours Retry-After on a rate limit instead of the backoff delay", async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response("slow down", { status: 429, headers: { "retry-after": "0" } }))
+      .mockResolvedValueOnce(jsonResponse({ a: "Speichern" }));
+    const result = await provider({ retryDelayMs: 10_000 }).translate(input([request("a")]));
+    expect(result).toEqual({ a: "Speichern" });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  }, 2_000);
 
   it("retries malformed JSON content", async () => {
     fetchMock
@@ -145,6 +155,24 @@ describe("corrupt file handling", () => {
     expect(warn).toHaveBeenCalled();
     expect((await readdir(dir)).some(f => f.startsWith("registry.json.corrupt-"))).toBe(true);
   });
+
+  it("keeps valid registry entries and drops invalid ones", async () => {
+    const file = path.join(dir, "registry.json");
+    const valid = { id: "msg_a", source: "Save", kind: "text", tag: "button", component: "App", context: "", fingerprint: "fp", location: "App.tsx:1", status: "active", firstSeen: "2026-01-01T00:00:00.000Z", lastSeen: "2026-01-01T00:00:00.000Z" };
+    await writeFile(file, JSON.stringify({ version: 1, entries: { msg_a: valid, msg_b: { id: "msg_b" } } }));
+    const warn = vi.fn();
+    const registry = await loadRegistry(file, warn);
+    expect(Object.keys(registry.entries)).toEqual(["msg_a"]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("msg_b"));
+  });
+
+  it("drops non-text values from a locale file", async () => {
+    const file = path.join(dir, "de.json");
+    await writeFile(file, JSON.stringify({ messages: { a: "Speichern", b: 3 }, sources: { a: "Save" } }));
+    const warn = vi.fn();
+    expect(await readLocaleFile(file, warn)).toEqual({ messages: { a: "Speichern" }, sources: { a: "Save" } });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"b"'));
+  });
 });
 
 describe("locale configuration", () => {
@@ -153,5 +181,10 @@ describe("locale configuration", () => {
       configResolved: (c: { root: string; command: string }) => void;
     };
     expect(() => plugin.configResolved({ root: process.cwd(), command: "build" })).toThrow(/"fr"/);
+  });
+
+  it("rejects malformed options when the plugin is created", () => {
+    expect(() => autoI18n({ locales: ["de"], localeConcurrency: NaN })).toThrow(/invalid options.*localeConcurrency/);
+    expect(() => autoI18n({ locales: "de" } as never)).toThrow(/invalid options.*locales/);
   });
 });

@@ -1,4 +1,4 @@
-export type MessageKind = "text" | "attribute" | "mixed";
+export type MessageKind = "text" | "attribute" | "mixed" | "string";
 export interface ExtractedMessage {
   source: string;
   prefix?: string;

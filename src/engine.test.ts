@@ -39,6 +39,12 @@ describe("buildCatalogs", () => {
     expect(result.registry.entries[saveId]).toMatchObject({ source: "Save", status: "active" });
   });
 
+  it("does not mutate the registry it is given", async () => {
+    const registry = emptyRegistry();
+    await buildCatalogs({ ...baseInput, registry, files: [{ file: "App.tsx", messages: [message(1)] }], locales: [] });
+    expect(registry.entries).toEqual({});
+  });
+
   it("keeps the previous file for a locale whose translation threw and reports the error", async () => {
     const error = new Error("quota exceeded");
     const provider: TranslationProvider = {

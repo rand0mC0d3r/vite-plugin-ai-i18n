@@ -10,6 +10,7 @@ import { localeFilePath, readLocaleFile, writeLocaleFile, type LocaleFile } from
 import { loadRegistry, DEFAULT_ORPHAN_RETENTION_MINUTES, saveRegistry } from "./identity/registry.js";
 import { hashContent } from "./io.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
+import { optionsSchema } from "./schemas.js";
 import type { Catalog, ExtractedMessage, ResolvedMessage, TranslationProvider } from "./types.js";
 
 export interface AutoI18nOptions {
@@ -51,6 +52,13 @@ const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
 const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
 const WATCH_DEBOUNCE_MS = 150;
 
+function validateOptions(options: unknown): void {
+  const result = optionsSchema.safeParse(options);
+  if (result.success) return;
+  const details = result.error.issues.map(issue => `${issue.path.join(".") || "options"}: ${issue.message}`).join("; ");
+  throw new Error(`autoi18n: invalid options (${details}).`);
+}
+
 const reporterFor = (logger: Logger): Reporter => ({
   info: m => logger.info(m),
   warn: m => logger.warn(m),
@@ -63,6 +71,7 @@ async function removeLegacySidecars(outDir: string, locales: string[]): Promise<
 }
 
 export default function autoI18n(options: AutoI18nOptions): Plugin {
+  validateOptions(options);
   const sourceLocale = options.sourceLocale ?? "en";
   const directory = options.directory ?? ".autoi18n";
   const delivery = options.delivery ?? "build";

@@ -1,5 +1,6 @@
 import path from "node:path";
 import { readJsonFile, toJson, writeFileAtomic } from "./io.js";
+import { localeFileSchema } from "./schemas.js";
 import type { Catalog } from "./types.js";
 
 /**
@@ -17,11 +18,24 @@ export function localeFilePath(outDir: string, locale: string): string {
   return path.join(outDir, `${locale}.json`);
 }
 
-/** A file without the `messages`/`sources` wrapper (the pre-merge format) is treated as empty and rebuilt. */
+const stringValues = (record: Record<string, unknown>, warn?: (message: string) => void, file?: string): Catalog => {
+  const catalog: Catalog = {};
+  for (const [id, value] of Object.entries(record)) {
+    if (typeof value === "string") catalog[id] = value;
+    else warn?.(`autoi18n: dropped non-text value for "${id}" in ${file}.`);
+  }
+  return catalog;
+};
+
+/**
+ * A file without the `messages`/`sources` wrapper (the pre-merge format) is treated as empty and rebuilt.
+ * Non-string values inside a valid wrapper are dropped, so they are translated again.
+ */
 export async function readLocaleFile(file: string, warn?: (message: string) => void): Promise<LocaleFile> {
-  const parsed = await readJsonFile<Partial<LocaleFile> | null>(file, null, warn);
-  if (!parsed || typeof parsed.messages !== "object" || typeof parsed.sources !== "object") return emptyLocaleFile();
-  return { messages: parsed.messages, sources: parsed.sources };
+  const parsed = await readJsonFile<unknown>(file, null, warn);
+  const result = localeFileSchema.safeParse(parsed);
+  if (!result.success) return emptyLocaleFile();
+  return { messages: stringValues(result.data.messages, warn, file), sources: stringValues(result.data.sources, warn, file) };
 }
 
 export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> => writeFileAtomic(file, toJson(content));

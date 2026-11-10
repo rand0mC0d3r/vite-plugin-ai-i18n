@@ -37,10 +37,12 @@ export interface CatalogBuildResult {
 
 /**
  * Pure build step: reconciles IDs with the registry, prunes orphans and translates the missing or stale messages
- * for each locale. It does no file IO, so the same inputs always produce the same catalogues.
+ * for each locale. It does no file IO and does not mutate its input, so the same inputs always produce the same catalogues
+ * (apart from the IDs of newly seen messages, which are random).
  */
 export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBuildResult> {
-  const { registry, ambiguous, messages } = reconcile(input.registry, input.files.flatMap(f => f.messages));
+  const registry = structuredClone(input.registry);
+  const { ambiguous, messages } = reconcile(registry, input.files.flatMap(f => f.messages));
   const pruned = pruneOrphans(registry, input.orphanRetentionMinutes);
 
   const sourceCatalog: Catalog = {};

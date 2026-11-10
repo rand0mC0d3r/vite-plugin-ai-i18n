@@ -10,6 +10,9 @@ const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
 // Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
 const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
 
+// A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
+const STRING_MARKER = "i18n";
+
 // `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
 const IGNORE_ATTR = "translate";
 const IGNORE_VALUE = "no";
@@ -139,6 +142,15 @@ export function extractMessages(code: string, filename: string): ExtractedMessag
       const component = componentName(parentElement);
       const context = elementContext(parentElement.node, tag, attr.name.name);
       const item: ExtractedMessage = { source, kind: "attribute", file: filename, start: attr.value.start ?? 0, end: attr.value.end ?? 0, tag, component, attribute: attr.name.name, context, fingerprint: "" };
+      item.fingerprint = createFingerprint(item);
+      found.push(item);
+    },
+    StringLiteral(p) {
+      if (p.parentPath.isJSXAttribute()) return;
+      if (!p.node.leadingComments?.some(c => c.type === "CommentBlock" && c.value.trim() === STRING_MARKER)) return;
+      const source = normalizeSource(p.node.value);
+      if (!source || !/[A-Za-z]/.test(source)) return;
+      const item: ExtractedMessage = { source, kind: "string", file: filename, start: p.node.start ?? 0, end: p.node.end ?? 0, tag: "", component: componentName(p), context: "", fingerprint: "" };
       item.fingerprint = createFingerprint(item);
       found.push(item);
     }

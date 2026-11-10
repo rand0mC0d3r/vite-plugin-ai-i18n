@@ -26,8 +26,12 @@
     "msg_77d9438905494059": "Dokumentenliste",
     "msg_e81c69c9f36b4b98": "Neueste Dokumente",
     "msg_8562dc6b66e746c8": "{doc.pages} Seiten",
-    "msg_5cbf114b25df492e": "Mit Ihrem Team geteilt",
-    "msg_82d19a7943de4952": "Privat"
+    "msg_50d7154b0d694029": "Mit Ihrem Team geteilt",
+    "msg_6583770411fa433d": "Privat",
+    "msg_f3a1635af3df42b7": "Mit Ihrem Team geteilt",
+    "msg_3614466ac4084ebb": "Quartalsbericht.pdf",
+    "msg_e6f7efb77a5c45bc": "Onboarding-Checkliste.docx",
+    "msg_ab4936187a514fdb": "Budget 2027.xlsx"
   },
   "sources": {
     "msg_5c0b5e58f5574836": "Language",
@@ -56,7 +60,11 @@
     "msg_77d9438905494059": "Document list",
     "msg_e81c69c9f36b4b98": "Recent documents",
     "msg_8562dc6b66e746c8": "{doc.pages} pages",
-    "msg_5cbf114b25df492e": "Shared with your team",
-    "msg_82d19a7943de4952": "Private"
+    "msg_50d7154b0d694029": "Shared with your team",
+    "msg_6583770411fa433d": "Private",
+    "msg_f3a1635af3df42b7": "Shared with your team",
+    "msg_3614466ac4084ebb": "Quarterly report.pdf",
+    "msg_e6f7efb77a5c45bc": "Onboarding checklist.docx",
+    "msg_ab4936187a514fdb": "Budget 2027.xlsx"
   }
 }

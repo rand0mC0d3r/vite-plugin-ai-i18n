@@ -13,6 +13,8 @@ function entry(id: string, status: RegistryEntry["status"], lastSeen: string): R
     id,
     source: `text ${id}`,
     kind: "text",
+    tag: "p",
+    component: "App",
     location: "src/a.tsx:1",
     status,
     firstSeen: OLD,

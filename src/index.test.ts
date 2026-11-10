@@ -35,6 +35,28 @@ describe("transformSource", () => {
   });
 });
 
+describe("marked string literals outside JSX", () => {
+  const CODE = `const items = [{ label: /* i18n */ "Shared with your team", size: "12 KB" }, { label: "Private" }];\nexport const App = () => <p>{items.length}</p>;\n`;
+  const messages = withIds(extractMessages(CODE, "Items.tsx"));
+
+  it("extracts only literals preceded by the i18n marker", () => {
+    expect(messages.map(m => [m.kind, m.source])).toEqual([["string", "Shared with your team"]]);
+  });
+
+  it("uses the catalogue translation in build mode", () => {
+    const { code } = transformSource(CODE, "Items.tsx", messages, "de", { msg_0: "Mit deinem Team geteilt" });
+    expect(code).toContain('"Mit deinem Team geteilt"');
+    expect(code).toContain('"Private"');
+    expect(code).toContain('"12 KB"');
+  });
+
+  it("emits a runtime lookup in runtime mode", () => {
+    const { code } = transformSource(CODE, "Items.tsx", messages, "de", {}, true);
+    expect(code).toContain('__autoI18nT("msg_0", "Shared with your team")');
+    expect(code).toContain('"Private"');
+  });
+});
+
 describe("mixed-content messages", () => {
   const MIXED = `export function Dialog({ count, doc }) { return <p>You have {count} documents, {doc.name} is {count} selected.</p>; }\n`;
   const messages = withIds(extractMessages(MIXED, "Dialog.tsx"));
