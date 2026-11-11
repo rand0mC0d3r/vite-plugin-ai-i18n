@@ -42,5 +42,6 @@ export const optionsSchema = z.object({
   onAmbiguous: z.enum(["warn", "error"]).optional(),
   orphanRetentionMinutes: z.union([z.number().min(0), z.literal(Infinity)]).optional(),
   localeConcurrency: z.number().min(1).optional(),
+  componentProps: z.record(z.string(), z.array(z.string())).optional(),
   debug: z.boolean().optional()
 });

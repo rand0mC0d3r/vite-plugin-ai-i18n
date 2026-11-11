@@ -1,5 +1,5 @@
 import path from "node:path";
-import { readJsonFile, toJson, writeFileAtomic } from "./io.js";
+import { readJsonFile, toJson, writeFileAtomic, writeFileIfChanged } from "./io.js";
 import { localeFileSchema } from "./schemas.js";
 import type { Catalog } from "./types.js";
 
@@ -38,7 +38,7 @@ export async function readLocaleFile(file: string, warn?: (message: string) => v
   return { messages: stringValues(result.data.messages, warn, file), sources: stringValues(result.data.sources, warn, file) };
 }
 
-export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> => writeFileAtomic(file, toJson(content));
+export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> => writeFileIfChanged(file, toJson(content));
 
 /** Returns a copy of `catalog` that keeps only `keep`, plus the keys that were dropped. */
 export function pruneCatalog(catalog: Catalog, keep: ReadonlySet<string>): { catalog: Catalog; removed: string[] } {

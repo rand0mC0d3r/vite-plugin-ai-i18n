@@ -104,7 +104,9 @@ export class OpenAICompatibleProvider implements TranslationProvider {
     });
     if (!response.ok) {
       const retryable = response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
-      throw new ProviderError(`Translation API failed (${response.status}): ${await response.text()}`, retryable, parseRetryAfter(response.headers.get("retry-after")));
+      // The body is not included: provider error payloads can echo credentials or source text into logs.
+      await response.body?.cancel().catch(() => undefined);
+      throw new ProviderError(`Translation API failed (${response.status})`, retryable, parseRetryAfter(response.headers.get("retry-after")));
     }
     const envelope = chatCompletionSchema.safeParse(await response.json());
     const content = envelope.success ? envelope.data.choices[0].message.content : undefined;

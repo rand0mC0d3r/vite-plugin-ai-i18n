@@ -12,7 +12,11 @@ export function sameNames(a: string[], b: string[]): boolean {
   return left.size === right.size && [...left].every(name => right.has(name));
 }
 
-/** A translation may be used only if it is non-empty and keeps exactly the source's placeholders. */
+/**
+ * A translation may be used only if it is non-empty and uses each source placeholder exactly once.
+ * A repeated placeholder would paste its expression twice in build mode, evaluating it twice.
+ */
 export function isUsableTranslation(text: string, placeholders: string[]): boolean {
-  return text.trim() !== "" && sameNames(placeholderNames(text), placeholders);
+  const found = placeholderNames(text);
+  return text.trim() !== "" && found.length === placeholders.length && sameNames(found, placeholders);
 }

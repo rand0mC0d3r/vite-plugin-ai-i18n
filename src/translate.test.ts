@@ -69,6 +69,14 @@ describe("translateLocale", () => {
     expect(result.file.messages).toEqual({ b: "Du hast {count} Dokumente" });
   });
 
+  it("rejects mixed-content translations that repeat a placeholder", async () => {
+    const source = "{count} documents";
+    const p = provider({ a: "{count} Dokumente, {count} gesamt" });
+    const result = await translateLocale({ ...base, provider: p, requests: [mixed("a", source, ["count"])], previous: emptyLocaleFile() });
+    expect(result.rejected).toBe(1);
+    expect(result.file.messages).toEqual({});
+  });
+
   it("keeps the partial translations and reports failed batches when the provider throws PartialTranslationError", async () => {
     const error = new PartialTranslationError("1 messages failed to translate: busy", { a: "Speichern" }, 1);
     const p: TranslationProvider = { translate: vi.fn(async () => { throw error; }) };

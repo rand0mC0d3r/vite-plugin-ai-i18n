@@ -68,6 +68,14 @@ describe("OpenAICompatibleProvider", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it("does not include the response body in the error message", async () => {
+    fetchMock.mockResolvedValue(new Response("invalid key sk-test-SECRET echoing the source text", { status: 401 }));
+    const error = await provider().translate(input([request("a")])).catch((e: unknown) => e as Error);
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe("Translation API failed (401)");
+    expect(error.message).not.toContain("sk-test-SECRET");
+  });
+
   it("honours Retry-After on a rate limit instead of the backoff delay", async () => {
     fetchMock
       .mockResolvedValueOnce(new Response("slow down", { status: 429, headers: { "retry-after": "0" } }))
@@ -111,6 +119,29 @@ describe("registry identity", () => {
     const registry = reconcile({ version: 1, entries: {} }, [message(1), message(50)]).registry;
     const result = reconcile(registry, [message(1)]);
     expect(result.ambiguous).toEqual(["Save"]);
+  });
+
+  it("keeps a message's ID when its component is renamed and the component order changes", () => {
+    const first = reconcile({ version: 1, entries: {} }, [message(1, "Save", "fp-save"), { ...message(50, "Save", "fp-save"), component: "Footer" }]);
+    const renamed = [{ ...message(1, "Save", "fp-save"), component: "Toolbar" }, { ...message(50, "Save", "fp-save"), component: "Footer" }];
+    const second = reconcile(first.registry, renamed);
+    expect(second.messages.map(m => m.id)).toEqual(first.messages.map(m => m.id));
+    expect(second.ambiguous).toEqual([]);
+  });
+
+  it("pairs by component when the duplicates are reordered", () => {
+    const first = reconcile({ version: 1, entries: {} }, [{ ...message(1), component: "A" }, { ...message(50), component: "B" }]);
+    const reordered = [{ ...message(1), component: "B" }, { ...message(50), component: "A" }];
+    const second = reconcile(first.registry, reordered);
+    expect(second.messages[0].id).toBe(first.messages[1].id);
+    expect(second.messages[1].id).toBe(first.messages[0].id);
+  });
+
+  it("keeps the fingerprint stable when a handler is renamed", () => {
+    const code = (handler: string) => `export const A = () => <button onClick={${handler}}>Save</button>;\n`;
+    const [before] = extractMessages(code("save"), "A.tsx");
+    const [after] = extractMessages(code("submit"), "A.tsx");
+    expect(after.fingerprint).toBe(before.fingerprint);
   });
 
   it("prunes only orphans that have been missing longer than the retention window", () => {

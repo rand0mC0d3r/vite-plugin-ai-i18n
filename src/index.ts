@@ -41,6 +41,11 @@ export interface AutoI18nOptions {
   localeConcurrency?: number;
   /** Log each message sent to the translation provider and each translation received, with timestamps. Default false. */
   debug?: boolean;
+  /**
+   * String attributes of custom components that hold UI copy, keyed by component name, for example
+   * `{ Button: ["aria-label", "title"] }`. Only these attributes are extracted from those components.
+   */
+  componentProps?: Record<string, string[]>;
 }
 
 interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
@@ -76,6 +81,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   const directory = options.directory ?? ".autoi18n";
   const delivery = options.delivery ?? "build";
   const debug = options.debug ?? false;
+  const extractOptions = { componentProps: options.componentProps };
   const orphanRetentionMinutes = options.orphanRetentionMinutes ?? DEFAULT_ORPHAN_RETENTION_MINUTES;
   let config: ResolvedConfig;
   let registryFile = "";
@@ -99,18 +105,28 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     return others;
   }
 
-  // Re-indexes every source file, translates only missing or stale messages and writes the catalogues.
-  // Files whose content hash is unchanged reuse their extraction. In-memory state is swapped in before any
+  // Re-indexes source files, translates only missing or stale messages and writes the catalogues.
+  // With `changedFile` set (a hot update to an already indexed file), only that file is read again and the
+  // rest reuse their cached extraction, so the project is not scanned on every save. Adding or removing
+  // files, and the first build, use a full glob. In-memory state is swapped in before any
   // translation error is rethrown, so a transform never sees a half-updated index.
-  async function sync(report: Reporter): Promise<void> {
-    const files = await glob(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
+  async function sync(report: Reporter, changedFile?: string): Promise<void> {
+    const incremental = changedFile !== undefined && extractions.has(changedFile);
+    const files = incremental
+      ? [...extractions.keys()]
+      : await glob(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
-      const code = await readFile(file, "utf8");
-      const hash = hashContent(code);
       const cached = extractions.get(file);
-      const entry = cached?.hash === hash ? cached : { hash, messages: extractMessages(code, file) };
+      let entry: ExtractionCacheEntry;
+      if (cached && incremental && file !== changedFile) {
+        entry = cached;
+      } else {
+        const code = await readFile(file, "utf8");
+        const hash = hashContent(code);
+        entry = cached?.hash === hash ? cached : { hash, messages: extractMessages(code, file, extractOptions) };
+      }
       nextExtractions.set(file, entry);
       indexed.push({ file, messages: entry.messages });
     }
@@ -186,8 +202,8 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   }
 
   // Runs syncs one after another so overlapping saves cannot interleave writes or API calls.
-  function runSync(report: Reporter): Promise<void> {
-    const next = queue.then(() => sync(report));
+  function runSync(report: Reporter, changedFile?: string): Promise<void> {
+    const next = queue.then(() => sync(report, changedFile));
     queue = next.catch(() => undefined);
     return next;
   }
@@ -196,9 +212,9 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     server?.ws.send({ type: "custom", event: UPDATE_EVENT, data: { catalogs: Object.fromEntries(catalogs) } });
   }
 
-  async function retranslate(): Promise<void> {
+  async function retranslate(changedFile?: string): Promise<void> {
     try {
-      await runSync(reporterFor(config.logger));
+      await runSync(reporterFor(config.logger), changedFile);
       pushCatalogs();
     } catch (error) {
       config.logger.error(`autoi18n: re-translation failed: ${(error as Error).message}`);
@@ -246,7 +262,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       if (!fileMessages.has(file)) return null;
       if (hashContent(code) !== fileHashes.get(file)) {
         // The file changed after it was indexed, e.g. the watcher has not fired yet; re-index once.
-        await runSync(reporterFor(config.logger));
+        await runSync(reporterFor(config.logger), file);
       }
       const messages = fileMessages.get(file);
       if (!messages || hashContent(code) !== fileHashes.get(file)) {
@@ -264,7 +280,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       // Catalogue writes must not trigger a reload; the new data is pushed over the custom event instead.
       if (file.startsWith(path.resolve(config.root, directory, "locales") + path.sep)) return [];
       if (!fileMessages.has(file)) return;
-      await retranslate();
+      await retranslate(file);
     }
   };
 }

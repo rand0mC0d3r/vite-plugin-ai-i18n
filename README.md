@@ -95,7 +95,11 @@ If a translation batch fails, the other batches are still stored. The failed mes
 
 The plugin translates up to `localeConcurrency` locales at once (default 2). Total parallel requests are roughly `localeConcurrency × concurrency`, so lower one or both if your provider rate-limits your account.
 
-Ambiguous identity matches (duplicate identical strings whose count changed) are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead.
+Ambiguous identity matches (duplicate identical strings whose count changed) are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead. When a message is paired by fingerprint, the component name is used to break ties between identical strings, so reordering or renaming components keeps existing IDs.
+
+Provider errors report only the HTTP status (for example `Translation API failed (500)`). The response body is discarded so provider output is not written to logs.
+
+In dev, saving an indexed source file re-reads only that file and reuses cached extractions for the rest of the project. Catalogue and registry files are written only when their content actually changes.
 
 Messages removed from the source are kept as orphans in `registry.json` so their IDs can be reused if the text returns. Orphans not seen for `orphanRetentionMinutes` minutes (default `43200`, i.e. 30 days) are deleted on the next build, and the build logs how many were removed. Use `0` to delete them immediately or `Infinity` to keep them forever. Once deleted, a returning message gets a new ID and is translated again.
 
@@ -145,6 +149,7 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 | `orphanRetentionMinutes` | `number` | `43200` (30 days) | Minutes an orphaned message is kept before it is deleted. `0` deletes on the next build; `Infinity` keeps forever. |
 | `localeConcurrency` | `number` | `2` | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. |
 | `debug` | `boolean` | `false` | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps. |
+| `componentProps` | `Record<string, string[]>` | `{}` | Attributes of custom components whose string values are UI copy, keyed by component name, for example `{ Button: ["aria-label", "title"] }`. Only the listed attributes are extracted from those components. |
 
 ### `OpenAICompatibleProvider` options
 
@@ -217,10 +222,10 @@ Critical modules such as the plugin hooks (`src/index.ts`), translation pipeline
 This is a compiler MVP, not production-ready localization yet:
 
 1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
-2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders are rejected. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
+2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders, or that repeat a placeholder, are rejected. A placeholder must appear exactly once because build mode copies each source expression, so a repeat would evaluate it twice. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`; they are not resolved automatically.
 4. Dev-server HMR re-indexes the whole project after saved or added/removed source files (debounced by 150 ms) rather than only the changed module. This is simple and correct, but may be slow in very large projects.
-5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted automatically. String literals outside JSX are extracted only when marked with `/* i18n */`. Text inside capitalised components (for example `<Button>Save</Button>`) and other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
+5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted automatically. String literals outside JSX are extracted only when marked with `/* i18n */`. Text inside capitalised components (for example `<Button>Save</Button>`) is not extracted. Attributes of capitalised components are extracted only when listed in `componentProps`. Other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
 6. The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 7. The initial fingerprint is a heuristic. It excludes file and line position, but component names and nearby semantic signals can still change during refactors.
 

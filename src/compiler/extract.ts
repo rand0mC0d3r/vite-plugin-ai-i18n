@@ -9,6 +9,11 @@ const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
 // Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
 const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
 
+export interface ExtractOptions {
+  /** Attributes of custom components whose string values are UI copy, keyed by component name. */
+  componentProps?: Record<string, readonly string[]>;
+}
+
 // A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
 const STRING_MARKER = "i18n";
 
@@ -73,19 +78,19 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
     .filter((a): a is JSXAttribute => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && ["aria-label", "title", "name", "type", "role"].includes(a.name.name))
     .map(a => `${(a.name as JSXIdentifierNode).name}=${attributeText(a.value) ?? "{expr}"}`)
     .sort().join(";");
+  // Only the presence of a handler is recorded: renaming the function it points at should not change the identity.
   const handlers = opening.attributes
     .filter((a): a is JSXAttribute => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && /^on[A-Z]/.test(a.name.name))
-    .map(a => {
-      const expression = a.value?.type === "JSXExpressionContainer" ? a.value.expression : null;
-      const semanticHandler = expression && expression.type === "Identifier" ? expression.name : expression?.type ?? "handler";
-      return `${(a.name as JSXIdentifierNode).name}=${semanticHandler}`;
-    }).sort().join(",");
+    .map(a => (a.name as JSXIdentifierNode).name)
+    .sort().join(",");
   return [tag, attr ?? "", attrs, handlers].filter(Boolean).join(" | ");
 }
 
-export function extractMessages(code: string, filename: string): ExtractedMessage[] {
+export function extractMessages(code: string, filename: string, options: ExtractOptions = {}): ExtractedMessage[] {
   const { program, commentsByEnd } = parseSource(code, filename);
   const found: ExtractedMessage[] = [];
+  const componentPropsFor = (tag: string): readonly string[] =>
+    Object.prototype.hasOwnProperty.call(options.componentProps ?? {}, tag) ? options.componentProps![tag] : [];
 
   // `ancestors` runs from the root to the parent of the node being inspected, so the enclosing function's parent is one step back.
   function componentName(ancestors: Node[]): string {
@@ -155,18 +160,23 @@ export function extractMessages(code: string, filename: string): ExtractedMessag
   }
 
   function visitAttribute(node: JSXAttribute, ancestors: Node[]): void {
-    if (node.name.type !== "JSXIdentifier" || !TRANSLATABLE_ATTRS.has(node.name.name)) return;
+    if (node.name.type !== "JSXIdentifier") return;
+    const attribute = node.name.name;
+    const opening = ancestors[ancestors.length - 1];
+    if (opening?.type !== "JSXOpeningElement") return;
+    const tag = opening.name.type === "JSXIdentifier" ? opening.name.name : "";
+    // Components only expose the attributes listed for them in `componentProps`; intrinsic elements use the built-in set.
+    const allowed = isExtractableTag(opening.name)
+      ? TRANSLATABLE_ATTRS.has(attribute)
+      : componentPropsFor(tag).includes(attribute);
+    if (!allowed) return;
     if (isMarkedUntranslated([...ancestors, node])) return;
     if (!isStringLiteral(node.value)) return;
     const source = normalizeSource(decodeJsxEntities(node.value.value));
     if (!source || !/[A-Za-z]/.test(source)) return;
-    const opening = ancestors[ancestors.length - 1];
-    if (opening?.type !== "JSXOpeningElement" || !isExtractableTag(opening.name)) return;
-    const tag = opening.name.name;
     const elementIndex = lastIndexWhere(ancestors, ancestor => ancestor.type === "JSXElement");
     if (elementIndex < 0) return;
     const element = ancestors[elementIndex] as JSXElement;
-    const attribute = node.name.name;
     const item: ExtractedMessage = {
       source, kind: "attribute", file: filename, start: node.value.start, end: node.value.end, tag,
       component: componentName(ancestors.slice(0, elementIndex)), attribute, context: elementContext(element.openingElement, tag, attribute), fingerprint: ""

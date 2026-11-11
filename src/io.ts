@@ -37,3 +37,10 @@ export async function writeFileAtomic(file: string, content: string): Promise<vo
   await writeFile(temp, content, "utf8");
   await rename(temp, file);
 }
+
+/** Like writeFileAtomic, but leaves the file alone when it already holds this content, so watchers see no change. */
+export async function writeFileIfChanged(file: string, content: string): Promise<void> {
+  const existing = await readFile(file, "utf8").catch(() => undefined);
+  if (existing === content) return;
+  await writeFileAtomic(file, content);
+}

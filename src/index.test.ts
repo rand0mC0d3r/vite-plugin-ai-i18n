@@ -86,6 +86,12 @@ describe("mixed-content messages", () => {
     expect(code).toContain('" documents, "');
   });
 
+  it("falls back to the source when a translation repeats a placeholder, so the expression is not evaluated twice", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{doc.name}: {count} von {count} gewählt" });
+    expect(code).toContain('"You have "');
+    expect(code).not.toContain("{count} von");
+  });
+
   it("formats runtime translations through the runtime helper with the expression values", () => {
     const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", {}, true);
     expect(code).toContain('import { t as __autoI18nT, format as __autoI18nFormat } from "virtual:autoi18n"');

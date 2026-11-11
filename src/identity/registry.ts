@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
-import { readJsonFile, toJson, writeFileAtomic } from "../io.js";
+import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
 import { registryEntrySchema, registryFileSchema } from "../schemas.js";
 
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
@@ -73,14 +73,26 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
     if (current.length !== previous.length && (current.length > 1 || previous.length > 1)) {
       ambiguous.push(current[0].source);
     }
-    for (let i = 0; i < current.length; i++) {
-      const message = current[i];
-      const candidate = previous[i];
+    // Pair by component first, so a renamed or reordered component keeps its IDs; the rest pair by position.
+    const pairs: Array<RegistryEntry | undefined> = new Array(current.length);
+    const taken = new Set<RegistryEntry>();
+    current.forEach((message, index) => {
+      const match = previous.find(p => !taken.has(p) && p.component === message.component);
+      if (match) { pairs[index] = match; taken.add(match); }
+    });
+    const leftovers = previous.filter(p => !taken.has(p));
+    let next = 0;
+    current.forEach((_, index) => {
+      if (pairs[index] === undefined && next < leftovers.length) pairs[index] = leftovers[next++];
+    });
+    for (const [index, message] of current.entries()) {
+      const candidate = pairs[index];
       if (candidate) {
         assigned.set(message, candidate.id);
         candidate.status = "active";
         candidate.lastSeen = now;
         candidate.source = message.source;
+        candidate.component = message.component;
         candidate.location = `${message.file}:${message.start}`;
         seen.add(candidate.id);
       } else {
@@ -128,5 +140,5 @@ export function pruneOrphans(registry: Registry, retentionMinutes: number, now =
 }
 
 export async function saveRegistry(file: string, registry: Registry): Promise<void> {
-  await writeFileAtomic(file, toJson(registry));
+  await writeFileIfChanged(file, toJson(registry));
 }
