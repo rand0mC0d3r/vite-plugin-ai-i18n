@@ -1,4 +1,5 @@
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import * as z from "zod/mini";
 import { glob } from "tinyglobby";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
@@ -58,7 +59,7 @@ const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
 const WATCH_DEBOUNCE_MS = 150;
 
 function validateOptions(options: unknown): void {
-  const result = optionsSchema.safeParse(options);
+  const result = z.safeParse(optionsSchema, options);
   if (result.success) return;
   const details = result.error.issues.map(issue => `${issue.path.join(".") || "options"}: ${issue.message}`).join("; ");
   throw new Error(`autoi18n: invalid options (${details}).`);

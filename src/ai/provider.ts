@@ -1,3 +1,4 @@
+import * as z from "zod/mini";
 import { mapWithConcurrency } from "../concurrency.js";
 import { PartialTranslationError } from "../errors.js";
 import { chatCompletionSchema, translationMapSchema } from "../schemas.js";
@@ -108,12 +109,12 @@ export class OpenAICompatibleProvider implements TranslationProvider {
       await response.body?.cancel().catch(() => undefined);
       throw new ProviderError(`Translation API failed (${response.status})`, retryable, parseRetryAfter(response.headers.get("retry-after")));
     }
-    const envelope = chatCompletionSchema.safeParse(await response.json());
+    const envelope = z.safeParse(chatCompletionSchema, await response.json());
     const content = envelope.success ? envelope.data.choices[0].message.content : undefined;
     if (!content) throw new ProviderError("Translation provider returned no content", true);
     let parsed: unknown;
     try { parsed = JSON.parse(content); } catch { throw new ProviderError("Translation provider returned invalid JSON", true); }
-    const map = translationMapSchema.safeParse(parsed);
+    const map = z.safeParse(translationMapSchema, parsed);
     if (!map.success) throw new ProviderError("Translation provider returned a non-object", true);
     // Keep only usable strings for the IDs that were requested; the caller decides what to do with the rest.
     const requested = new Set(input.messages.map(m => m.id));
