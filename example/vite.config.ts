@@ -15,11 +15,15 @@ export default defineConfig(({ mode }) => {
         delivery: "runtime",
         failOnMissingProvider: true,
         debug: true,
-        provider: env.OPENAI_API_KEY
-          ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: env.OPENAI_MODEL ?? "gpt-4.1-mini" })
-          : env.ANTHROPIC_API_KEY
+        provider: {
+          primary: env.ANTHROPIC_API_KEY ? "anthropic" : "openai",
+          anthropic: env.ANTHROPIC_API_KEY
             ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: env.ANTHROPIC_MODEL ?? "claude-haiku-5-5" })
+            : undefined,
+          openai: env.OPENAI_API_KEY
+            ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: env.OPENAI_MODEL ?? "gpt-4.1-mini" })
             : undefined
+        }
       }),
       react()
     ]

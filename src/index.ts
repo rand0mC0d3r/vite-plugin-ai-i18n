@@ -12,7 +12,8 @@ import { loadRegistry, DEFAULT_ORPHAN_RETENTION_MINUTES, saveRegistry } from "./
 import { hashContent } from "./io.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
 import { optionsSchema } from "./schemas.js";
-import type { Catalog, ExtractedMessage, ResolvedMessage, TranslationProvider } from "./types.js";
+import type { Catalog, ExtractedMessage, ProviderConfig, ResolvedMessage } from "./types.js";
+import { resolveProvider } from "./ai/fallback.js";
 
 export interface AutoI18nOptions {
   locales: string[];
@@ -27,7 +28,11 @@ export interface AutoI18nOptions {
   include?: string[];
   exclude?: string[];
   directory?: string;
-  provider?: TranslationProvider;
+  /**
+   * One provider, or named providers such as `{ primary: "anthropic", anthropic, openai }`. The primary is tried first;
+   * when it fails, messages it did not translate go to the next configured provider.
+   */
+  provider?: ProviderConfig;
   failOnMissingProvider?: boolean;
   onAmbiguous?: "warn" | "error";
   /**
@@ -78,6 +83,7 @@ async function removeLegacySidecars(outDir: string, locales: string[]): Promise<
 
 export default function autoI18n(options: AutoI18nOptions): Plugin {
   validateOptions(options);
+  resolveProvider(options.provider);
   const sourceLocale = options.sourceLocale ?? "en";
   const directory = options.directory ?? ".autoi18n";
   const delivery = options.delivery ?? "build";
@@ -112,6 +118,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   // files, and the first build, use a full glob. In-memory state is swapped in before any
   // translation error is rethrown, so a transform never sees a half-updated index.
   async function sync(report: Reporter, changedFile?: string): Promise<void> {
+    const provider = resolveProvider(options.provider, report.warn);
     const incremental = changedFile !== undefined && extractions.has(changedFile);
     const files = incremental
       ? [...extractions.keys()]
@@ -145,7 +152,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       locales,
       localeConcurrency: Math.max(1, Math.floor(options.localeConcurrency ?? 2)),
       previous,
-      provider: options.provider,
+      provider,
       debug
     });
 
@@ -181,12 +188,12 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     catalogFiles = Object.fromEntries(options.locales.map(locale => [locale, localeFilePath(outDir, locale)]));
 
     for (const [locale, translation] of result.locales) {
-      if (translation.requested && !options.provider && options.failOnMissingProvider) {
+      if (translation.requested && !provider && options.failOnMissingProvider) {
         report.error(`Missing ${translation.requested} ${locale} translations and no provider is configured.`);
       }
       if (translation.rejected) report.info(`autoi18n: rejected ${translation.rejected} ${locale} translations with changed placeholders.`);
       if (translation.untranslated) {
-        const log = options.provider ? report.warn : report.info;
+        const log = provider ? report.warn : report.info;
         log(`autoi18n: ${translation.untranslated} ${locale} messages have no translation and fall back to the source text.`);
       }
       if (translation.failed) {
@@ -287,6 +294,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
 }
 
 export { PartialTranslationError } from "./errors.js";
+export { FallbackProvider, resolveProvider } from "./ai/fallback.js";
 export { OpenAICompatibleProvider } from "./ai/openai.js";
 export type { OpenAICompatibleOptions } from "./ai/openai.js";
 export { AnthropicProvider } from "./ai/anthropic.js";

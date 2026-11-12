@@ -1,5 +1,5 @@
 import * as z from "zod/mini";
-import type { TranslationProvider } from "./types.js";
+import type { ProviderConfig } from "./types.js";
 
 // Node-side validation only. Nothing here may be imported by the runtime module, which is embedded via toString().
 
@@ -43,7 +43,7 @@ export const optionsSchema = z.object({
   include: z.optional(z.array(z.string())),
   exclude: z.optional(z.array(z.string())),
   directory: z.optional(nonEmptyString),
-  provider: z.optional(z.custom<TranslationProvider>(value => value === undefined || (typeof value === "object" && value !== null && typeof (value as TranslationProvider).translate === "function"))),
+  provider: z.optional(z.custom<ProviderConfig>(value => value === undefined || (typeof value === "object" && value !== null))),
   failOnMissingProvider: z.optional(z.boolean()),
   onAmbiguous: z.optional(z.enum(["warn", "error"])),
   orphanRetentionMinutes: z.optional(z.union([z.number().check(z.minimum(0)), z.literal(Infinity)])),

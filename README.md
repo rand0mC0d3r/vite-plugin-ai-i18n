@@ -44,7 +44,7 @@ Add the plugin to `vite.config.ts`. `loadEnv` reads `.env.local` for the config 
 ```ts
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
-import autoI18n, { OpenAICompatibleProvider } from "vite-plugin-ai-auto-i18n";
+import autoI18n, { AnthropicProvider, OpenAICompatibleProvider } from "vite-plugin-ai-auto-i18n";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -54,10 +54,17 @@ export default defineConfig(({ mode }) => {
       autoI18n({
         locales: ["en", "de", "fr"],
         sourceLocale: "en",
-        provider: new OpenAICompatibleProvider({
-          apiKey: env.OPENAI_API_KEY!,
-          model: "gpt-4.1-mini"
-        })
+        provider: {
+          primary: "anthropic",
+          anthropic: new AnthropicProvider({
+            apiKey: env.ANTHROPIC_API_KEY!,
+            model: "claude-haiku-5-5"
+          }),
+          openai: new OpenAICompatibleProvider({
+            apiKey: env.OPENAI_API_KEY!,
+            model: "gpt-4.1-mini"
+          })
+        }
       }),
       react() // in runtime delivery, keep autoI18n before the React plugin
     ]
@@ -145,7 +152,7 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 | `include` | `string[]` | `["src/**/*.{tsx,jsx,ts,js}"]` | Glob patterns of source files to scan, relative to the Vite root. |
 | `exclude` | `string[]` | `["**/*.test.*", "**/node_modules/**"]` | Glob patterns of files to skip, relative to the Vite root. |
 | `directory` | `string` | `".autoi18n"` | Folder for `registry.json` and `locales/`, relative to the Vite root. |
-| `provider` | `TranslationProvider` | `undefined` | Translates missing and changed messages. Without one, untranslated messages fall back to the source text. |
+| `provider` | `TranslationProvider \| { primary?, [name]: TranslationProvider \| undefined }` | `undefined` | Translates missing and changed messages. Pass one provider, or named providers with a `primary` (see [Multiple providers and fallback](#multiple-providers-and-fallback)). Without one, untranslated messages fall back to the source text. |
 | `failOnMissingProvider` | `boolean` | `false` | When `true`, the build fails if a locale has untranslated messages and no `provider` is set. |
 | `onAmbiguous` | `"warn" \| "error"` | `"warn"` | What to do when duplicated identical texts change their occurrence count, so their IDs may have moved. `"error"` fails the build. |
 | `orphanRetentionMinutes` | `number` | `43200` (30 days) | Minutes an orphaned message is kept before it is deleted. `0` deletes on the next build; `Infinity` keeps forever. |
@@ -184,7 +191,22 @@ Create the provider with `new AnthropicProvider(options)`. It calls the [Anthrop
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
 
-### Custom provider (`TranslationProvider`)
+### Multiple providers and fallback
+
+Pass `provider` as an object with one entry per provider. `primary` names the one tried first. Entries set to `undefined` are skipped, so you can keep every provider in the config and enable each one by its key:
+
+```ts
+provider: {
+  primary: "anthropic",
+  anthropic: env.ANTHROPIC_API_KEY ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: "claude-haiku-5-5" }) : undefined,
+  openai: env.OPENAI_API_KEY ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: "gpt-4.1-mini" }) : undefined
+}
+```
+
+If the primary fails (for example a bad key, an outage, or rate limits that survive the retries), the messages it did not translate are sent to the next configured provider, in declaration order. Fallback happens per batch: a partial result keeps the translations that did come back, and only the missing messages move on. The build logs a warning each time it falls back. If every provider fails, the locale keeps its previous file, as with a single provider.
+
+Naming a `primary` that is not configured fails the build with a clear error. Passing a single provider instance (`provider: new AnthropicProvider(...)`) still works and needs no map.
+
 
 Any object with this shape can be passed as `provider`:
 

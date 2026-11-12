@@ -30,3 +30,8 @@ export interface TranslationRequest { id: string; source: string; context: strin
 export interface TranslationProvider {
   translate(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog>;
 }
+/**
+ * A single provider, or named providers. In the named form, `primary` picks the provider tried first; the rest are
+ * fallbacks in declaration order. Entries set to `undefined` are skipped, so unconfigured providers can stay in the map.
+ */
+export type ProviderConfig = TranslationProvider | ({ primary?: string } & Record<string, TranslationProvider | string | undefined>);
