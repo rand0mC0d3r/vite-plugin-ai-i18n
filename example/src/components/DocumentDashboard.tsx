@@ -39,9 +39,13 @@ const documents: DocumentItem[] = [
   { id: 3, name: /* i18n */ "Budget 2027.xlsx", pages: 1, status: /* i18n */ "Shared with your team" },
 ];
 
+const Button = ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props}>{children}</button>;
+
 function DocumentList({ items }: { items: DocumentItem[] }) {
   return <section aria-label="Document list">
     <h2>Recent documents</h2>
+    <Button>New Document</Button>
+    <button>New Document</button>
     <ul>
       {items.map(doc => <li key={doc.id}>
         <strong>{doc.name}</strong>{" "}
