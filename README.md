@@ -175,7 +175,7 @@ Create the provider with `new AnthropicProvider(options)`. It calls the [Anthrop
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `apiKey` | `string` | _required_ | Anthropic API key, sent as `x-api-key`. Read it from an environment variable and do not commit it. |
-| `model` | `string` | _required_ | Claude model name sent in each request, for example `"claude-sonnet-4-6"`. |
+| `model` | `string` | _required_ | Claude model name sent in each request, for example `"claude-haiku-5-5"`. |
 | `baseURL` | `string` | `"https://api.anthropic.com/v1"` | Base URL of the Messages API. Requests go to `${baseURL}/messages`. |
 | `maxTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
 | `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
