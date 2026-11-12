@@ -7,7 +7,7 @@ import { extractMessages } from "./compiler/extract.js";
 import { readJsonFile } from "./io.js";
 import { loadRegistry, pruneOrphans, reconcile } from "./identity/registry.js";
 import { readLocaleFile } from "./catalog.js";
-import { OpenAICompatibleProvider } from "./ai/provider.js";
+import { OpenAICompatibleProvider } from "./ai/openai.js";
 import type { ExtractedMessage, Registry, TranslationRequest } from "./types.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });

@@ -7,6 +7,10 @@ export const chatCompletionSchema = z.object({
   choices: z.array(z.object({ message: z.object({ content: z.nullish(z.string()) }) })).check(z.minLength(1))
 });
 
+export const anthropicMessageSchema = z.object({
+  content: z.array(z.object({ type: z.string(), text: z.optional(z.string()) }))
+});
+
 // The model's reply must be a JSON object; individual values are checked per ID by the caller.
 export const translationMapSchema = z.record(z.string(), z.unknown());
 

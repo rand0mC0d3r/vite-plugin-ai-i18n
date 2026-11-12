@@ -287,6 +287,8 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
 }
 
 export { PartialTranslationError } from "./errors.js";
-export { OpenAICompatibleProvider } from "./ai/provider.js";
-export type { OpenAICompatibleOptions } from "./ai/provider.js";
+export { OpenAICompatibleProvider } from "./ai/openai.js";
+export type { OpenAICompatibleOptions } from "./ai/openai.js";
+export { AnthropicProvider } from "./ai/anthropic.js";
+export type { AnthropicOptions } from "./ai/anthropic.js";
 export type * from "./types.js";

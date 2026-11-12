@@ -1,13 +1,10 @@
 import * as z from "zod/mini";
 import { mapWithConcurrency } from "../concurrency.js";
 import { PartialTranslationError } from "../errors.js";
-import { chatCompletionSchema, translationMapSchema } from "../schemas.js";
-import type { TranslationProvider, TranslationRequest, Catalog } from "../types.js";
+import { translationMapSchema } from "../schemas.js";
+import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
 
-export interface OpenAICompatibleOptions {
-  apiKey: string;
-  model: string;
-  baseURL?: string;
+export interface BatchedProviderOptions {
   /** Messages sent per request. Smaller batches keep responses within output limits. Default 40. */
   batchSize?: number;
   /** Abort a single request after this many milliseconds. Default 60000. */
@@ -18,6 +15,12 @@ export interface OpenAICompatibleOptions {
   retryDelayMs?: number;
   /** Batches sent in parallel. Default 4. */
   concurrency?: number;
+}
+
+export interface TranslateInput {
+  sourceLocale: string;
+  targetLocale: string;
+  messages: TranslationRequest[];
 }
 
 const MAX_RETRY_AFTER_MS = 60_000;
@@ -40,14 +43,33 @@ function parseRetryAfter(header: string | null, now = Date.now()): number | unde
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export class OpenAICompatibleProvider implements TranslationProvider {
-  constructor(private options: OpenAICompatibleOptions) {}
+export function systemPrompt(input: TranslateInput): string {
+  return `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.`;
+}
+
+export function userContent(messages: TranslationRequest[]): string {
+  return JSON.stringify(messages.map(m => ({ id: m.id, text: m.source, context: m.context, kind: m.kind })));
+}
+
+/** Builds a retryable-or-not error from a non-2xx response. The body is not included: provider error payloads can echo credentials or source text into logs. */
+export async function httpError(response: Response): Promise<Error> {
+  const retryable = response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
+  await response.body?.cancel().catch(() => undefined);
+  return new ProviderError(`Translation API failed (${response.status})`, retryable, parseRetryAfter(response.headers.get("retry-after")));
+}
+
+/**
+ * Shared batching, concurrency and retry logic for HTTP translation providers.
+ * Subclasses implement one request per batch and return the translations it produced.
+ */
+export abstract class BatchedProvider<O extends BatchedProviderOptions> implements TranslationProvider {
+  constructor(protected readonly options: O) {}
 
   /**
    * Translates in parallel batches. If every batch fails, the first error is thrown. If only some fail,
    * a PartialTranslationError carries the translations that succeeded.
    */
-  async translate(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog> {
+  async translate(input: TranslateInput): Promise<Catalog> {
     const batchSize = Math.max(1, this.options.batchSize ?? 40);
     const batches: TranslationRequest[][] = [];
     for (let start = 0; start < input.messages.length; start += batchSize) batches.push(input.messages.slice(start, start + batchSize));
@@ -71,7 +93,7 @@ export class OpenAICompatibleProvider implements TranslationProvider {
     throw new PartialTranslationError(`${failed} messages failed to translate: ${(errors[0] as Error).message}`, result, failed);
   }
 
-  private async translateBatch(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog> {
+  private async translateBatch(input: TranslateInput): Promise<Catalog> {
     const maxRetries = this.options.maxRetries ?? 2;
     const retryDelayMs = this.options.retryDelayMs ?? 500;
     for (let attempt = 0; ; attempt++) {
@@ -88,36 +110,18 @@ export class OpenAICompatibleProvider implements TranslationProvider {
     }
   }
 
-  private async request(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog> {
-    const response = await fetch(`${this.options.baseURL ?? "https://api.openai.com/v1"}/chat/completions`, {
-      method: "POST",
-      signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
-      headers: { Authorization: `Bearer ${this.options.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: this.options.model,
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.` },
-          { role: "user", content: JSON.stringify(input.messages.map(m => ({ id: m.id, text: m.source, context: m.context, kind: m.kind }))) }
-        ]
-      })
-    });
-    if (!response.ok) {
-      const retryable = response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
-      // The body is not included: provider error payloads can echo credentials or source text into logs.
-      await response.body?.cancel().catch(() => undefined);
-      throw new ProviderError(`Translation API failed (${response.status})`, retryable, parseRetryAfter(response.headers.get("retry-after")));
-    }
-    const envelope = z.safeParse(chatCompletionSchema, await response.json());
-    const content = envelope.success ? envelope.data.choices[0].message.content : undefined;
+  /** Sends one batch to the provider and returns the translations it produced for the requested IDs. */
+  protected abstract request(input: TranslateInput): Promise<Catalog>;
+
+  /** Parses the model's text reply, which must be a JSON object mapping IDs to strings. */
+  protected toCatalog(content: string | undefined, messages: TranslationRequest[]): Catalog {
     if (!content) throw new ProviderError("Translation provider returned no content", true);
     let parsed: unknown;
     try { parsed = JSON.parse(content); } catch { throw new ProviderError("Translation provider returned invalid JSON", true); }
     const map = z.safeParse(translationMapSchema, parsed);
     if (!map.success) throw new ProviderError("Translation provider returned a non-object", true);
     // Keep only usable strings for the IDs that were requested; the caller decides what to do with the rest.
-    const requested = new Set(input.messages.map(m => m.id));
+    const requested = new Set(messages.map(m => m.id));
     const result: Catalog = {};
     for (const [id, text] of Object.entries(map.data)) {
       if (requested.has(id) && typeof text === "string" && text.trim()) result[id] = text;

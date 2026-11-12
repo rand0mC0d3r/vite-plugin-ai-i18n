@@ -9,7 +9,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
 - Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionMinutes`).
-- Supports a pluggable translation provider; includes an OpenAI-compatible implementation.
+- Supports a pluggable translation provider; includes an OpenAI-compatible implementation and an Anthropic (Claude) implementation.
 - Writes locale JSON catalogues and keeps source English as fallback.
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
 - Re-translates a message when its source text changes, tracked in the `sources` map of `.autoi18n/locales/<locale>.json`.
@@ -29,11 +29,13 @@ Works the same with `pnpm add -D vite-plugin-ai-auto-i18n` or `yarn add -D vite-
 
 ### 2️⃣ Add your API key
 
-Put the key in `.env.local` and keep that file out of git:
+Put the key for your provider in `.env.local` and keep that file out of git. For OpenAI or any OpenAI-compatible API:
 
 ```sh
 OPENAI_API_KEY=your-key-here
 ```
+
+For Claude, use `ANTHROPIC_API_KEY` instead (see [AnthropicProvider options](#anthropicprovider-options)).
 
 ### 3️⃣ Configure Vite
 
@@ -91,7 +93,7 @@ If a translation batch fails, the other batches are still stored. The failed mes
 
 🔑 Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 
-`OpenAICompatibleProvider` sends messages in batches (`batchSize`, default 40), runs up to `concurrency` batches at once (default 4), aborts a request after `timeoutMs` (default 60000), and retries network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
+Both built-in providers (`OpenAICompatibleProvider` and `AnthropicProvider`) send messages in batches (`batchSize`, default 40), run up to `concurrency` batches at once (default 4), abort a request after `timeoutMs` (default 60000), and retry network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
 
 The plugin translates up to `localeConcurrency` locales at once (default 2). Total parallel requests are roughly `localeConcurrency × concurrency`, so lower one or both if your provider rate-limits your account.
 
@@ -160,6 +162,22 @@ Create the provider with `new OpenAICompatibleProvider(options)`.
 | `apiKey` | `string` | _required_ | Bearer token for the endpoint. Read it from an environment variable and do not commit it. |
 | `model` | `string` | _required_ | Model name sent in each request, for example `"gpt-4.1-mini"`. |
 | `baseURL` | `string` | `"https://api.openai.com/v1"` | Base URL of any OpenAI-compatible API. Requests go to `${baseURL}/chat/completions`. |
+| `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
+| `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
+| `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
+| `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
+| `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+
+### `AnthropicProvider` options
+
+Create the provider with `new AnthropicProvider(options)`. It calls the [Anthropic Messages API](https://docs.anthropic.com/en/api/messages). The batching, concurrency and retry options are the same as for `OpenAICompatibleProvider`.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `apiKey` | `string` | _required_ | Anthropic API key, sent as `x-api-key`. Read it from an environment variable and do not commit it. |
+| `model` | `string` | _required_ | Claude model name sent in each request, for example `"claude-sonnet-4-6"`. |
+| `baseURL` | `string` | `"https://api.anthropic.com/v1"` | Base URL of the Messages API. Requests go to `${baseURL}/messages`. |
+| `maxTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
 | `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
 | `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
 | `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
