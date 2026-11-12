@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
         delivery: "runtime",
         failOnMissingProvider: true,
         debug: true,
+        componentProps: { Button: ["children"] },
         provider: {
           primary: env.ANTHROPIC_API_KEY ? "anthropic" : env.OPENAI_API_KEY ? "openai" : "gemini",
           anthropic: env.ANTHROPIC_API_KEY

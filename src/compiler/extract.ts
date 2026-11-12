@@ -6,11 +6,16 @@ import { decodeJsxEntities } from "./entities.js";
 
 const COMPONENT_TAG = /^[A-Z]/;
 const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
+// Pseudo-prop in `componentProps` that opts a capitalised component's literal children into translation.
+const CHILDREN_PROP = "children";
 // Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
 const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
 
 export interface ExtractOptions {
-  /** Attributes of custom components whose string values are UI copy, keyed by component name. */
+  /**
+   * Attributes of custom components whose string values are UI copy, keyed by component name. The pseudo-prop
+   * `children` also makes the component's text children translatable, for example `{ Button: ["children"] }`.
+   */
   componentProps?: Record<string, readonly string[]>;
 }
 
@@ -36,7 +41,7 @@ function hasIgnoreMarker(opening: JSXOpeningElement): boolean {
   return opening.attributes.some(a => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && a.name.name === IGNORE_ATTR && attributeText(a.value) === IGNORE_VALUE);
 }
 
-// Only intrinsic elements (lowercase DOM tags) carry copy; capitalised components receive data as children or props.
+// Only intrinsic elements (lowercase DOM tags) carry copy by default; capitalised components need `children` in `componentProps`.
 function isExtractableTag(name: JSXOpeningElement["name"]): name is JSXIdentifierNode {
   return name.type === "JSXIdentifier" && !COMPONENT_TAG.test(name.name) && !IGNORED_TAGS.has(name.name);
 }
@@ -91,6 +96,11 @@ export function extractMessages(code: string, filename: string, options: Extract
   const found: ExtractedMessage[] = [];
   const componentPropsFor = (tag: string): readonly string[] =>
     Object.prototype.hasOwnProperty.call(options.componentProps ?? {}, tag) ? options.componentProps![tag] : [];
+  const isTextTag = (name: JSXOpeningElement["name"]): name is JSXIdentifierNode => {
+    if (name.type !== "JSXIdentifier") return false;
+    const tag = name.name;
+    return isExtractableTag(name) || (COMPONENT_TAG.test(tag) && componentPropsFor(tag).includes(CHILDREN_PROP));
+  };
 
   // `ancestors` runs from the root to the parent of the node being inspected, so the enclosing function's parent is one step back.
   function componentName(ancestors: Node[]): string {
@@ -113,7 +123,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (!expressions.every(child => placeholderExpressionName(child.expression) !== undefined)) return;
     if (!children.some(child => child.type === "JSXText" && /[A-Za-z]/.test(textOf(child)))) return;
     const rawTag = node.openingElement.name;
-    if (!isExtractableTag(rawTag)) return;
+    if (!isTextTag(rawTag)) return;
     const names: string[] = [];
     for (const child of expressions) {
       const base = placeholderExpressionName(child.expression)!;
@@ -147,8 +157,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     // Mixed-content elements are handled as a whole by the JSXElement visitor, never fragment by fragment.
     if (element.children.some(child => child.type === "JSXExpressionContainer")) return;
     const rawTag = element.openingElement.name;
-    // Text inside components is data supplied by the caller, not UI copy written here.
-    if (!isExtractableTag(rawTag)) return;
+    if (!isTextTag(rawTag)) return;
     const tag = rawTag.name;
     const item: ExtractedMessage = {
       source, prefix: raw.match(/^\s*/)?.[0] ?? "", suffix: raw.match(/\s*$/)?.[0] ?? "",

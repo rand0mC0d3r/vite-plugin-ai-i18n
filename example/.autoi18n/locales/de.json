@@ -32,7 +32,8 @@
     "msg_d7f081c5e97f432a": "Abbrechen",
     "msg_ff32ce4f354548b9": "Ausgewählte Dokumente dauerhaft löschen",
     "msg_0ac82c00bc444a9a": "Löschen",
-    "msg_f83a2705b2144dbc": "Neues Dokument"
+    "msg_f83a2705b2144dbc": "Neues Dokument",
+    "msg_1d5dc20bb8ab449c": "Neue Bilder"
   },
   "sources": {
     "msg_5c0b5e58f5574836": "Language",
@@ -67,6 +68,7 @@
     "msg_d7f081c5e97f432a": "Cancel",
     "msg_ff32ce4f354548b9": "Permanently delete selected documents",
     "msg_0ac82c00bc444a9a": "Delete",
-    "msg_f83a2705b2144dbc": "New Document"
+    "msg_f83a2705b2144dbc": "New Document",
+    "msg_1d5dc20bb8ab449c": "New Images"
   }
 }
