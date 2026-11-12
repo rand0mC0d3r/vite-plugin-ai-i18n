@@ -35,7 +35,7 @@ Put the key for your provider in `.env.local` and keep that file out of git. For
 OPENAI_API_KEY=your-key-here
 ```
 
-For Claude, use `ANTHROPIC_API_KEY` instead (see [AnthropicProvider options](#anthropicprovider-options)).
+For Claude, use `ANTHROPIC_API_KEY` instead (see [AnthropicProvider options](#anthropicprovider-options)). For Gemini, use `GEMINI_API_KEY` (see [GeminiProvider options](#geminiprovider-options)).
 
 ### 3️⃣ Configure Vite
 
@@ -100,7 +100,7 @@ If a translation batch fails, the other batches are still stored. The failed mes
 
 🔑 Translations require a provider. With `failOnMissingProvider: true` the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 
-Both built-in providers (`OpenAICompatibleProvider` and `AnthropicProvider`) send messages in batches (`batchSize`, default 40), run up to `concurrency` batches at once (default 4), abort a request after `timeoutMs` (default 60000), and retry network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
+All built-in providers (`OpenAICompatibleProvider`, `AnthropicProvider` and `GeminiProvider`) send messages in batches (`batchSize`, default 40), run up to `concurrency` batches at once (default 4), abort a request after `timeoutMs` (default 60000), and retry network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
 
 The plugin translates up to `localeConcurrency` locales at once (default 2). Total parallel requests are roughly `localeConcurrency × concurrency`, so lower one or both if your provider rate-limits your account.
 
@@ -191,6 +191,22 @@ Create the provider with `new AnthropicProvider(options)`. It calls the [Anthrop
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
 
+### `GeminiProvider` options
+
+Create the provider with `new GeminiProvider(options)`. It calls the [Gemini API `generateContent` endpoint](https://ai.google.dev/api/generate-content) in JSON output mode. The batching, concurrency and retry options are the same as for `OpenAICompatibleProvider`.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `apiKey` | `string` | _required_ | Gemini API key, sent as `x-goog-api-key`. Read it from an environment variable and do not commit it. |
+| `model` | `string` | _required_ | Gemini model name, for example `"gemini-3.5-flash-lite"`. |
+| `baseURL` | `string` | `"https://generativelanguage.googleapis.com/v1beta"` | Base URL of the Gemini API. Requests go to `${baseURL}/models/${model}:generateContent`. |
+| `maxOutputTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
+| `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
+| `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
+| `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
+| `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
+| `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+
 ### Multiple providers and fallback
 
 Pass `provider` as an object with one entry per provider. `primary` names the one tried first. Entries set to `undefined` are skipped, so you can keep every provider in the config and enable each one by its key:
@@ -199,7 +215,8 @@ Pass `provider` as an object with one entry per provider. `primary` names the on
 provider: {
   primary: "anthropic",
   anthropic: env.ANTHROPIC_API_KEY ? new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: "claude-haiku-5-5" }) : undefined,
-  openai: env.OPENAI_API_KEY ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: "gpt-4.1-mini" }) : undefined
+  openai: env.OPENAI_API_KEY ? new OpenAICompatibleProvider({ apiKey: env.OPENAI_API_KEY, model: "gpt-4.1-mini" }) : undefined,
+  gemini: env.GEMINI_API_KEY ? new GeminiProvider({ apiKey: env.GEMINI_API_KEY, model: "gemini-3.5-flash-lite" }) : undefined
 }
 ```
 

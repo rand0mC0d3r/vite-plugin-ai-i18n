@@ -11,6 +11,10 @@ export const anthropicMessageSchema = z.object({
   content: z.array(z.object({ type: z.string(), text: z.optional(z.string()) }))
 });
 
+export const geminiResponseSchema = z.object({
+  candidates: z.array(z.object({ content: z.optional(z.object({ parts: z.optional(z.array(z.object({ text: z.optional(z.string()) }))) })) }))
+});
+
 // The model's reply must be a JSON object; individual values are checked per ID by the caller.
 export const translationMapSchema = z.record(z.string(), z.unknown());
 
