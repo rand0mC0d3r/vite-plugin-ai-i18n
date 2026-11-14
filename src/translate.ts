@@ -4,18 +4,25 @@ import { debugLog } from "./debug.js";
 import { PartialTranslationError } from "./errors.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "./types.js";
 
+/** Inputs for {@link translateLocale}, which brings a single target locale up to date. */
 export interface LocaleTranslationInput {
+  /** Without a provider, missing messages are left untranslated and reported as such. */
   provider?: TranslationProvider;
+  /** Language the source strings are written in. */
   sourceLocale: string;
+  /** Target locale to translate into. */
   locale: string;
   /** Every message that is currently active. Anything else in `previous` is pruned. */
   requests: TranslationRequest[];
+  /** The locale file as it currently exists on disk. Its translations are reused when still valid. */
   previous: LocaleFile;
   /** Logs every message sent to the provider and every translation received, with timestamps. */
   debug?: boolean;
 }
 
+/** Result of {@link translateLocale}: the updated locale file plus counts for reporting. */
 export interface LocaleTranslation {
+  /** The updated locale file, to be written to disk. */
   file: LocaleFile;
   /** Messages that had no usable translation after this run, so they show the source text. */
   untranslated: number;

@@ -1,9 +1,14 @@
+/** Lazily imports one locale's catalogue. Resolves to a module whose default export, or the object itself, is the catalogue. */
 export type LocaleLoader = () => Promise<{ default: Record<string, string> } | Record<string, string>>;
 
 /**
  * Returns a cached catalogue loader. Unknown locales load the fallback, and a failed load is not cached.
  * `prime` stores a catalogue that was already fetched, such as one pushed by the dev server.
  * Serialised into the runtime module via toString(), so it must not reference anything outside its body.
+ *
+ * @param loaders Loader for each supported locale, keyed by locale code.
+ * @param fallback Locale loaded when the requested one has no loader.
+ * @returns A function that resolves a locale to its catalogue, with a `prime(locale, catalog)` method.
  */
 export function createLocaleLoader(loaders: Record<string, LocaleLoader>, fallback = "en") {
   const cache = new Map<string, Promise<Record<string, string>>>();

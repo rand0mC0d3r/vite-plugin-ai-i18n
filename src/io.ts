@@ -4,7 +4,9 @@ import path from "node:path";
 
 type Warn = (message: string) => void;
 
+/** Pretty-prints JSON with two-space indent and a trailing newline, so diffs of catalogue files stay small. */
 export const toJson = (value: unknown): string => JSON.stringify(value, null, 2) + "\n";
+/** SHA-256 hex digest of `text`, used to detect source changes and to skip work on unchanged files. */
 export const hashContent = (text: string): string => createHash("sha256").update(text).digest("hex");
 
 /**

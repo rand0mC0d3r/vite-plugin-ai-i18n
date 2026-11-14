@@ -2,6 +2,11 @@
  * Picks the best supported locale for a list of preferred locales (for example `navigator.languages`).
  * This function is also embedded into the generated `virtual:autoi18n` module via `toString()`,
  * so it must stay self-contained and must not reference anything outside its body.
+ *
+ * @param preferred Locales in priority order, such as `navigator.languages`.
+ * @param supported Locales the app has catalogues for.
+ * @param fallback Returned when no preferred locale matches.
+ * @returns The supported locale that matches first, preferring an exact match over a same-language match.
  */
 export function resolveLocale(preferred: string[], supported: string[], fallback = "en"): string {
   for (const candidate of preferred) {

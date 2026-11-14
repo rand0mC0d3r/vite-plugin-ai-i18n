@@ -4,11 +4,15 @@ import { translateLocale, type LocaleTranslation } from "./translate.js";
 import { pruneOrphans, reconcile } from "./identity/registry.js";
 import type { Catalog, ExtractedMessage, Registry, RegistryEntry, ResolvedMessage, TranslationProvider } from "./types.js";
 
+/** Inputs for {@link buildCatalogs}. */
 export interface CatalogBuildInput {
   /** Messages extracted from each source file, in the order the files were found. */
   files: { file: string; messages: ExtractedMessage[] }[];
+  /** Persisted ID registry from the previous run. It is copied, never modified in place. */
   registry: Registry;
+  /** Minutes an orphaned registry entry is kept before it is pruned. */
   orphanRetentionMinutes: number;
+  /** Language of the source strings. It is never translated. */
   sourceLocale: string;
   /** Locales to translate in this run. The source locale is never translated. */
   locales: string[];
@@ -16,16 +20,21 @@ export interface CatalogBuildInput {
   localeConcurrency: number;
   /** The current contents of each locale file, keyed by locale. Missing locales start empty. */
   previous: Map<string, LocaleFile>;
+  /** Without a provider, missing translations are not requested and stay untranslated. */
   provider?: TranslationProvider;
+  /** Logs every message sent to and received from the provider. */
   debug: boolean;
 }
 
+/** Result of {@link buildCatalogs}. Nothing has been written to disk yet; the caller persists it. */
 export interface CatalogBuildResult {
+  /** The updated registry to persist, with reconciled IDs and orphans pruned. */
   registry: Registry;
   /** Sources whose duplicate count changed, so their IDs may have moved. */
   ambiguous: string[];
   /** Registry entries deleted because they were orphaned for longer than the retention period. */
   pruned: RegistryEntry[];
+  /** Every extracted message with its resolved stable ID, in the same order as the input files. */
   messages: ResolvedMessage[];
   /** The source-locale catalogue: each ID mapped to its source text. */
   sourceFile: LocaleFile;

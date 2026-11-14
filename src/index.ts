@@ -57,10 +57,13 @@ export interface AutoI18nOptions {
   stringMarker?: string;
 }
 
+/** Sink for build-time messages. Vite's logger and the plugin context's `info`/`warn`/`error` both satisfy this shape. */
 interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
 
+/** Last extraction of one source file. The hash lets an unchanged file skip re-extraction. */
 interface ExtractionCacheEntry { hash: string; messages: ExtractedMessage[] }
 
+/** Throws a single error listing every invalid option, so a misconfigured plugin fails at startup. */
 function validateOptions(options: unknown): void {
   const result = v.safeParse(optionsSchema, options);
   if (result.success) return;
@@ -79,6 +82,16 @@ async function removeLegacySidecars(outDir: string, locales: string[]): Promise<
   await Promise.all(locales.map(locale => rm(path.join(outDir, `${locale}.sources.json`), { force: true })));
 }
 
+/**
+ * Vite plugin that extracts translatable strings from source files, translates them and serves the catalogues.
+ * Options are validated and the provider is resolved immediately, so a bad configuration throws before the build starts.
+ *
+ * @example
+ * ```ts
+ * import autoI18n from "vite-plugin-ai-i18n";
+ * export default defineConfig({ plugins: [autoI18n({ locales: ["en", "de"] })] });
+ * ```
+ */
 export default function autoI18n(options: AutoI18nOptions): Plugin {
   validateOptions(options);
   resolveProvider(options.provider);
@@ -214,10 +227,12 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     return next;
   }
 
+  /** Sends the current catalogues to the browser over HMR, so a dev page updates without a reload. */
   function pushCatalogs(): void {
     server?.ws.send({ type: "custom", event: UPDATE_EVENT, data: { catalogs: Object.fromEntries(catalogs) } });
   }
 
+  /** Runs a sync and pushes the result to the browser. Errors are logged, not thrown, because this runs from a watcher. */
   async function retranslate(changedFile?: string): Promise<void> {
     try {
       await runSync(reporterFor(config.logger), changedFile);
@@ -233,6 +248,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     watchTimer = setTimeout(() => void retranslate(), WATCH_DEBOUNCE_MS);
   }
 
+  /** Whether a newly created file matches the configured `include` and `exclude` globs, relative to the Vite root. */
   function isSourceCandidate(file: string): boolean {
     if (!/\.[jt]sx?$/.test(file)) return false;
     const relative = path.relative(config.root, file).split(path.sep).join("/");

@@ -5,6 +5,7 @@ import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
 import { registryEntrySchema, registryFileSchema } from "../schemas.js";
 import { MINUTE_MS } from "../constants.js";
 
+/** A registry with no entries, used when no usable file exists yet. */
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
 /**
@@ -33,12 +34,15 @@ function orderKey(file: string, start: number): string {
   return `${file}:${String(start).padStart(12, "0")}`;
 }
 
+/** Converts a stored `file:start` location into the same ordering key that {@link orderKey} produces. */
 function locationKey(location: string): string {
   const split = location.lastIndexOf(":");
   return orderKey(location.slice(0, split), Number(location.slice(split + 1)));
 }
 
+/** Outcome of matching freshly extracted messages against the stored registry. */
 export interface ReconcileResult {
+  /** The updated registry, mutated in place. Entries not seen this time are marked `orphaned`. */
   registry: Registry;
   /** Sources whose duplicate count changed; their IDs may have moved between occurrences. */
   ambiguous: string[];
@@ -46,6 +50,17 @@ export interface ReconcileResult {
   messages: ResolvedMessage[];
 }
 
+/**
+ * Assigns a stable ID to every extracted message by matching it against the registry.
+ *
+ * Messages are grouped by fingerprint. Within a group, old and new occurrences are paired first by component name, then
+ * by position. Unmatched messages get a fresh `msg_` ID. Stored entries that match nothing become `orphaned`, and matched
+ * entries are reactivated and have their source, component and location refreshed.
+ *
+ * @param registry Current registry. It is mutated in place.
+ * @param messages Messages extracted from the current source.
+ * @returns The updated registry, the ambiguous sources, and the messages with their assigned IDs.
+ */
 export function reconcile(registry: Registry, messages: ExtractedMessage[]): ReconcileResult {
   const now = new Date().toISOString();
   const oldEntries = Object.values(registry.entries);
@@ -137,6 +152,7 @@ export function pruneOrphans(registry: Registry, retentionMinutes: number, now =
   return removed;
 }
 
+/** Writes the registry to `file`, skipping the write when the content has not changed. */
 export async function saveRegistry(file: string, registry: Registry): Promise<void> {
   await writeFileIfChanged(file, toJson(registry));
 }

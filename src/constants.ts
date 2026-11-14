@@ -1,24 +1,37 @@
+/** HMR event name that carries updated catalogues to the browser in dev. */
 export const UPDATE_EVENT = "autoi18n:update";
+/** Default source globs scanned for translatable text. */
 export const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
+/** Default globs skipped during scanning: tests and dependencies. */
 export const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
+/** Delay before a burst of file add/remove events triggers one re-index. */
 export const WATCH_DEBOUNCE_MS = 150;
 
+/** Default API endpoints for the built-in providers. */
 export const ANTHROPIC_BASE_URL = "https://api.anthropic.com/v1";
+/** Anthropic API version sent in the `anthropic-version` header. */
 export const ANTHROPIC_VERSION = "2023-06-01";
 export const OPENAI_BASE_URL = "https://api.openai.com/v1";
 export const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
+/** Upper bound on how long a `Retry-After` header can delay a retry. */
 export const MAX_RETRY_AFTER_MS = 60_000;
 
+/** Milliseconds in one minute. Converts `orphanRetentionMinutes` to a timestamp offset. */
 export const MINUTE_MS = 60 * 1000;
 /** 30 days. */
 export const DEFAULT_ORPHAN_RETENTION_MINUTES = 30 * 24 * 60;
 
+/** Virtual module id that exposes the runtime `setLocale()` and catalogues. */
 export const RUNTIME_MODULE = "virtual:autoi18n";
+/** Global name of the translation lookup function injected into transformed code. */
 export const RUNTIME_LOOKUP = "__autoI18nT";
+/** Global name of the message-format helper injected into transformed code. */
 export const RUNTIME_FORMAT = "__autoI18nFormat";
 
+/** Matches a tag or component name that starts with an uppercase letter, i.e. a React component. */
 export const COMPONENT_TAG = /^[A-Z]/;
+/** Tags whose text is never translated. */
 export const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
 // Pseudo-prop in `componentProps` that opts a capitalised component's literal children into translation.
 export const CHILDREN_PROP = "children";
@@ -32,6 +45,7 @@ export const IGNORE_VALUE = "no";
 
 // Named character references that Babel decodes in JSX text and attribute strings (the XHTML 1.0 set), as `name:hex`.
 // Kept identical to Babel so extracted sources, and therefore message IDs, do not change.
+/** HTML named character references, mapped to their hexadecimal code points. */
 export const NAMED_ENTITIES = new Map(
   (
     "quot:0022 amp:0026 apos:0027 lt:003C gt:003E nbsp:00A0 iexcl:00A1 cent:00A2 pound:00A3 curren:00A4 yen:00A5 brvbar:00A6 sect:00A7 uml:00A8 " +
@@ -60,7 +74,10 @@ export const NAMED_ENTITIES = new Map(
   })
 );
 
+/** Matches a decimal or hex numeric character reference, or a named one, in JSX text. */
 export const REFERENCE = /&(?:#(x[0-9a-fA-F]+|[0-9]+)|([A-Za-z0-9]+));/g;
 
+/** Source of the placeholder regex. It is also embedded in the runtime module, so both sides match the same `{name}` placeholders. */
 export const PLACEHOLDER_PATTERN = "\\{([^{}]+)\\}";
+/** Global regex that finds `{name}` placeholders in a message. */
 export const PLACEHOLDER = new RegExp(PLACEHOLDER_PATTERN, "g");

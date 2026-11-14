@@ -13,12 +13,15 @@ export interface LocaleFile {
   sources: Catalog;
 }
 
+/** A locale file with no translations, used for a locale that has never been written. */
 export const emptyLocaleFile = (): LocaleFile => ({ messages: {}, sources: {} });
 
+/** Path of a locale's file inside the output directory, e.g. `<outDir>/de.json`. */
 export function localeFilePath(outDir: string, locale: string): string {
   return path.join(outDir, `${locale}.json`);
 }
 
+/** Keeps only the string-valued entries of a parsed JSON object, warning about each one that is dropped. */
 const stringValues = (record: Record<string, unknown>, warn?: (message: string) => void, file?: string): Catalog => {
   const catalog: Catalog = {};
   for (const [id, value] of Object.entries(record)) {
@@ -39,6 +42,7 @@ export async function readLocaleFile(file: string, warn?: (message: string) => v
   return { messages: stringValues(result.output.messages, warn, file), sources: stringValues(result.output.sources, warn, file) };
 }
 
+/** Writes a locale file, leaving it untouched when its content has not changed. */
 export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> => writeFileIfChanged(file, toJson(content));
 
 /** Returns a copy of `catalog` that keeps only `keep`, plus the keys that were dropped. */
