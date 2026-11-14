@@ -257,7 +257,7 @@ In your React + Vite project:
 npm install -D vite-plugin-ai-auto-i18n
 ```
 
-Works the same with `pnpm add -D vite-plugin-ai-auto-i18n` or `yarn add -D vite-plugin-ai-auto-i18n`. It requires Vite 5 or newer (a peer dependency). For React, also keep `@vitejs/plugin-react` in your Vite config.
+Works the same with `pnpm add -D vite-plugin-ai-auto-i18n` or `yarn add -D vite-plugin-ai-auto-i18n`. It requires Vite 8 or newer (a peer dependency) and Node.js 26 or newer. For React, also keep `@vitejs/plugin-react` in your Vite config.
 
 ### 2️⃣ Add your API key
 

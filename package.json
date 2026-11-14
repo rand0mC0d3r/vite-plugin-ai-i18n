@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-ai-auto-i18n",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "license": "ISC",
@@ -8,8 +8,23 @@
         "node": ">=26.0.0"
     },
     "keywords": [
-        "vite-plugin"
+        "vite",
+        "vite-plugin",
+        "i18n",
+        "localization",
+        "translation",
+        "react",
+        "jsx",
+        "ai"
     ],
+    "homepage": "https://github.com/rand0mC0d3r/vite-plugin-ai-i18n#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rand0mC0d3r/vite-plugin-ai-i18n.git"
+    },
+    "bugs": {
+        "url": "https://github.com/rand0mC0d3r/vite-plugin-ai-i18n/issues"
+    },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "exports": {
@@ -37,7 +52,7 @@
         "typecheck": "tsc --noEmit"
     },
     "peerDependencies": {
-        "vite": "^8.3.7"
+        "vite": "^8.0.0"
     },
     "dependencies": {
         "magic-string": "^1.4.5",
@@ -54,7 +69,7 @@
         "rollup-plugin-visualizer": "^7.1.3",
         "tsdown": "^0.23.7",
         "typescript": "^7.1.0-beta",
-        "vite": "^8.3.7",
+        "vite": "^8.3.8",
         "vitest": "^5.1.0"
     }
 }
