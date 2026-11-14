@@ -24,10 +24,17 @@ export const DEFAULT_ORPHAN_RETENTION_MINUTES = 30 * 24 * 60;
 
 /** Virtual module id that exposes the runtime `setLocale()` and catalogues. */
 export const RUNTIME_MODULE = "virtual:autoi18n";
+/** Virtual module id that exposes `format()`, which renders ICU MessageFormat text with values. */
+export const FORMAT_MODULE = "virtual:autoi18n-format";
+/** Package that implements ICU MessageFormat at runtime. It is resolved from this plugin, not the app. */
+export const FORMAT_LIBRARY = "intl-messageformat";
 /** Global name of the translation lookup function injected into transformed code. */
 export const RUNTIME_LOOKUP = "__autoI18nT";
 /** Global name of the message-format helper injected into transformed code. */
 export const RUNTIME_FORMAT = "__autoI18nFormat";
+/** Global name of the current-locale getter injected into transformed code. */
+export const RUNTIME_LOCALE = "__autoI18nLocale";
+
 
 /** Matches a tag or component name that starts with an uppercase letter, i.e. a React component. */
 export const COMPONENT_TAG = /^[A-Z]/;
@@ -76,8 +83,3 @@ export const NAMED_ENTITIES = new Map(
 
 /** Matches a decimal or hex numeric character reference, or a named one, in JSX text. */
 export const REFERENCE = /&(?:#(x[0-9a-fA-F]+|[0-9]+)|([A-Za-z0-9]+));/g;
-
-/** Source of the placeholder regex. It is also embedded in the runtime module, so both sides match the same `{name}` placeholders. */
-export const PLACEHOLDER_PATTERN = "\\{([^{}]+)\\}";
-/** Global regex that finds `{name}` placeholders in a message. */
-export const PLACEHOLDER = new RegExp(PLACEHOLDER_PATTERN, "g");

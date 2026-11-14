@@ -15,7 +15,6 @@
     "msg_0be55b4a9c9344d7": "Änderungen erfolgreich gespeichert.",
     "msg_77d9438905494059": "Dokumentenliste",
     "msg_e81c69c9f36b4b98": "Neueste Dokumente",
-    "msg_8562dc6b66e746c8": "{doc.pages} Seiten",
     "msg_50d7154b0d694029": "Mit Ihrem Team geteilt",
     "msg_6583770411fa433d": "Privat",
     "msg_f3a1635af3df42b7": "Mit Ihrem Team geteilt",
@@ -33,7 +32,8 @@
     "msg_ff32ce4f354548b9": "Ausgewählte Dokumente dauerhaft löschen",
     "msg_0ac82c00bc444a9a": "Löschen",
     "msg_1d5dc20bb8ab449c": "Neue Bilder",
-    "msg_9db3fe60420a48e9": "Neuer Dokument-Agent"
+    "msg_9db3fe60420a48e9": "Neuer Dokument-Agent",
+    "msg_8562dc6b66e746c8": "{doc_pages, plural, one {# Seite} other {# Seiten}}"
   },
   "sources": {
     "msg_5c0b5e58f5574836": "Language",
@@ -51,7 +51,6 @@
     "msg_0be55b4a9c9344d7": "Changes saved successfully.",
     "msg_77d9438905494059": "Document list",
     "msg_e81c69c9f36b4b98": "Recent documents",
-    "msg_8562dc6b66e746c8": "{doc.pages} pages",
     "msg_50d7154b0d694029": "Shared with your team",
     "msg_6583770411fa433d": "Private",
     "msg_f3a1635af3df42b7": "Shared with your team",
@@ -69,6 +68,7 @@
     "msg_ff32ce4f354548b9": "Permanently delete selected documents",
     "msg_0ac82c00bc444a9a": "Delete",
     "msg_1d5dc20bb8ab449c": "New Images",
-    "msg_9db3fe60420a48e9": "New Document Agent"
+    "msg_9db3fe60420a48e9": "New Document Agent",
+    "msg_8562dc6b66e746c8": "{doc_pages} pages"
   }
 }

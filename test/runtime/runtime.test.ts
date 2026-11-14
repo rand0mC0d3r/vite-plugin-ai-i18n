@@ -1,31 +1,44 @@
-import { describe, expect, it, vi } from "vitest";
-import { formatPlaceholders } from "../../src/runtime/format.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { IntlMessageFormat } from "intl-messageformat";
+import { createFormatModule, formatMessage } from "../../src/runtime/format.js";
 import { createLocaleLoader } from "../../src/runtime/loader.js";
 import { resolveLocale } from "../../src/runtime/resolve.js";
-import { PLACEHOLDER } from "../../src/constants.js";
 
-describe("formatPlaceholders", () => {
-  it("splits the text around known placeholders and keeps the values as they are", () => {
-    const node = { el: true };
-    const parts = formatPlaceholders("You have {count} documents, {doc} is ready", { count: 3, doc: node }, PLACEHOLDER);
-    expect(parts).toEqual(["You have ", 3, " documents, ", node, " is ready"]);
+const format = (text: string, values: Record<string, unknown>, locale = "en") =>
+  formatMessage(IntlMessageFormat, new Map(), text, values, locale);
+
+describe("formatMessage", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("keeps values as they are, so React nodes stay separate parts", () => {
+    const node = { $$typeof: "react-element" };
+    const parts = format("You have {count} documents, {doc} is ready", { count: 3, doc: node });
+    expect(parts).toContain(node);
+    expect(parts.filter(part => typeof part === "string").join("")).toBe("You have 3 documents,  is ready");
   });
 
-  it("keeps unknown placeholder names as literal text", () => {
-    expect(formatPlaceholders("Hi {name}, {missing}!", { name: "Ann" }, PLACEHOLDER)).toEqual(["Hi ", "Ann", ", {missing}!"]);
+  it("supports plural and select arguments", () => {
+    expect(format("{n, plural, one {# file} other {# files}}", { n: 1 }).join("")).toBe("1 file");
+    expect(format("{n, plural, one {# file} other {# files}}", { n: 2 }).join("")).toBe("2 files");
+    expect(format("{g, select, female {She} other {They}} wrote it", { g: "female" }).join("")).toBe("She wrote it");
   });
 
-  it("returns the text unchanged when there are no placeholders", () => {
-    expect(formatPlaceholders("Plain text", {}, PLACEHOLDER)).toEqual(["Plain text"]);
+  it("reads escaped apostrophes and braces as literal text", () => {
+    expect(format("Don''t delete '{'{count}'}' files", { count: 2 }).join("")).toBe("Don't delete {2} files");
   });
 
-  it("does not emit empty strings for placeholders at the edges", () => {
-    expect(formatPlaceholders("{a}{b}", { a: 1, b: 2 }, PLACEHOLDER)).toEqual([1, 2]);
-    expect(formatPlaceholders("", {}, PLACEHOLDER)).toEqual([]);
+  it("returns the text unchanged when it cannot be parsed or a value is missing", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    expect(format("Unclosed {count", {})).toEqual(["Unclosed {count"]);
+    expect(format("Hi {name}", {})).toEqual(["Hi {name}"]);
   });
+});
 
-  it("does not treat inherited object properties as values", () => {
-    expect(formatPlaceholders("{toString}", {}, PLACEHOLDER)).toEqual(["{toString}"]);
+describe("createFormatModule", () => {
+  it("imports the library and exports format(text, values, locale)", () => {
+    const code = createFormatModule();
+    expect(code).toContain('import { IntlMessageFormat } from "intl-messageformat";');
+    expect(code).toContain("export function format(text, values, locale)");
   });
 });
 

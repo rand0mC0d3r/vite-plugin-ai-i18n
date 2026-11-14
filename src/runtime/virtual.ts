@@ -1,5 +1,3 @@
-import { PLACEHOLDER_PATTERN } from "../constants.js";
-import { formatPlaceholders } from "./format.js";
 import { createLocaleLoader } from "./loader.js";
 import { resolveLocale } from "./resolve.js";
 
@@ -17,8 +15,6 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
     `const sourceLocale = ${JSON.stringify(sourceLocale)};`,
     `const resolveLocale = ${resolveLocale.toString()};`,
     `const createLocaleLoader = ${createLocaleLoader.toString()};`,
-    `const formatPlaceholders = ${formatPlaceholders.toString()};`,
-    `const PLACEHOLDER = new RegExp(${JSON.stringify(PLACEHOLDER_PATTERN)}, "g");`,
     `const loadLocale = createLocaleLoader(loaders, sourceLocale);`,
     `const listeners = new Set();`,
     `let currentLocale = sourceLocale;`,
@@ -58,7 +54,6 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
     `}`,
     `export function subscribe(fn) { listeners.add(fn); return () => { listeners.delete(fn); }; }`,
     `export function t(id, source) { return messages[id] ?? source; }`,
-    `export function format(text, values) { return formatPlaceholders(text, values, PLACEHOLDER); }`,
     `// Dev server pushes the catalogues that changed after a source change; no page reload is needed.`,
     `if (import.meta.hot) {`,
     `  import.meta.hot.on("autoi18n:update", data => {`,

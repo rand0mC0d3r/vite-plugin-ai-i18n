@@ -47,7 +47,7 @@ The compiler parses each file in `include` and records every translatable string
 ]
 ```
 
-Mixed sentences keep their simple expressions as named placeholders, so the translator sees `{count}` as a token to preserve.
+Mixed sentences are ICU MessageFormat messages. Simple expressions become named arguments (`{count}`), and the translator can use ICU syntax such as plurals and selects. Literal `'`, `{` and `}` in the text are escaped (`Don''t`).
 
 ### Phase 2: identify
 
@@ -112,7 +112,7 @@ The source is rewritten according to `delivery`.
 -      <button title="Save the current document">Save</button>
 -      <p>You have {count} documents</p>
 +      <button title="Dokument speichern">{"Speichern"}</button>
-+      <p>{"Du hast "}{count}{" Dokumente"}</p>
++      <p>{__autoI18nFormat("Du hast {count} Dokumente", {"count": count}, "de")}</p>
      </section>
    );
  }
@@ -121,14 +121,15 @@ The source is rewritten according to `delivery`.
 **`delivery: "runtime"`** (one bundle, catalogues loaded in the browser) replaces each string with a lookup. The source text stays in the code as the fallback:
 
 ```diff
-+import { t as __autoI18nT, format as __autoI18nFormat } from "virtual:autoi18n";
++import { t as __autoI18nT, getLocale as __autoI18nLocale } from "virtual:autoi18n";
++import { format as __autoI18nFormat } from "virtual:autoi18n-format";
  export function Doc({ count }: { count: number }) {
    return (
      <section>
 -      <button title="Save the current document">Save</button>
 -      <p>You have {count} documents</p>
 +      <button title={__autoI18nT("msg_a1", "Save the current document")}>{__autoI18nT("msg_a2", "Save")}</button>
-+      <p>{__autoI18nFormat(__autoI18nT("msg_a3", "You have {count} documents"), {"count": count})}</p>
++      <p>{__autoI18nFormat(__autoI18nT("msg_a3", "You have {count} documents"), {"count": count}, __autoI18nLocale())}</p>
      </section>
    );
  }
@@ -237,7 +238,7 @@ const deepl: TranslationProvider = {
   async translate({ sourceLocale, targetLocale, messages }) {
     const out: Record<string, string> = {};
     for (const m of messages) {
-      // Keep {placeholders} intact; the plugin rejects translations that change them.
+      // Keep ICU arguments such as {count} intact; the plugin rejects translations that change them or are not valid ICU.
       out[m.id] = await callYourService(m.source, targetLocale);
     }
     return out;
@@ -504,7 +505,7 @@ interface TranslationRequest {
   source: string;         // English text
   context: string;        // for example "Toolbar > Save button"
   kind: "text" | "attribute" | "mixed" | "string"; // text node, static attribute, JSX with expressions, or a marked string literal
-  placeholders?: string[]; // {name} placeholders that must survive translation
+  placeholders?: string[]; // ICU argument names (for example "count") that must survive translation
 }
 ```
 
@@ -542,7 +543,7 @@ Critical modules such as the plugin hooks (`src/index.ts`), translation pipeline
 This is a beta release. Review these limitations before shipping to production:
 
 1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
-2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders, or that repeat a placeholder, are rejected. A placeholder must appear exactly once because build mode copies each source expression, so a repeat would evaluate it twice. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
+2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as ICU MessageFormat messages, formatted at runtime with `intl-messageformat`. Translations that are not valid ICU, or that change the set of argument names, are rejected. Argument names are sanitized to letters, digits and `_` (`doc.name` becomes `doc_name`), so translations stored under the old `{doc.name}` names fall back to the source until they are retranslated. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`; they are not resolved automatically.
 4. Dev-server HMR re-indexes the whole project after saved or added/removed source files (debounced by 150 ms) rather than only the changed module. This is simple and correct, but may be slow in very large projects.
 5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted automatically. String literals outside JSX are extracted only when marked with the `stringMarker` comment (`/* i18n */` by default). Text inside capitalised components (for example `<Button>Save</Button>`) is extracted only when the component lists `children` in `componentProps`. Attributes of capitalised components are extracted only when listed in `componentProps`. Other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.

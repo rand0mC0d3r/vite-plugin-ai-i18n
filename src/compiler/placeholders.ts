@@ -1,9 +1,4 @@
-import { PLACEHOLDER } from "../constants.js";
-
-/** Returns the names of the placeholders in `text`, in order and including repeats. */
-function placeholderNames(text: string): string[] {
-  return [...text.matchAll(PLACEHOLDER)].map(match => match[1]);
-}
+import { icuArgumentNames } from "../icu.js";
 
 /** True when both lists contain the same distinct names, regardless of order or repetition. */
 function sameNames(a: string[], b: string[]): boolean {
@@ -13,10 +8,11 @@ function sameNames(a: string[], b: string[]): boolean {
 }
 
 /**
- * A translation may be used only if it is non-empty and uses each source placeholder exactly once.
- * A repeated placeholder would paste its expression twice in build mode, evaluating it twice.
+ * A translation may be used only if it is non-empty, parses as ICU MessageFormat, and uses exactly the source's
+ * argument names. Each argument is passed once to the formatter, so a translation may repeat or reorder them.
  */
 export function isUsableTranslation(text: string, placeholders: string[]): boolean {
-  const found = placeholderNames(text);
-  return text.trim() !== "" && found.length === placeholders.length && sameNames(found, placeholders);
+  if (text.trim() === "") return false;
+  const found = icuArgumentNames(text);
+  return found !== undefined && sameNames(found, placeholders);
 }

@@ -50,7 +50,7 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /** Builds the system instruction that tells the model the locale pair and to reply with a bare JSON ID-to-text object. */
 export function systemPrompt(input: TranslateInput): string {
-  return `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.`;
+  return `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Messages of kind "mixed" are ICU MessageFormat: keep each {name} argument unchanged, keep apostrophes and braces valid ICU (a literal apostrophe is written as two apostrophes, and literal braces are quoted), and use plural or select only when the target language needs them. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.`;
 }
 
 /** Serializes messages as a JSON array of `{ id, text, context, kind }` for the user turn of the prompt. */

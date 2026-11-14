@@ -2,14 +2,16 @@ import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { ArkErrors } from "arktype";
 import { glob, readFile, rm } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { debugLog } from "./debug.js";
 import { buildCatalogs } from "./engine.js";
 import { extractMessages } from "./compiler/extract.js";
 import { parseSource, type ParsedSource } from "./compiler/ast.js";
 import { transformSource } from "./compiler/transform.js";
 import { localeFilePath, writeLocaleFile, type LocaleFile } from "./catalog.js";
-import { DEFAULT_EXCLUDE, DEFAULT_INCLUDE, DEFAULT_ORPHAN_RETENTION_MINUTES, RUNTIME_MODULE, UPDATE_EVENT, WATCH_DEBOUNCE_MS } from "./constants.js";
+import { DEFAULT_EXCLUDE, DEFAULT_INCLUDE, DEFAULT_ORPHAN_RETENTION_MINUTES, FORMAT_LIBRARY, FORMAT_MODULE, RUNTIME_MODULE, UPDATE_EVENT, WATCH_DEBOUNCE_MS } from "./constants.js";
 import { hashContent } from "./io.js";
+import { createFormatModule } from "./runtime/format.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
 import { optionsSchema } from "./schemas.js";
 import { IndexState, sameCatalog, type ExtractionCacheEntry } from "./state.js";
@@ -299,8 +301,16 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         throw new Error(`autoi18n: locale "${selected}" is not one of the configured locales (${options.locales.join(", ")}).`);
       }
     },
-    resolveId(id) { if (id === RUNTIME_MODULE) return `\0${RUNTIME_MODULE}`; },
-    load(id) { if (id === `\0${RUNTIME_MODULE}`) return createRuntimeModule(state.catalogFiles, sourceLocale); },
+    resolveId(id, importer) {
+      if (id === RUNTIME_MODULE) return `\0${RUNTIME_MODULE}`;
+      if (id === FORMAT_MODULE) return `\0${FORMAT_MODULE}`;
+      // The app does not install the formatting library, so it is resolved from this plugin's dependencies.
+      if (importer === `\0${FORMAT_MODULE}` && id === FORMAT_LIBRARY) return this.resolve(id, fileURLToPath(import.meta.url), { skipSelf: true });
+    },
+    load(id) {
+      if (id === `\0${RUNTIME_MODULE}`) return createRuntimeModule(state.catalogFiles, sourceLocale);
+      if (id === `\0${FORMAT_MODULE}`) return createFormatModule();
+    },
     configureServer(devServer) {
       server = devServer;
       // Adding or removing a file cannot go through handleHotUpdate, so re-index here.

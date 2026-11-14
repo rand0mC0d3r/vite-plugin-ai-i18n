@@ -69,9 +69,17 @@ describe("translateLocale", () => {
     expect(result.file.messages).toEqual({ b: "Du hast {count} Dokumente" });
   });
 
-  it("rejects mixed-content translations that repeat a placeholder", async () => {
+  it("accepts mixed-content translations that repeat an argument, since each value is passed once", async () => {
     const source = "{count} documents";
     const p = provider({ a: "{count} Dokumente, {count} gesamt" });
+    const result = await translateLocale({ ...base, provider: p, requests: [mixed("a", source, ["count"])], previous: emptyLocaleFile() });
+    expect(result.rejected).toBe(0);
+    expect(result.file.messages).toEqual({ a: "{count} Dokumente, {count} gesamt" });
+  });
+
+  it("rejects mixed-content translations that are not valid ICU", async () => {
+    const source = "{count} documents";
+    const p = provider({ a: "{count Dokumente" });
     const result = await translateLocale({ ...base, provider: p, requests: [mixed("a", source, ["count"])], previous: emptyLocaleFile() });
     expect(result.rejected).toBe(1);
     expect(result.file.messages).toEqual({});

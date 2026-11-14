@@ -1,5 +1,6 @@
 import { CHILDREN_PROP, COMPONENT_TAG, DEFAULT_STRING_MARKER, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, TRANSLATABLE_ATTRS } from "../constants.js";
 import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
+import { argumentName, escapeIcu } from "../icu.js";
 import type { ExtractedMessage } from "../types.js";
 import { hasLeadingBlockComment, isStringLiteral, parseSource, walk, type JSXAttribute, type JSXElement, type JSXExpressionContainer, type JSXOpeningElement, type JSXText, type Node, type ParsedSource } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
@@ -115,9 +116,12 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
 export function extractMessages(code: string, filename: string, options: ExtractOptions = {}, parsed: ParsedSource = parseSource(code, filename)): ExtractedMessage[] {
   const { program, commentsByEnd } = parsed;
   const found: ExtractedMessage[] = [];
-  /** Stores a message with the fingerprint derived from its identifying fields. */
-  const record = (item: Omit<ExtractedMessage, "fingerprint">): void => {
-    found.push({ ...item, fingerprint: createFingerprint(item) });
+  /**
+   * Stores a message with the fingerprint derived from its identifying fields. `identitySource` is the text the
+   * fingerprint hashes, which differs from `item.source` when that text is escaped for ICU.
+   */
+  const record = (item: Omit<ExtractedMessage, "fingerprint">, identitySource = item.source): void => {
+    found.push({ ...item, fingerprint: createFingerprint({ ...item, source: identitySource }) });
   };
   const componentPropsFor = (tag: string): readonly string[] =>
     Object.prototype.hasOwnProperty.call(options.componentProps ?? {}, tag) ? options.componentProps![tag] : [];
@@ -150,23 +154,43 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (!children.some(child => child.type === "JSXText" && hasLetter(textOf(child)))) return;
     const rawTag = node.openingElement.name;
     if (!isTextTag(rawTag)) return;
-    const names: string[] = [];
+    // Names as written in the source, made unique. They identify the message, so they stay out of the ICU text.
+    const sourceNames: string[] = [];
     for (const child of expressions) {
       const base = placeholderExpressionName(child.expression)!;
       let name = base;
-      for (let suffix = 2; names.includes(name); suffix++) name = `${base}_${suffix}`;
+      for (let suffix = 2; sourceNames.includes(name); suffix++) name = `${base}_${suffix}`;
+      sourceNames.push(name);
+    }
+    // ICU argument names are letters, digits and underscores only, so `user.name` becomes `user_name`.
+    const names: string[] = [];
+    for (const base of sourceNames) {
+      const sanitized = argumentName(base);
+      let name = sanitized;
+      for (let suffix = 2; names.includes(name); suffix++) name = `${sanitized}_${suffix}`;
       names.push(name);
     }
     let raw = "";
+    let icu = "";
     let index = 0;
-    for (const child of children) raw += child.type === "JSXText" ? textOf(child) : `{${names[index++]}}`;
-    const source = normalizeSource(raw);
+    for (const child of children) {
+      if (child.type === "JSXText") {
+        const text = textOf(child);
+        raw += text;
+        icu += escapeIcu(text);
+      } else {
+        raw += `{${sourceNames[index]}}`;
+        icu += `{${names[index]}}`;
+        index++;
+      }
+    }
+    const source = normalizeSource(icu);
     if (!source) return;
     const tag = rawTag.name;
     record({
       source, ...edgeWhitespace(raw), kind: "mixed", placeholders: names, file: filename, start: node.start, end: node.end,
       tag, component: componentName(ancestors), context: elementContext(node.openingElement, tag)
-    });
+    }, normalizeSource(raw));
   }
 
   /** Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to `visitElement`. */

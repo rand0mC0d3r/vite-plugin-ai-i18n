@@ -2,7 +2,7 @@ import MagicString from "magic-string";
 import type { Catalog, ResolvedMessage } from "../types.js";
 import { parseSource, walk, type JSXElement, type JSXText, type ParsedSource, type StringLiteral } from "./ast.js";
 import { isUsableTranslation } from "./placeholders.js";
-import { PLACEHOLDER, RUNTIME_FORMAT, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
+import { FORMAT_MODULE, RUNTIME_LOCALE, RUNTIME_LOOKUP, RUNTIME_FORMAT, RUNTIME_MODULE } from "../constants.js";
 
 /** An AST node that a resolved message should replace, tagged with how its replacement is written. */
 type Target =
@@ -73,6 +73,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
   const s = new MagicString(code);
   let usesRuntime = false;
   let usesFormat = false;
+  let usesLocale = false;
 
   const textFor = (message: ResolvedMessage): string => locale === sourceLocale ? message.source : catalog[message.id] ?? message.source;
 
@@ -104,26 +105,18 @@ export function transformSource(code: string, filename: string, messages: Resolv
       const source = (index: number) => s.slice(expressions[index].start, expressions[index].end);
       const start = node.openingElement.end;
       const end = node.closingElement.start;
+      const values = names.map((name, index) => `${JSON.stringify(name)}: ${source(index)}`).join(", ");
+      usesFormat = true;
       if (runtime) {
-        usesFormat = true;
-        const values = names.map((name, index) => `${JSON.stringify(name)}: ${source(index)}`).join(", ");
-        s.overwrite(start, end, `{${RUNTIME_FORMAT}(${withAffixes(message)}, {${values}})}`);
+        usesLocale = true;
+        s.overwrite(start, end, `{${RUNTIME_FORMAT}(${withAffixes(message)}, {${values}}, ${RUNTIME_LOCALE}())}`);
         continue;
       }
+      // A translation that changes the argument names, or is blank, would render wrong text, so the source is used instead.
       const translated = textFor(message);
-      // A translation that drops, adds or renames a placeholder, or is blank, would render wrong text, so the source is used instead.
       const text = isUsableTranslation(translated, names) ? translated : message.source;
-      const parts: string[] = [];
-      let last = 0;
-      const pushText = (value: string) => { if (value) parts.push(`{${JSON.stringify(value)}}`); };
-      pushText(message.prefix ?? "");
-      for (const match of text.matchAll(PLACEHOLDER)) {
-        pushText(text.slice(last, match.index));
-        parts.push(`{${source(names.indexOf(match[1]))}}`);
-        last = match.index! + match[0].length;
-      }
-      pushText(text.slice(last) + (message.suffix ?? ""));
-      s.overwrite(start, end, parts.join(""));
+      const formatted = JSON.stringify(`${message.prefix ?? ""}${text}${message.suffix ?? ""}`);
+      s.overwrite(start, end, `{${RUNTIME_FORMAT}(${formatted}, {${values}}, ${JSON.stringify(locale)})}`);
     } else if (target.kind === "text") {
       s.overwrite(target.node.start, target.node.end, `{${withAffixes(message)}}`);
     } else if (target.kind === "attribute") {
@@ -135,9 +128,10 @@ export function transformSource(code: string, filename: string, messages: Resolv
 
   const specifiers = [
     ...(usesRuntime ? [`t as ${RUNTIME_LOOKUP}`] : []),
-    ...(usesFormat ? [`format as ${RUNTIME_FORMAT}`] : [])
+    ...(usesLocale ? [`getLocale as ${RUNTIME_LOCALE}`] : [])
   ];
   if (specifiers.length) s.prepend(`import { ${specifiers.join(", ")} } from "${RUNTIME_MODULE}";\n`);
+  if (usesFormat) s.prepend(`import { format as ${RUNTIME_FORMAT} } from "${FORMAT_MODULE}";\n`);
 
   return { code: s.toString(), map: s.generateMap({ source: filename, hires: true, includeContent: true }) };
 }

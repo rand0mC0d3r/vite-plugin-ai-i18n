@@ -5,6 +5,7 @@ import path from "node:path";
 import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
 import { extractMessages } from "../src/compiler/extract.js";
 import { transformSource } from "../src/compiler/transform.js";
+import { createFingerprint } from "../src/identity/fingerprint.js";
 import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
 import { createRuntimeModule } from "../src/runtime/virtual.js";
 import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
@@ -66,43 +67,52 @@ describe("mixed-content messages", () => {
   const MIXED = `export function Dialog({ count, doc }) { return <p>You have {count} documents, {doc.name} is {count} selected.</p>; }\n`;
   const messages = withIds(extractMessages(MIXED, "Dialog.tsx"));
 
-  it("extracts a sentence with simple expressions as one message with named placeholders", () => {
+  it("extracts a sentence with simple expressions as one message with ICU argument names", () => {
     expect(messages).toHaveLength(1);
     expect(messages[0]).toMatchObject({
       kind: "mixed",
-      source: "You have {count} documents, {doc.name} is {count_2} selected.",
-      placeholders: ["count", "doc.name", "count_2"]
+      source: "You have {count} documents, {doc_name} is {count_2} selected.",
+      placeholders: ["count", "doc_name", "count_2"]
     });
   });
 
-  it("rebuilds the children from the translation in build mode, keeping the expression values", () => {
-    const catalog = { msg_0: "{doc.name} hat {count} Dokumente, {count_2} gewählt." };
+  it("escapes apostrophes and braces for ICU and keeps the identity of the unescaped text", () => {
+    const [message] = extractMessages(`export const A = ({ n }) => <p>Don't delete {n} files</p>;\n`, "A.tsx");
+    expect(message.source).toBe("Don''t delete {n} files");
+    expect(message.fingerprint).toBe(createFingerprint({ ...message, source: "Don't delete {n} files" }));
+  });
+
+  it("rebuilds the message from the translation in build mode, passing each value once", () => {
+    const catalog = { msg_0: "{doc_name} hat {count} Dokumente, {count_2} gewählt." };
     const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", catalog);
-    expect(code).toContain('{" Dokumente, "}');
-    expect(code).toContain("{doc.name}");
-    expect(code).toContain("{count}");
-    expect(code).not.toContain("{count_2}");
-    expect(code).not.toContain("virtual:autoi18n");
+    expect(code).toContain('import { format as __autoI18nFormat } from "virtual:autoi18n-format"');
+    expect(code).toContain('__autoI18nFormat("{doc_name} hat {count} Dokumente, {count_2} gewählt.", {"count": count, "doc_name": doc.name, "count_2": count}, "de")');
+    expect(code).not.toContain('from "virtual:autoi18n"');
   });
 
-  it("falls back to the source when a translation changes the placeholders", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "Viele Dokumente" });
-    expect(code).toContain('"You have "');
-    expect(code).toContain('" documents, "');
+  it("falls back to the source when a translation changes the argument names", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{doc} hat {count}" });
+    expect(code).toContain('"You have {count} documents, {doc_name} is {count_2} selected."');
   });
 
-  it("falls back to the source when a translation repeats a placeholder, so the expression is not evaluated twice", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{doc.name}: {count} von {count} gewählt" });
-    expect(code).toContain('"You have "');
-    expect(code).not.toContain("{count} von");
+  it("falls back to the source when a translation is not valid ICU", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{count Dokumente" });
+    expect(code).toContain('"You have {count} documents, {doc_name} is {count_2} selected."');
   });
 
-  it("formats runtime translations through the runtime helper with the expression values", () => {
+  it("accepts a translation that repeats or reorders arguments, since each value is passed once", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{doc_name}: {count} von {count}, {count_2}" });
+    expect(code).toContain('"{doc_name}: {count} von {count}, {count_2}"');
+  });
+
+  it("formats runtime translations through the format module with the expression values and the current locale", () => {
     const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", {}, true);
-    expect(code).toContain('import { t as __autoI18nT, format as __autoI18nFormat } from "virtual:autoi18n"');
-    expect(code).toContain('__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc.name} is {count_2} selected."), {');
-    expect(code).toContain('"doc.name": doc.name');
+    expect(code).toContain('import { t as __autoI18nT, getLocale as __autoI18nLocale } from "virtual:autoi18n"');
+    expect(code).toContain('import { format as __autoI18nFormat } from "virtual:autoi18n-format"');
+    expect(code).toContain('__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected."), {');
+    expect(code).toContain('"doc_name": doc.name');
     expect(code).toContain('"count_2": count');
+    expect(code).toContain("}, __autoI18nLocale())}");
   });
 
   it("does not extract sentences whose expressions are not plain references", () => {
@@ -138,7 +148,7 @@ describe("runtime module", () => {
     expect(code).toContain('"de": () => import("/x/de.json")');
     expect(code).toContain('const sourceLocale = "en"');
     expect(code).toContain("export function t(id, source)");
-    expect(code).toContain("export function format(text, values)");
+    expect(code).not.toContain("export function format");
   });
 });
 
