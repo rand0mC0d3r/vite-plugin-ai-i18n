@@ -1,4 +1,4 @@
-import * as z from "zod/mini";
+import * as v from "valibot";
 import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -32,9 +32,9 @@ export class GeminiProvider extends BatchedProvider<GeminiOptions> {
       })
     });
     if (!response.ok) throw await httpError(response);
-    const envelope = z.safeParse(geminiResponseSchema, await response.json());
+    const envelope = v.safeParse(geminiResponseSchema, await response.json());
     const text = envelope.success
-      ? (envelope.data.candidates[0]?.content?.parts ?? []).map(part => part.text ?? "").join("")
+      ? (envelope.output.candidates[0]?.content?.parts ?? []).map(part => part.text ?? "").join("")
       : "";
     return this.toCatalog(text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "") || undefined, input.messages);
   }

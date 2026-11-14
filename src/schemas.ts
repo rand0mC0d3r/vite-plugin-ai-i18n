@@ -1,58 +1,58 @@
-import * as z from "zod/mini";
+import * as v from "valibot";
 import type { ProviderConfig } from "./types.js";
 
 // Node-side validation only. Nothing here may be imported by the runtime module, which is embedded via toString().
 
-export const chatCompletionSchema = z.object({
-  choices: z.array(z.object({ message: z.object({ content: z.nullish(z.string()) }) })).check(z.minLength(1))
+export const chatCompletionSchema = v.object({
+  choices: v.pipe(v.array(v.object({ message: v.object({ content: v.nullish(v.string()) }) })), v.minLength(1))
 });
 
-export const anthropicMessageSchema = z.object({
-  content: z.array(z.object({ type: z.string(), text: z.optional(z.string()) }))
+export const anthropicMessageSchema = v.object({
+  content: v.array(v.object({ type: v.string(), text: v.optional(v.string()) }))
 });
 
-export const geminiResponseSchema = z.object({
-  candidates: z.array(z.object({ content: z.optional(z.object({ parts: z.optional(z.array(z.object({ text: z.optional(z.string()) }))) })) }))
+export const geminiResponseSchema = v.object({
+  candidates: v.array(v.object({ content: v.optional(v.object({ parts: v.optional(v.array(v.object({ text: v.optional(v.string()) }))) })) }))
 });
 
 // The model's reply must be a JSON object; individual values are checked per ID by the caller.
-export const translationMapSchema = z.record(z.string(), z.unknown());
+export const translationMapSchema = v.record(v.string(), v.unknown());
 
-export const localeFileSchema = z.object({ messages: z.record(z.string(), z.unknown()), sources: z.record(z.string(), z.unknown()) });
+export const localeFileSchema = v.object({ messages: v.record(v.string(), v.unknown()), sources: v.record(v.string(), v.unknown()) });
 
-export const registryEntrySchema = z.object({
-  id: z.string(),
-  source: z.string(),
-  kind: z.enum(["text", "attribute", "mixed", "string"]),
-  tag: z.string(),
-  component: z.string(),
-  attribute: z.optional(z.string()),
-  context: z.string(),
-  fingerprint: z.string(),
-  location: z.string(),
-  status: z.enum(["active", "orphaned"]),
-  firstSeen: z.string(),
-  lastSeen: z.string()
+export const registryEntrySchema = v.object({
+  id: v.string(),
+  source: v.string(),
+  kind: v.picklist(["text", "attribute", "mixed", "string"]),
+  tag: v.string(),
+  component: v.string(),
+  attribute: v.optional(v.string()),
+  context: v.string(),
+  fingerprint: v.string(),
+  location: v.string(),
+  status: v.picklist(["active", "orphaned"]),
+  firstSeen: v.string(),
+  lastSeen: v.string()
 });
 
-export const registryFileSchema = z.object({ version: z.literal(1), entries: z.record(z.string(), z.unknown()) });
+export const registryFileSchema = v.object({ version: v.literal(1), entries: v.record(v.string(), v.unknown()) });
 
-const nonEmptyString = z.string().check(z.minLength(1));
+const nonEmptyString = v.pipe(v.string(), v.minLength(1));
 
-export const optionsSchema = z.object({
-  locales: z.array(nonEmptyString),
-  sourceLocale: z.optional(nonEmptyString),
-  delivery: z.optional(z.enum(["build", "runtime"])),
-  locale: z.optional(nonEmptyString),
-  include: z.optional(z.array(z.string())),
-  exclude: z.optional(z.array(z.string())),
-  directory: z.optional(nonEmptyString),
-  provider: z.optional(z.custom<ProviderConfig>(value => value === undefined || (typeof value === "object" && value !== null))),
-  failOnMissingProvider: z.optional(z.boolean()),
-  onAmbiguous: z.optional(z.enum(["warn", "error"])),
-  orphanRetentionMinutes: z.optional(z.union([z.number().check(z.minimum(0)), z.literal(Infinity)])),
-  localeConcurrency: z.optional(z.number().check(z.minimum(1))),
-  componentProps: z.optional(z.record(z.string(), z.array(z.string()))),
-  stringMarker: z.optional(nonEmptyString),
-  debug: z.optional(z.boolean())
+export const optionsSchema = v.object({
+  locales: v.array(nonEmptyString),
+  sourceLocale: v.optional(nonEmptyString),
+  delivery: v.optional(v.picklist(["build", "runtime"])),
+  locale: v.optional(nonEmptyString),
+  include: v.optional(v.array(v.string())),
+  exclude: v.optional(v.array(v.string())),
+  directory: v.optional(nonEmptyString),
+  provider: v.optional(v.custom<ProviderConfig>(value => value === undefined || (typeof value === "object" && value !== null))),
+  failOnMissingProvider: v.optional(v.boolean()),
+  onAmbiguous: v.optional(v.picklist(["warn", "error"])),
+  orphanRetentionMinutes: v.optional(v.union([v.pipe(v.number(), v.minValue(0)), v.literal(Infinity)])),
+  localeConcurrency: v.optional(v.pipe(v.number(), v.minValue(1))),
+  componentProps: v.optional(v.record(v.string(), v.array(v.string()))),
+  stringMarker: v.optional(nonEmptyString),
+  debug: v.optional(v.boolean())
 });

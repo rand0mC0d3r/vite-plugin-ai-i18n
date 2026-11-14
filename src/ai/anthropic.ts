@@ -1,4 +1,4 @@
-import * as z from "zod/mini";
+import * as v from "valibot";
 import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -30,8 +30,8 @@ export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
       })
     });
     if (!response.ok) throw await httpError(response);
-    const envelope = z.safeParse(anthropicMessageSchema, await response.json());
-    const text = envelope.success ? envelope.data.content.filter(block => block.type === "text").map(block => block.text ?? "").join("") : "";
+    const envelope = v.safeParse(anthropicMessageSchema, await response.json());
+    const text = envelope.success ? envelope.output.content.filter(block => block.type === "text").map(block => block.text ?? "").join("") : "";
     // Claude sometimes wraps JSON in a Markdown code fence even when told not to.
     return this.toCatalog(text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "") || undefined, input.messages);
   }

@@ -1,4 +1,4 @@
-import * as z from "zod/mini";
+import * as v from "valibot";
 import path from "node:path";
 import { readJsonFile, toJson, writeFileAtomic, writeFileIfChanged } from "./io.js";
 import { localeFileSchema } from "./schemas.js";
@@ -34,9 +34,9 @@ const stringValues = (record: Record<string, unknown>, warn?: (message: string) 
  */
 export async function readLocaleFile(file: string, warn?: (message: string) => void): Promise<LocaleFile> {
   const parsed = await readJsonFile<unknown>(file, null, warn);
-  const result = z.safeParse(localeFileSchema, parsed);
+  const result = v.safeParse(localeFileSchema, parsed);
   if (!result.success) return emptyLocaleFile();
-  return { messages: stringValues(result.data.messages, warn, file), sources: stringValues(result.data.sources, warn, file) };
+  return { messages: stringValues(result.output.messages, warn, file), sources: stringValues(result.output.sources, warn, file) };
 }
 
 export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> => writeFileIfChanged(file, toJson(content));

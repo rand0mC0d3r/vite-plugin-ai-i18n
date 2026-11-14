@@ -1,4 +1,4 @@
-import * as z from "zod/mini";
+import * as v from "valibot";
 import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -27,7 +27,7 @@ export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOp
       })
     });
     if (!response.ok) throw await httpError(response);
-    const envelope = z.safeParse(chatCompletionSchema, await response.json());
-    return this.toCatalog(envelope.success ? envelope.data.choices[0].message.content ?? undefined : undefined, input.messages);
+    const envelope = v.safeParse(chatCompletionSchema, await response.json());
+    return this.toCatalog(envelope.success ? envelope.output.choices[0].message.content ?? undefined : undefined, input.messages);
   }
 }

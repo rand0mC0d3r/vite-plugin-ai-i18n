@@ -1,4 +1,4 @@
-import * as z from "zod/mini";
+import * as v from "valibot";
 import { randomUUID } from "node:crypto";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
 import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
@@ -14,15 +14,15 @@ const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 export async function loadRegistry(file: string, warn?: (message: string) => void): Promise<Registry> {
   const parsed = await readJsonFile<unknown>(file, null, warn);
   if (parsed === null) return emptyRegistry();
-  const header = z.safeParse(registryFileSchema, parsed);
+  const header = v.safeParse(registryFileSchema, parsed);
   if (!header.success) {
     warn?.(`autoi18n: ${file} has an unsupported format; message IDs will be regenerated.`);
     return emptyRegistry();
   }
   const entries: Record<string, RegistryEntry> = {};
-  for (const [key, value] of Object.entries(header.data.entries)) {
-    const entry = z.safeParse(registryEntrySchema, value);
-    if (entry.success) entries[key] = entry.data;
+  for (const [key, value] of Object.entries(header.output.entries)) {
+    const entry = v.safeParse(registryEntrySchema, value);
+    if (entry.success) entries[key] = entry.output;
     else warn?.(`autoi18n: dropped invalid registry entry "${key}" in ${file}.`);
   }
   return { version: 1, entries };

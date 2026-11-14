@@ -1,5 +1,5 @@
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
-import * as z from "zod/mini";
+import * as v from "valibot";
 import { glob } from "tinyglobby";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
@@ -62,9 +62,9 @@ interface Reporter { info(message: string): void; warn(message: string): void; e
 interface ExtractionCacheEntry { hash: string; messages: ExtractedMessage[] }
 
 function validateOptions(options: unknown): void {
-  const result = z.safeParse(optionsSchema, options);
+  const result = v.safeParse(optionsSchema, options);
   if (result.success) return;
-  const details = result.error.issues.map(issue => `${issue.path.join(".") || "options"}: ${issue.message}`).join("; ");
+  const details = result.issues.map(issue => `${issue.path?.map(segment => segment.key).join(".") || "options"}: ${issue.message}`).join("; ");
   throw new Error(`autoi18n: invalid options (${details}).`);
 }
 
