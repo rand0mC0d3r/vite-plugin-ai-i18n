@@ -4,15 +4,22 @@ import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { GEMINI_BASE_URL } from "../constants.js";
 
+/** Options for the Gemini `generateContent` API. */
 export interface GeminiOptions extends BatchedProviderOptions {
   apiKey: string;
   model: string;
+  /** Overrides the API root, for example to target a proxy. */
   baseURL?: string;
   /** Maximum tokens the model may generate per batch. Default 8192. */
   maxOutputTokens?: number;
 }
 
+/**
+ * Translates batches through the Gemini `generateContent` API. The system prompt goes in `systemInstruction`, and
+ * `responseMimeType` requests JSON output.
+ */
 export class GeminiProvider extends BatchedProvider<GeminiOptions> {
+  /** Sends one batch and parses the first candidate's text; a surrounding Markdown code fence is stripped first. */
   protected async request(input: TranslateInput): Promise<Catalog> {
     const base = this.options.baseURL ?? GEMINI_BASE_URL;
     const response = await fetch(`${base}/models/${encodeURIComponent(this.options.model)}:generateContent`, {

@@ -1,9 +1,11 @@
 import { PLACEHOLDER } from "../constants.js";
 
+/** Returns the names of the placeholders in `text`, in order and including repeats. */
 export function placeholderNames(text: string): string[] {
   return [...text.matchAll(PLACEHOLDER)].map(match => match[1]);
 }
 
+/** True when both lists contain the same distinct names, regardless of order or repetition. */
 export function sameNames(a: string[], b: string[]): boolean {
   const left = new Set(a);
   const right = new Set(b);

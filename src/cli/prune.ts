@@ -24,12 +24,21 @@ async function pruneLocaleFiles(localesDir: string, activeIds: Set<string>): Pro
   return results;
 }
 
+/** Parsed command-line options for the prune CLI. */
 interface PruneArgs {
+  /** Directory holding `registry.json` and `locales/`, relative to the working directory. */
   directory: string;
+  /** Orphaned registry entries younger than this many minutes are kept. */
   retentionMinutes: number;
+  /** When true, each removed entry and key is logged via `debugLog`. */
   debug: boolean;
 }
 
+/**
+ * Parses `--directory`, `--retention-minutes` and `--debug` from the arguments after the script name.
+ *
+ * @throws If an option is unknown, lacks its value, or the retention is not a non-negative number.
+ */
 function parseArgs(argv: string[]): PruneArgs {
   const args: PruneArgs = { directory: ".autoi18n", retentionMinutes: DEFAULT_ORPHAN_RETENTION_MINUTES, debug: false };
   for (let i = 0; i < argv.length; i++) {
@@ -49,6 +58,10 @@ function parseArgs(argv: string[]): PruneArgs {
   return args;
 }
 
+/**
+ * Entry point for the prune CLI (`node dist/cli/prune.js`). Removes orphaned registry entries past the retention window, then drops their keys
+ * from every locale file. Does nothing if no registry exists yet. Failures set `process.exitCode` to 1.
+ */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const registryFile = path.resolve(process.cwd(), args.directory, "registry.json");

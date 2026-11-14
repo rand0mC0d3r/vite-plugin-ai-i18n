@@ -1,12 +1,16 @@
 import { PartialTranslationError } from "../errors.js";
 import type { Catalog, ProviderConfig, TranslationProvider, TranslationRequest } from "../types.js";
 
+/** A provider paired with the name used to refer to it in configuration and log messages. */
 interface NamedProvider { name: string; provider: TranslationProvider }
 
 /**
  * Tries providers in order. Messages a provider did not translate (a failed request, or a partial result) are sent
  * to the next provider. Throws only when nothing could be translated, or a PartialTranslationError when some messages
  * are still missing after every provider has been tried.
+ *
+ * @param providers Providers in the order they should be tried.
+ * @param onFallback Called with a human-readable message each time a provider hands work to the next one.
  */
 export class FallbackProvider implements TranslationProvider {
   constructor(
@@ -39,13 +43,20 @@ export class FallbackProvider implements TranslationProvider {
   }
 }
 
+/** Extracts a printable message from any thrown value. */
 const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
+/** Type guard: true when the value is an object exposing a `translate` method. */
 const isProvider = (value: unknown): value is TranslationProvider =>
   typeof value === "object" && value !== null && typeof (value as TranslationProvider).translate === "function";
 
 /**
  * Normalizes the `provider` option to one provider. Returns undefined when no provider is configured.
+ *
+ * A single provider (or a bare provider object) is returned as is. A named map is validated, ordered so that `primary`
+ * comes first, and wrapped in a {@link FallbackProvider} when it holds more than one entry.
+ *
+ * @throws If an entry is not a provider, or `primary` names a provider that is not configured.
  */
 export function resolveProvider(config: ProviderConfig | undefined, onFallback?: (message: string) => void): TranslationProvider | undefined {
   if (config === undefined) return undefined;

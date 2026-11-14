@@ -5,6 +5,7 @@ import { translationMapSchema } from "../schemas.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
 import { MAX_RETRY_AFTER_MS } from "../constants.js";
 
+/** Tuning options shared by every HTTP provider that sends messages in batches. */
 export interface BatchedProviderOptions {
   /** Messages sent per request. Smaller batches keep responses within output limits. Default 40. */
   batchSize?: number;
@@ -18,12 +19,17 @@ export interface BatchedProviderOptions {
   concurrency?: number;
 }
 
+/** One translation call: the locale pair and the messages to translate between them. */
 export interface TranslateInput {
   sourceLocale: string;
   targetLocale: string;
   messages: TranslationRequest[];
 }
 
+/**
+ * Error raised for failures in a provider's response. `retryable` tells the batch retry loop whether another attempt may
+ * succeed; `retryAfterMs` carries the server's Retry-After hint when one was sent.
+ */
 class ProviderError extends Error {
   constructor(message: string, readonly retryable: boolean, readonly retryAfterMs?: number) {
     super(message);
@@ -42,10 +48,12 @@ function parseRetryAfter(header: string | null, now = Date.now()): number | unde
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+/** Builds the system instruction that tells the model the locale pair and to reply with a bare JSON ID-to-text object. */
 export function systemPrompt(input: TranslateInput): string {
   return `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.`;
 }
 
+/** Serializes messages as a JSON array of `{ id, text, context, kind }` for the user turn of the prompt. */
 export function userContent(messages: TranslationRequest[]): string {
   return JSON.stringify(messages.map(m => ({ id: m.id, text: m.source, context: m.context, kind: m.kind })));
 }
@@ -92,6 +100,10 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
     throw new PartialTranslationError(`${failed} messages failed to translate: ${(errors[0] as Error).message}`, result, failed);
   }
 
+  /**
+   * Runs one batch, retrying retryable failures with exponential backoff (`retryDelayMs * 2^attempt`, jittered)
+   * up to `maxRetries` extra attempts. Non-retryable errors are rethrown immediately.
+   */
   private async translateBatch(input: TranslateInput): Promise<Catalog> {
     const maxRetries = this.options.maxRetries ?? 2;
     const retryDelayMs = this.options.retryDelayMs ?? 500;

@@ -4,15 +4,21 @@ import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { ANTHROPIC_BASE_URL, ANTHROPIC_VERSION } from "../constants.js";
 
+/** Options for the Anthropic Messages API. */
 export interface AnthropicOptions extends BatchedProviderOptions {
   apiKey: string;
   model: string;
+  /** Overrides the API root, for example to target a proxy. */
   baseURL?: string;
   /** Maximum tokens the model may generate per batch. Default 8192. */
   maxTokens?: number;
 }
 
+/**
+ * Translates batches through the Anthropic Messages API. The reply's text blocks are joined before parsing.
+ */
 export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
+  /** Sends one batch and parses the model's text reply; a surrounding Markdown code fence is stripped first. */
   protected async request(input: TranslateInput): Promise<Catalog> {
     const response = await fetch(`${this.options.baseURL ?? ANTHROPIC_BASE_URL}/messages`, {
       method: "POST",

@@ -1,10 +1,11 @@
-import type { Node, JSXAttribute, JSXElement, JSXOpeningElement, JSXText, JSXExpressionContainer } from "oxc-parser";
+import type { JSXAttribute, JSXElement, JSXExpressionContainer, JSXOpeningElement, JSXText, Node } from "oxc-parser";
+import { CHILDREN_PROP, COMPONENT_TAG, DEFAULT_STRING_MARKER, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, TRANSLATABLE_ATTRS } from "../constants.js";
 import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import { hasLeadingBlockComment, isStringLiteral, parseSource, walk } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
-import { CHILDREN_PROP, COMPONENT_TAG, DEFAULT_STRING_MARKER, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, TRANSLATABLE_ATTRS } from "../constants.js";
 
+/** Options that tune which JSX and string literals are extracted. */
 export interface ExtractOptions {
   /**
    * Attributes of custom components whose string values are UI copy, keyed by component name. The pseudo-prop
@@ -15,27 +16,30 @@ export interface ExtractOptions {
   stringMarker?: string;
 }
 
+/** A plain JSX identifier used as an element name or attribute name. */
 type JSXIdentifierNode = Extract<JSXAttribute["name"], { type: "JSXIdentifier" }>;
 
-// Attribute strings are decoded like JSX text, so `title="A &amp; B"` yields the same source as Babel did.
+/** Attribute strings are decoded like JSX text, so `title="A &amp; B"` yields the same source as Babel did. */
 function attributeText(value: JSXAttribute["value"]): string | undefined {
   return isStringLiteral(value) ? decodeJsxEntities(value.value) : undefined;
 }
 
+/** Raw text of a JSX text node with character references decoded. */
 function textOf(node: JSXText): string {
   return decodeJsxEntities(node.value);
 }
 
+/** True when the element carries `translate="no"`, which excludes it and its subtree from extraction. */
 function hasIgnoreMarker(opening: JSXOpeningElement): boolean {
   return opening.attributes.some(a => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && a.name.name === IGNORE_ATTR && attributeText(a.value) === IGNORE_VALUE);
 }
 
-// Only intrinsic elements (lowercase DOM tags) carry copy by default; capitalised components need `children` in `componentProps`.
+/** Only intrinsic elements (lowercase DOM tags) carry copy by default; capitalised components need `children` in `componentProps`. */
 function isExtractableTag(name: JSXOpeningElement["name"]): name is JSXIdentifierNode {
   return name.type === "JSXIdentifier" && !COMPONENT_TAG.test(name.name) && !IGNORED_TAGS.has(name.name);
 }
 
-// Only side-effect-free references can become placeholders, so moving them inside a translated sentence is safe.
+/** Only side-effect-free references can become placeholders, so moving them inside a translated sentence is safe. */
 function placeholderExpressionName(expression: Node): string | undefined {
   if (expression.type === "Identifier") return expression.name;
   if (expression.type === "MemberExpression" && !expression.computed && expression.property.type === "Identifier") {
@@ -54,12 +58,13 @@ const isFunction = (node: Node, parent: Node | undefined): boolean => {
   return node.type === "FunctionDeclaration" || node.type === "ArrowFunctionExpression";
 };
 
+/** Index of the last node that satisfies `predicate`, or -1 if none does. */
 function lastIndexWhere(nodes: Node[], predicate: (node: Node) => boolean): number {
   for (let i = nodes.length - 1; i >= 0; i--) if (predicate(nodes[i])) return i;
   return -1;
 }
 
-// True when the node or any ancestor element is marked with translate="no". `chain` runs from the root to the node.
+/** True when the node or any ancestor element is marked with translate="no". `chain` runs from the root to the node. */
 function isMarkedUntranslated(chain: Node[]): boolean {
   return chain.some(node => {
     const opening = node.type === "JSXOpeningElement" ? node : node.type === "JSXElement" ? node.openingElement : undefined;
@@ -67,6 +72,10 @@ function isMarkedUntranslated(chain: Node[]): boolean {
   });
 }
 
+/**
+ * Builds the identity context for a message: tag, the attribute being extracted (if any), a sorted summary of
+ * identifying attributes, and the handler names. Attribute values that are expressions are recorded as `{expr}`.
+ */
 function elementContext(opening: JSXOpeningElement, tag: string, attr?: string): string {
   const attrs = opening.attributes
     .filter((a): a is JSXAttribute => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && ["aria-label", "title", "name", "type", "role"].includes(a.name.name))
@@ -80,6 +89,17 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
   return [tag, attr ?? "", attrs, handlers].filter(Boolean).join(" | ");
 }
 
+/**
+ * Finds translatable copy in a module: mixed-content JSX elements, plain JSX text, translatable JSX attributes, and
+ * string literals marked with a leading `/* i18n *\/` comment. Elements marked `translate="no"` are skipped with
+ * their whole subtree.
+ *
+ * @param code Source text of the module.
+ * @param filename Used for parsing and recorded on each message.
+ * @param options Component props and the string marker to honour.
+ * @returns The extracted messages, sorted by their start offset in `code`.
+ * @throws SyntaxError if `code` cannot be parsed.
+ */
 export function extractMessages(code: string, filename: string, options: ExtractOptions = {}): ExtractedMessage[] {
   const { program, commentsByEnd } = parseSource(code, filename);
   const found: ExtractedMessage[] = [];
@@ -91,7 +111,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     return isExtractableTag(name) || (COMPONENT_TAG.test(tag) && componentPropsFor(tag).includes(CHILDREN_PROP));
   };
 
-  // `ancestors` runs from the root to the parent of the node being inspected, so the enclosing function's parent is one step back.
+  /** `ancestors` runs from the root to the parent of the node being inspected, so the enclosing function's parent is one step back. */
   function componentName(ancestors: Node[]): string {
     let index = ancestors.length - 1;
     while (index >= 0 && !isFunction(ancestors[index], ancestors[index - 1])) index--;
@@ -103,6 +123,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     return "<anonymous>";
   }
 
+  /** Extracts a whole element whose children mix text and `{expression}` placeholders, such as `Hello {name}`. */
   function visitElement(node: JSXElement, ancestors: Node[]): void {
     if (isMarkedUntranslated([...ancestors, node])) return;
     const children = node.children;
@@ -135,6 +156,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     found.push(item);
   }
 
+  /** Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to `visitElement`. */
   function visitText(node: JSXText, ancestors: Node[]): void {
     if (isMarkedUntranslated([...ancestors, node])) return;
     const raw = textOf(node);
@@ -157,6 +179,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     found.push(item);
   }
 
+  /** Extracts a string-literal attribute whose name is translatable for this element or component. */
   function visitAttribute(node: JSXAttribute, ancestors: Node[]): void {
     if (node.name.type !== "JSXIdentifier") return;
     const attribute = node.name.name;
@@ -183,6 +206,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     found.push(item);
   }
 
+  /** Extracts a string literal that is preceded by the string marker comment. */
   function visitString(node: Node, ancestors: Node[]): void {
     if (!isStringLiteral(node)) return;
     if (ancestors[ancestors.length - 1]?.type === "JSXAttribute") return;

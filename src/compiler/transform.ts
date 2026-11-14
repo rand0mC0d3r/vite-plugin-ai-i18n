@@ -5,6 +5,7 @@ import { parseSource, walk } from "./ast.js";
 import { isUsableTranslation } from "./placeholders.js";
 import { PLACEHOLDER, RUNTIME_FORMAT, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
 
+/** An AST node that a resolved message should replace, tagged with how its replacement is written. */
 type Target =
   | { kind: "mixed"; node: JSXElement; message: ResolvedMessage }
   | { kind: "text"; node: JSXText; message: ResolvedMessage }
@@ -15,6 +16,19 @@ type Target =
  * Build mode bakes the catalogue for `locale` into the code. Runtime mode emits
  * `t(id, source)` calls that resolve against the catalogues loaded by RUNTIME_MODULE.
  * Messages written in `sourceLocale` are emitted as-is.
+ *
+ * Replacements are applied in place with MagicString, so the returned source map points back to the original file.
+ * When any runtime helper is used, the matching import from RUNTIME_MODULE is prepended.
+ *
+ * @param code Source text of the module to transform.
+ * @param filename Used for parsing and as the source name in the source map.
+ * @param messages Messages extracted from this file, each with its character range in `code`.
+ * @param locale Locale being built. Build mode looks translations up for this locale.
+ * @param catalog Translations for `locale`, keyed by message ID. Missing IDs fall back to the source text.
+ * @param runtime When true, emit runtime lookups instead of baked-in text.
+ * @param sourceLocale Locale the source code is written in. Its messages are never looked up.
+ * @returns The transformed code and its source map.
+ * @throws SyntaxError if `code` cannot be parsed.
  */
 export function transformSource(code: string, filename: string, messages: ResolvedMessage[], locale: string, catalog: Catalog, runtime = false, sourceLocale = "en"): { code: string; map: any } {
   const { program } = parseSource(code, filename);
@@ -49,6 +63,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
 
   const textFor = (message: ResolvedMessage): string => locale === sourceLocale ? message.source : catalog[message.id] ?? message.source;
 
+  /** Expression for a message's text: a `t(id, source)` call at runtime, or the translated string literal in build mode. */
   const lookup = (message: ResolvedMessage): string => {
     if (runtime) {
       usesRuntime = true;
@@ -57,6 +72,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
     return JSON.stringify(textFor(message));
   };
 
+  /** Like `lookup`, but also wraps the text in the whitespace that was outside the extracted message. */
   const withAffixes = (message: ResolvedMessage): string => {
     const prefix = message.prefix ?? "";
     const suffix = message.suffix ?? "";

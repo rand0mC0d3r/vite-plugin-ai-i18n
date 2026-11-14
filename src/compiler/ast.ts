@@ -1,14 +1,22 @@
 import { parseSync, type Comment, type Node, type StringLiteral } from "oxc-parser";
 
+/** Nodes from the root down to a node's parent, in order. */
 export type Ancestors = Node[];
+/** Callback invoked by {@link walk} for every node, with its ancestors. */
 export type Visitor = (node: Node, ancestors: Ancestors) => void;
 
+/** A parsed module together with its comments, ready for AST traversal. */
 export interface ParsedSource {
   program: Node;
   /** Indexed by end offset, so the comment directly before a node is a single lookup. */
   commentsByEnd: Map<number, Comment>;
 }
 
+/**
+ * Parses TSX source with oxc. Both module and script syntax are accepted.
+ *
+ * @throws SyntaxError with the file name and the first parser error.
+ */
 export function parseSource(code: string, filename: string): ParsedSource {
   const result = parseSync(filename, code, { lang: "tsx", sourceType: "unambiguous" });
   if (result.errors.length) throw new SyntaxError(`${filename}: ${result.errors[0].message}`);
@@ -32,6 +40,7 @@ export function walk(root: Node, visit: Visitor): void {
   visitNode(root);
 }
 
+/** Distinguishes AST nodes from other object values by the presence of a string `type`. */
 function isNode(value: unknown): value is Node {
   return typeof value === "object" && value !== null && typeof (value as { type?: unknown }).type === "string";
 }
