@@ -10,6 +10,7 @@ import { createFingerprint } from "../src/identity/fingerprint.js";
 import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
 import { createRuntimeModule } from "../src/runtime/virtual.js";
 import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
+import { FORMAT_LIBRARY } from "../src/constants.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
 
@@ -278,5 +279,85 @@ describe("autoI18n build hook", () => {
     await writeFile(path.join(root, "src/App.tsx"), SOURCE);
     const plugin = autoI18n({ locales: ["en", "de"], failOnMissingProvider: true });
     await expect(runBuild(plugin)).rejects.toThrow(/no provider is configured/);
+  });
+
+  it("re-indexes only the changed file on a hot update and skips the provider when nothing changed", async () => {
+    await writeFile(path.join(root, "src/App.tsx"), SOURCE);
+    await writeFile(path.join(root, "src/Other.tsx"), `export function Other() { return <p>Cancel</p>; }\n`);
+    const provider = fakeProvider();
+    const plugin = autoI18n({ locales: ["en", "de"], provider });
+    const errors: string[] = [];
+    const logger = { info() {}, warn() {}, error: (message: string) => errors.push(message) };
+    const hooks = plugin as unknown as {
+      configResolved: (c: { root: string; logger: unknown }) => void;
+      buildStart: (this: unknown) => Promise<void>;
+      handleHotUpdate: (context: { file: string }) => Promise<unknown>;
+    };
+    hooks.configResolved({ root, logger });
+    await hooks.buildStart.call({ info() {}, warn() {}, error(message: string) { throw new Error(message); } });
+    expect(provider.calls.flat()).toHaveLength(3);
+
+    await writeFile(path.join(root, "src/App.tsx"), SOURCE.replace("Save the file", "Save the document"));
+    await hooks.handleHotUpdate({ file: path.join(root, "src/App.tsx") });
+    expect(errors).toEqual([]);
+    expect(provider.calls).toHaveLength(2);
+    expect(provider.calls[1].map(m => m.source)).toContain("Save the document");
+
+    await hooks.handleHotUpdate({ file: path.join(root, "src/App.tsx") });
+    expect(errors).toEqual([]);
+    expect(provider.calls).toHaveLength(2);
+  });
+});
+
+describe("plugin hooks", () => {
+  type Hooks = {
+    resolveId: (this: unknown, id: string, importer?: string) => unknown;
+    load: (this: unknown, id: string) => unknown;
+  };
+  const noopProvider: TranslationProvider = { translate: async () => ({}) };
+
+  it("resolves the format module and resolves its library from the plugin's own dependencies", async () => {
+    const hooks = autoI18n({ locales: ["en", "de"], provider: noopProvider }) as unknown as Hooks;
+    expect(hooks.resolveId.call({}, "virtual:autoi18n-format")).toBe("\0virtual:autoi18n-format");
+
+    const resolve = vi.fn(async () => ({ id: "/plugin/intl.js" }));
+    await expect(hooks.resolveId.call({ resolve }, FORMAT_LIBRARY, "\0virtual:autoi18n-format")).resolves.toEqual({ id: "/plugin/intl.js" });
+    expect(resolve).toHaveBeenCalledWith(FORMAT_LIBRARY, expect.any(String), { skipSelf: true });
+    expect(hooks.resolveId.call({ resolve }, FORMAT_LIBRARY, "/app/src/App.tsx")).toBeUndefined();
+  });
+
+  it("loads the format module and the runtime module, and leaves other ids alone", () => {
+    const hooks = autoI18n({ locales: ["en", "de"], provider: noopProvider }) as unknown as Hooks;
+    expect(hooks.load.call({}, "\0virtual:autoi18n-format")).toContain(FORMAT_LIBRARY);
+    expect(hooks.load.call({}, "\0virtual:autoi18n")).toContain("export");
+    expect(hooks.load.call({}, "/app/src/App.tsx")).toBeUndefined();
+  });
+
+  it("names the options path in the error when the whole options value is invalid", () => {
+    expect(() => autoI18n("nope" as never)).toThrow(/invalid options \(options:/);
+  });
+});
+
+describe("mixed messages with whitespace around them", () => {
+  const MIXED = `export function Dialog({ count, doc }) { return <p>You have {count} documents, {doc.name} is {count} selected.</p>; }\n`;
+  const extracted = withIds(extractMessages(MIXED, "Dialog.tsx"));
+  const withAffixes = extracted.map(m => ({ ...m, prefix: " ", suffix: " " })) as ResolvedMessage[];
+  const withoutAffixes = extracted.map(({ prefix, suffix, ...m }) => m) as ResolvedMessage[];
+
+  it("keeps the whitespace around a translated message in build mode", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", withAffixes, "de", { msg_0: "{doc_name} hat {count} Dokumente, {count_2} gewählt." });
+    expect(code).toContain('__autoI18nFormat(" {doc_name} hat {count} Dokumente, {count_2} gewählt. ", ');
+  });
+
+  it("builds a message without affixes in build mode", () => {
+    const { code } = transformSource(MIXED, "Dialog.tsx", withoutAffixes, "de", { msg_0: "{doc_name} hat {count}, {count_2}" });
+    expect(code).toContain('__autoI18nFormat("{doc_name} hat {count}, {count_2}", ');
+  });
+
+  it("joins the whitespace around a runtime lookup, and omits it when the message has none", () => {
+    const withSpace = transformSource(MIXED, "Dialog.tsx", withAffixes, "de", {}, true).code;
+    expect(withSpace).toContain('" " + __autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected.") + " "');
+    const without = transformSource(MIXED, "Dialog.tsx", withoutAffixes, "de", {}, true).code;
+    expect(without).toContain('__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected."), {');
   });
 });

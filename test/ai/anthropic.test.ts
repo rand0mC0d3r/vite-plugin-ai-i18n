@@ -50,6 +50,13 @@ describe("AnthropicProvider", () => {
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
+  it("treats a text block without text as empty", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({
+      content: [{ type: "text" }, { type: "text", text: "{\"a\":\"Speichern\"}" }]
+    })));
+    expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
+  });
+
   it("accepts JSON wrapped in a Markdown code fence", async () => {
     fetchMock.mockResolvedValue(messageResponse("```json\n{\"a\": \"Speichern\"}\n```"));
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });

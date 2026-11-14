@@ -60,6 +60,16 @@ describe("FallbackProvider", () => {
     expect(onFallback).toHaveBeenCalledWith(expect.stringContaining("anthropic failed (401 unauthorized)"));
   });
 
+  it("describes a thrown value that is not an Error by its string form", async () => {
+    const onFallback = vi.fn();
+    const primary = fake(async () => { throw "quota exhausted"; });
+    const secondary = fake(async () => ({ a: "A", b: "B", c: "C" }));
+    const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary }, onFallback);
+
+    await provider!.translate(input);
+    expect(onFallback).toHaveBeenCalledWith(expect.stringContaining("anthropic failed (quota exhausted)"));
+  });
+
   it("sends only the missing messages after a partial result", async () => {
     const primary = fake(async () => { throw new PartialTranslationError("1 failed", { a: "A" }, 2); });
     const secondary = fake(async () => ({ b: "B", c: "C" }));

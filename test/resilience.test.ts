@@ -187,6 +187,14 @@ describe("corrupt file handling", () => {
     expect((await readdir(dir)).some(f => f.startsWith("registry.json.corrupt-"))).toBe(true);
   });
 
+  it("loads an empty registry when the registry header has an unknown version", async () => {
+    const file = path.join(dir, "registry.json");
+    await writeFile(file, JSON.stringify({ version: 99, entries: {} }));
+    const warn = vi.fn();
+    expect(await loadRegistry(file, warn)).toEqual({ version: 1, entries: {} });
+    expect(warn).toHaveBeenCalled();
+  });
+
   it("keeps valid registry entries and drops invalid ones", async () => {
     const file = path.join(dir, "registry.json");
     const valid = { id: "msg_a", source: "Save", kind: "text", tag: "button", component: "App", context: "", fingerprint: "fp", location: "App.tsx:1", status: "active", firstSeen: "2026-01-01T00:00:00.000Z", lastSeen: "2026-01-01T00:00:00.000Z" };

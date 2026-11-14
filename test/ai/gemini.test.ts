@@ -65,6 +65,18 @@ describe("GeminiProvider", () => {
     await expect(provider({ maxRetries: 0 }).translate(input([request("a")]))).rejects.toThrow();
   });
 
+  it("ignores parts that carry no text", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({
+      candidates: [{ content: { role: "model", parts: [{ text: "{\"a\":\"Speichern\"}" }, { inlineData: {} }] } }]
+    })));
+    expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
+  });
+
+  it("treats a candidate without content as an empty reply", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ candidates: [{ finishReason: "SAFETY" }] })));
+    await expect(provider({ maxRetries: 0 }).translate(input([request("a")]))).rejects.toThrow("no content");
+  });
+
   it("joins text across all parts of the first candidate", async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({
       candidates: [{ content: { role: "model", parts: [{ text: "{\"a\":" }, { text: "\"Speichern\"}" }] } }]

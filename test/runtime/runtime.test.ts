@@ -23,6 +23,14 @@ describe("formatMessage", () => {
     expect(format("{g, select, female {She} other {They}} wrote it", { g: "female" }).join("")).toBe("She wrote it");
   });
 
+  it("gives the same result when a cached formatter is reused", () => {
+    const cache = new Map();
+    const text = "{n, plural, one {# file} other {# files}}";
+    expect(formatMessage(IntlMessageFormat, cache, text, { n: 3 }, "en").join("")).toBe("3 files");
+    expect(formatMessage(IntlMessageFormat, cache, text, { n: 1 }, "en").join("")).toBe("1 file");
+    expect(cache.size).toBe(1);
+  });
+
   it("reads escaped apostrophes and braces as literal text", () => {
     expect(format("Don''t delete '{'{count}'}' files", { count: 2 }).join("")).toBe("Don't delete {2} files");
   });
