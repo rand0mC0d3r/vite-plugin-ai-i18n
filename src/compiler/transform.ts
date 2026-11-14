@@ -1,7 +1,6 @@
 import MagicString from "magic-string";
-import type { JSXElement, JSXText, StringLiteral } from "oxc-parser";
 import type { Catalog, ResolvedMessage } from "../types.js";
-import { parseSource, walk } from "./ast.js";
+import { parseSource, walk, type JSXElement, type JSXText, type StringLiteral } from "./ast.js";
 import { isUsableTranslation } from "./placeholders.js";
 import { PLACEHOLDER, RUNTIME_FORMAT, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
 

@@ -1,4 +1,20 @@
-import { parseSync, type Comment, type Node, type StringLiteral } from "oxc-parser";
+import { parseSync, type ESTree } from "rolldown/utils";
+
+export type Node = ESTree.Node;
+export type StringLiteral = ESTree.StringLiteral;
+export type JSXElement = ESTree.JSXElement;
+export type JSXText = ESTree.JSXText;
+export type JSXAttribute = ESTree.JSXAttribute;
+export type JSXExpressionContainer = ESTree.JSXExpressionContainer;
+export type JSXOpeningElement = ESTree.JSXOpeningElement;
+
+/** A comment from the parser's `comments` list. */
+export interface Comment {
+  type: "Line" | "Block";
+  value: string;
+  start: number;
+  end: number;
+}
 
 /** Nodes from the root down to a node's parent, in order. */
 export type Ancestors = Node[];
