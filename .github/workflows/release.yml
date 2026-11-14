@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Releases run one at a time so each bump is computed from the latest tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
+
+  prepare:
+    name: Determine next version
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      bump: ${{ steps.version.outputs.bump }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      previous_tag: ${{ steps.version.outputs.previous_tag }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+
+      - name: Compute next version from conventional commits
+        id: version
+        run: node .github/scripts/release.mjs next-version >> "$GITHUB_OUTPUT"
+
+      - name: Bump version, commit, and tag
+        id: commit
+        if: steps.version.outputs.bump != 'none'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          npm version "$VERSION" --no-git-tag-version
+          git add package.json package-lock.json
+          git commit -m "chore(release): $TAG [skip ci]"
+          git tag "$TAG"
+          git push origin "HEAD:refs/heads/main" "refs/tags/$TAG"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish to npm
+    needs: prepare
+    if: needs.prepare.outputs.bump != 'none'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - run: npm ci
+
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release:
+    name: Create GitHub Release
+    needs: [prepare, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+
+      - name: Generate changelog from previous release
+        env:
+          PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: node .github/scripts/release.mjs changelog "$PREVIOUS_TAG" "$TAG" > "$RUNNER_TEMP/release-notes.md"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag

@@ -562,6 +562,10 @@ Return only the IDs you translated. Omitted IDs stay in the source language and 
 
 The `prune` CLI options (`--directory`, `--retention-minutes`, `--debug`) are described in the orphan paragraph of [Try the bundled example](#-try-the-bundled-example).
 
+### Releases
+
+Every push to `main` runs [.github/workflows/release.yml](.github/workflows/release.yml): verify, then bump the version from [conventional commits](https://www.conventionalcommits.org/) since the last `v*` tag (`fix`/`perf` → patch, `feat` → minor, `!` or `BREAKING CHANGE:` → major), publish to npm, and create a GitHub Release whose notes list the changes since the previous tag. Pushes without a releasable commit do nothing. The release commit is `chore(release): vX.Y.Z [skip ci]`.
+
 ## 🧪 Test coverage
 
 Run the suite with coverage (V8 provider, `src/**`):
