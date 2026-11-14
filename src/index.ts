@@ -5,6 +5,7 @@ import path from "node:path";
 import { debugLog } from "./debug.js";
 import { buildCatalogs } from "./engine.js";
 import { extractMessages } from "./compiler/extract.js";
+import { parseSource, type ParsedSource } from "./compiler/ast.js";
 import { transformSource } from "./compiler/transform.js";
 import { localeFilePath, writeLocaleFile, type LocaleFile } from "./catalog.js";
 import { DEFAULT_EXCLUDE, DEFAULT_INCLUDE, DEFAULT_ORPHAN_RETENTION_MINUTES, RUNTIME_MODULE, UPDATE_EVENT, WATCH_DEBOUNCE_MS } from "./constants.js";
@@ -133,6 +134,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   // Reads and extracts each file, reusing a cached extraction whose content hash is unchanged.
   async function extractFiles(files: string[], incremental: boolean, changedFile: string | undefined) {
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
+    const nextParsed = new Map<string, ParsedSource>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
       const cached = state.extractions.get(file);
@@ -142,12 +144,18 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       } else {
         const code = await readFile(file, "utf8");
         const hash = hashContent(code);
-        entry = cached?.hash === hash ? cached : { hash, messages: extractMessages(code, file, extractOptions) };
+        if (cached?.hash === hash) {
+          entry = cached;
+        } else {
+          const parsed = parseSource(code, file);
+          entry = { hash, messages: extractMessages(code, file, extractOptions, parsed) };
+          nextParsed.set(file, parsed);
+        }
       }
       nextExtractions.set(file, entry);
       indexed.push({ file, messages: entry.messages });
     }
-    return { nextExtractions, indexed };
+    return { nextExtractions, nextParsed, indexed };
   }
 
   // Logs the per-locale outcome of a build: missing providers, rejected, untranslated and failed messages.
@@ -178,7 +186,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     const files = incremental
       ? [...state.extractions.keys()]
       : await collectFiles();
-    const { nextExtractions, indexed } = await extractFiles(files, incremental, changedFile);
+    const { nextExtractions, nextParsed, indexed } = await extractFiles(files, incremental, changedFile);
 
     const outDir = localesDir();
     const locales = localesToTranslate();
@@ -229,6 +237,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       offset += messages.length;
     }
     state.extractions = nextExtractions;
+    state.parsedSources = nextParsed;
     state.catalogs = nextCatalogs;
     state.catalogFiles = Object.fromEntries(options.locales.map(locale => [locale, localeFilePath(outDir, locale)]));
 
@@ -320,7 +329,10 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         return null;
       }
       const locale = config.command === "serve" ? sourceLocale : selectedLocale();
-      const result = transformSource(code, file, messages, locale, state.catalogs.get(locale) ?? {}, delivery === "runtime", sourceLocale);
+      // The AST is only reused while the code still matches the indexed hash, so it describes the same text.
+      const parsed = state.parsedSources.get(file);
+      state.parsedSources.delete(file);
+      const result = transformSource(code, file, messages, locale, state.catalogs.get(locale) ?? {}, delivery === "runtime", sourceLocale, parsed);
       return { code: result.code, map: result.map };
     },
     async handleHotUpdate({ file }) {

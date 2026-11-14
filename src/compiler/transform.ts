@@ -1,6 +1,6 @@
 import MagicString from "magic-string";
 import type { Catalog, ResolvedMessage } from "../types.js";
-import { parseSource, walk, type JSXElement, type JSXText, type StringLiteral } from "./ast.js";
+import { parseSource, walk, type JSXElement, type JSXText, type ParsedSource, type StringLiteral } from "./ast.js";
 import { isUsableTranslation } from "./placeholders.js";
 import { PLACEHOLDER, RUNTIME_FORMAT, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
 
@@ -29,8 +29,8 @@ type Target =
  * @returns The transformed code and its source map.
  * @throws SyntaxError if `code` cannot be parsed.
  */
-export function transformSource(code: string, filename: string, messages: ResolvedMessage[], locale: string, catalog: Catalog, runtime = false, sourceLocale = "en"): { code: string; map: any } {
-  const { program } = parseSource(code, filename);
+export function transformSource(code: string, filename: string, messages: ResolvedMessage[], locale: string, catalog: Catalog, runtime = false, sourceLocale = "en", parsed: ParsedSource = parseSource(code, filename)): { code: string; map: any } {
+  const { program } = parsed;
   const byKind = {
     mixed: new Map<number, ResolvedMessage>(),
     text: new Map<number, ResolvedMessage>(),

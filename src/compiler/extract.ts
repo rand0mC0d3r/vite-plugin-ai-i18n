@@ -1,7 +1,7 @@
 import { CHILDREN_PROP, COMPONENT_TAG, DEFAULT_STRING_MARKER, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, TRANSLATABLE_ATTRS } from "../constants.js";
 import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
-import { hasLeadingBlockComment, isStringLiteral, parseSource, walk, type JSXAttribute, type JSXElement, type JSXExpressionContainer, type JSXOpeningElement, type JSXText, type Node } from "./ast.js";
+import { hasLeadingBlockComment, isStringLiteral, parseSource, walk, type JSXAttribute, type JSXElement, type JSXExpressionContainer, type JSXOpeningElement, type JSXText, type Node, type ParsedSource } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
 
 /** Options that tune which JSX and string literals are extracted. */
@@ -112,8 +112,8 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
  * @returns The extracted messages, sorted by their start offset in `code`.
  * @throws SyntaxError if `code` cannot be parsed.
  */
-export function extractMessages(code: string, filename: string, options: ExtractOptions = {}): ExtractedMessage[] {
-  const { program, commentsByEnd } = parseSource(code, filename);
+export function extractMessages(code: string, filename: string, options: ExtractOptions = {}, parsed: ParsedSource = parseSource(code, filename)): ExtractedMessage[] {
+  const { program, commentsByEnd } = parsed;
   const found: ExtractedMessage[] = [];
   /** Stores a message with the fingerprint derived from its identifying fields. */
   const record = (item: Omit<ExtractedMessage, "fingerprint">): void => {
