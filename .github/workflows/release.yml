@@ -32,10 +32,18 @@ jobs:
 
       - run: npm run build
 
+      - run: npm pack --dry-run --json > package-pack.json
+
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-summary
           path: coverage/coverage-summary.json
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-pack
+          path: package-pack.json
           if-no-files-found: error
 
   prepare:
@@ -125,13 +133,19 @@ jobs:
           name: coverage-summary
           path: coverage-summary
 
-      - name: Generate release notes with test coverage
+      - uses: actions/download-artifact@v4
+        with:
+          name: package-pack
+          path: package-pack
+
+      - name: Generate release notes with test coverage and package metrics
         env:
           PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
           TAG: ${{ needs.prepare.outputs.tag }}
         run: |
           node .github/scripts/release.mjs changelog "$PREVIOUS_TAG" "$TAG" > "$RUNNER_TEMP/release-notes.md"
           node .github/scripts/release.mjs coverage coverage-summary/coverage-summary.json >> "$RUNNER_TEMP/release-notes.md"
+          node .github/scripts/release.mjs package package-pack/package-pack.json package.json >> "$RUNNER_TEMP/release-notes.md"
 
       - name: Create GitHub Release
         env:

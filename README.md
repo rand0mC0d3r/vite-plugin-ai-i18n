@@ -569,8 +569,12 @@ Every push to `main` runs [.github/workflows/release.yml](.github/workflows/rele
 Test coverage in the release pipeline:
 
 - The `verify` job runs `npm run test:coverage`, which runs the suite with V8 coverage on `src/**` and writes `coverage/coverage-summary.json`. That summary is uploaded as the `coverage-summary` artifact.
-- The GitHub Release notes end with a `## Test coverage` section, generated from that summary by `node .github/scripts/release.mjs coverage`. It lists statements, branches, functions, and lines for the commit being released.
-- No coverage threshold is enforced. A drop in coverage does not block a release.
+- The `verify` job also runs `npm pack --dry-run --json` after the build and uploads the report as the `package-pack` artifact.
+- The GitHub Release notes end with three generated sections:
+  - `## Test coverage`, from the coverage summary, with statements, branches, functions, and lines for the commit being released.
+  - `## Package`, with tarball size, unpacked size, and file count, plus distribution by location and by type.
+  - `## Dependencies`, with runtime and peer dependencies from `package.json`. Dependencies are not bundled into `dist/`.
+- No coverage threshold is enforced and no size limit is checked. A drop in coverage or an increase in package size does not block a release.
 - To check coverage before pushing to `main`, run the command in [Test coverage](#-test-coverage) locally.
 
 ## 🧪 Test coverage
