@@ -118,7 +118,7 @@ Messages removed from the source are kept as orphans in `registry.json` so their
 
 🙈 To keep copy out of automatic translation, add `translate="no"` to the element (for example `<h2 translate="no">Sample code</h2>`). This is the standard HTML marker, and it also covers the element's descendants and attributes such as `title`.
 
-🏷️ To translate copy outside JSX, put a `/* i18n */` block comment directly before the string literal, for example `const items = [{ label: /* i18n */ "Shared with your team" }];`. Marked strings are translated in both build and runtime delivery. Unmarked string literals are never extracted.
+🏷️ To translate copy outside JSX, put a `/* i18n */` block comment directly before the string literal, for example `const items = [{ label: /* i18n */ "Shared with your team" }];`. Marked strings are translated in both build and runtime delivery. In runtime delivery the lookup runs when the expression is evaluated, so a marked string in a module-level constant keeps the locale active at import time; put such literals inside a component or function that runs at render. Unmarked string literals are never extracted.
 
 Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and a warning is logged; the plugin continues with an empty state. Writes are atomic, so an interrupted build does not leave a truncated file.
 

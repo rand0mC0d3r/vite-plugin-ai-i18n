@@ -33,7 +33,8 @@ interface DocumentItem {
   status: string;
 }
 
-const documents: DocumentItem[] = [
+// Called during render: runtime-delivered strings are looked up when evaluated, so a module-level constant would keep the import-time locale.
+const createDocuments = (): DocumentItem[] => [
   { id: 1, name: /* i18n */ "Quarterly report.pdf", pages: 12, status: /* i18n */ "Shared with your team" },
   { id: 2, name: /* i18n */ "Onboarding checklist.docx", pages: 3, status: /* i18n */ "Private" },
   { id: 3, name: /* i18n */ "Budget 2027.xlsx", pages: 1, status: /* i18n */ "Shared with your team" },
@@ -66,7 +67,7 @@ export function DocumentDashboard() {
     <p>You have {selected} documents selected.</p>
     <DocumentToolbar onSave={() => setSaved(true)} onSaveAs={() => setSaved(true)} onCancel={() => setSelected(0)} />
     <FilterPanel onSave={() => setSaved(true)} />
-    <DocumentList items={documents} />
+    <DocumentList items={createDocuments()} />
     {saved && <p role="status">Changes saved successfully.</p>}
     <DeleteDialog count={selected} onClose={() => setSelected(0)} onDelete={() => setSelected(0)} />
   </main>;
