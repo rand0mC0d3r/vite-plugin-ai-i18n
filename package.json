@@ -50,6 +50,7 @@
         "example:build": "vite build example",
         "preview": "vite build example && vite preview example --port 4173 --strictPort",
         "test": "vitest run",
+        "test:coverage": "vitest run --coverage --coverage.include='src/**' --coverage.reporter=text --coverage.reporter=json-summary",
         "typecheck": "tsc --noEmit"
     },
     "peerDependencies": {

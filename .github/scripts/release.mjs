@@ -4,8 +4,11 @@
 //     Prints key=value lines (previous_tag, bump, version, tag) for $GITHUB_OUTPUT.
 //   node .github/scripts/release.mjs changelog <from-ref> <to-ref>
 //     Prints Markdown release notes for the commits in <from-ref>..<to-ref>.
+//   node .github/scripts/release.mjs coverage <coverage-summary.json>
+//     Prints a Markdown coverage table from a Vitest json-summary report.
 
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 
 const FIELD = '\x1f';
 const RECORD = '\x1e';
@@ -126,6 +129,31 @@ function changelogCommand(from, to) {
   console.log(lines.join('\n'));
 }
 
+function coverageCommand(file) {
+  const { total } = JSON.parse(readFileSync(file, 'utf8'));
+  const metrics = [
+    ['Statements', total.statements],
+    ['Branches', total.branches],
+    ['Functions', total.functions],
+    ['Lines', total.lines],
+  ];
+
+  const lines = [
+    '## Test coverage',
+    '',
+    'Measured on `src/**` (V8) for the commit in this release.',
+    '',
+    '| Metric | Coverage | Covered / Total |',
+    '|---|---|---|',
+  ];
+  for (const [name, metric] of metrics) {
+    lines.push(`| ${name} | ${metric.pct}% | ${metric.covered} / ${metric.total} |`);
+  }
+  lines.push('');
+
+  console.log(lines.join('\n'));
+}
+
 const [command, ...args] = process.argv.slice(2);
 
 switch (command) {
@@ -136,6 +164,10 @@ switch (command) {
     if (args.length !== 2) fail('Usage: release.mjs changelog <from-ref> <to-ref>');
     changelogCommand(args[0], args[1]);
     break;
+  case 'coverage':
+    if (args.length !== 1) fail('Usage: release.mjs coverage <coverage-summary.json>');
+    coverageCommand(args[0]);
+    break;
   default:
-    fail('Usage: release.mjs <next-version | changelog <from-ref> <to-ref>>');
+    fail('Usage: release.mjs <next-version | changelog <from-ref> <to-ref> | coverage <file>>');
 }

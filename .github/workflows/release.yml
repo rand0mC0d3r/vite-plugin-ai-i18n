@@ -28,9 +28,15 @@ jobs:
 
       - run: npm run typecheck
 
-      - run: npm test
+      - run: npm run test:coverage
 
       - run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary
+          path: coverage/coverage-summary.json
+          if-no-files-found: error
 
   prepare:
     name: Determine next version
@@ -114,11 +120,18 @@ jobs:
         with:
           node-version: 26
 
-      - name: Generate changelog from previous release
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-summary
+          path: coverage-summary
+
+      - name: Generate release notes with test coverage
         env:
           PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
           TAG: ${{ needs.prepare.outputs.tag }}
-        run: node .github/scripts/release.mjs changelog "$PREVIOUS_TAG" "$TAG" > "$RUNNER_TEMP/release-notes.md"
+        run: |
+          node .github/scripts/release.mjs changelog "$PREVIOUS_TAG" "$TAG" > "$RUNNER_TEMP/release-notes.md"
+          node .github/scripts/release.mjs coverage coverage-summary/coverage-summary.json >> "$RUNNER_TEMP/release-notes.md"
 
       - name: Create GitHub Release
         env:

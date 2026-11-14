@@ -566,6 +566,13 @@ The `prune` CLI options (`--directory`, `--retention-minutes`, `--debug`) are de
 
 Every push to `main` runs [.github/workflows/release.yml](.github/workflows/release.yml): verify, then bump the version from [conventional commits](https://www.conventionalcommits.org/) since the last `v*` tag (`fix`/`perf` → patch, `feat` → minor, `!` or `BREAKING CHANGE:` → major), publish to npm, and create a GitHub Release whose notes list the changes since the previous tag. Pushes without a releasable commit do nothing. The release commit is `chore(release): vX.Y.Z [skip ci]`.
 
+Test coverage in the release pipeline:
+
+- The `verify` job runs `npm run test:coverage`, which runs the suite with V8 coverage on `src/**` and writes `coverage/coverage-summary.json`. That summary is uploaded as the `coverage-summary` artifact.
+- The GitHub Release notes end with a `## Test coverage` section, generated from that summary by `node .github/scripts/release.mjs coverage`. It lists statements, branches, functions, and lines for the commit being released.
+- No coverage threshold is enforced. A drop in coverage does not block a release.
+- To check coverage before pushing to `main`, run the command in [Test coverage](#-test-coverage) locally.
+
 ## 🧪 Test coverage
 
 Run the suite with coverage (V8 provider, `src/**`):
@@ -576,12 +583,12 @@ npx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
 
 | Metric | Coverage |
 |---|---|
-| Statements | 99.4% |
-| Branches | 89.4% |
-| Functions | 97.6% |
-| Lines | 99.4% |
+| Statements | 89.4% (1100/1230) |
+| Branches | 82.8% (564/681) |
+| Functions | 91.1% (246/270) |
+| Lines | 91.9% (874/951) |
 
-Critical modules such as the plugin hooks (`src/index.ts`), translation pipeline (`src/translate.ts`), build engine (`src/engine.ts`), runtime helpers (`src/runtime/`), and prune CLI (`src/cli/prune.ts`) are all at or above 98% statements.
+Per module: the plugin hooks (`src/index.ts`) are at 95.9% statements, the translation pipeline (`src/translate.ts`) and runtime helpers (`src/runtime/`) at 100%, and the prune CLI (`src/cli/prune.ts`) at 96.5%. The stats CLI (`src/cli/stats.ts`) has no test coverage (0%), and the compiler's entity table (`src/compiler/entities.ts`) is at 28.6%.
 
 ## Known limitations
 
