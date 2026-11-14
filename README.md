@@ -1,11 +1,13 @@
-# 🌍 vite-plugin-autoi18n — MVP sketch 🚀
+# 🌍 vite-plugin-autoi18n 🚀
 
 Implicit build-time localization for JSX: author English directly, let the compiler extract user-facing copy, persist message identities, and optionally translate through an AI provider.
 
-## 🧩 Current MVP scope
+> **Status: beta.** The configuration options and the `.autoi18n/` file formats are intended to stay stable. Review the [known limitations](#known-limitations) before shipping to production, and pin the version while in beta.
+
+## 🧩 Scope
 
 - Extracts JSX text nodes and static string JSX attributes.
-- Extracts string literals outside JSX only when they are marked with a leading `/* i18n */` comment.
+- Extracts string literals outside JSX only when they are marked with a leading block comment (`/* i18n */` by default, configurable with `stringMarker`).
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
 - Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionMinutes`).
@@ -14,6 +16,236 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
 - Re-translates a message when its source text changes, tracked in the `sources` map of `.autoi18n/locales/<locale>.json`.
 - Includes a deliberately varied document-dashboard example.
+
+## 🔄 How it works: four phases
+
+Every build (and every dev-server save) runs the same four phases. The examples below follow one component through them. IDs are shortened for readability; real IDs look like `msg_6f5e12bdbc7a4804`.
+
+### Phase 0: the source you write
+
+```tsx
+// src/Doc.tsx
+export function Doc({ count }: { count: number }) {
+  return (
+    <section>
+      <button title="Save the current document">Save</button>
+      <p>You have {count} documents</p>
+    </section>
+  );
+}
+```
+
+### Phase 1: extract
+
+The compiler parses each file in `include` and records every translatable string with its kind, tag, component and a fingerprint. Nothing is written yet.
+
+```jsonc
+[
+  { "source": "Save the current document", "kind": "attribute", "tag": "button", "attribute": "title", "component": "Doc", "context": "button | title | title=Save the current document" },
+  { "source": "Save", "kind": "text", "tag": "button", "component": "Doc", "context": "button | title=Save the current document" },
+  { "source": "You have {count} documents", "kind": "mixed", "placeholders": ["count"], "tag": "p", "component": "Doc", "context": "p" }
+]
+```
+
+Mixed sentences keep their simple expressions as named placeholders, so the translator sees `{count}` as a token to preserve.
+
+### Phase 2: identify
+
+Each extracted message is matched against `.autoi18n/registry.json`. A match keeps the existing ID. A new message gets a new opaque ID. A message that disappears is marked `orphaned`, not deleted, so its ID can come back.
+
+```jsonc
+// .autoi18n/registry.json (excerpt)
+{
+  "version": 1,
+  "entries": {
+    "msg_a1": {
+      "id": "msg_a1",
+      "source": "Save the current document",
+      "kind": "attribute",
+      "tag": "button",
+      "component": "Doc",
+      "attribute": "title",
+      "fingerprint": "58365c073009b7b7b2aa27b1",
+      "location": "src/Doc.tsx:4",
+      "status": "active",
+      "firstSeen": "2026-11-02T17:28:36.128Z",
+      "lastSeen": "2026-11-14T14:54:42.201Z"
+    }
+  }
+}
+```
+
+Component names and file paths are not part of the fingerprint, so moving or renaming a file does not change the ID.
+
+### Phase 3: translate
+
+Only new or changed messages (source text changed since the last build) are sent to the provider. Results are stored in `.autoi18n/locales/<locale>.json`, next to the source text each translation was made from.
+
+```jsonc
+// .autoi18n/locales/de.json
+{
+  "messages": {
+    "msg_a1": "Dokument speichern",
+    "msg_a2": "Speichern",
+    "msg_a3": "Du hast {count} Dokumente"
+  },
+  "sources": {
+    "msg_a1": "Save the current document",
+    "msg_a2": "Save",
+    "msg_a3": "You have {count} documents"
+  }
+}
+```
+
+Translations never overwrite an existing entry silently. If the source text changes, the stored `sources` entry no longer matches and the message is translated again.
+
+### Phase 4: transform
+
+The source is rewritten according to `delivery`.
+
+**`delivery: "build"`** (one compiled bundle per locale) bakes the German text into the code. The `t()` call disappears:
+
+```diff
+ export function Doc({ count }: { count: number }) {
+   return (
+     <section>
+-      <button title="Save the current document">Save</button>
+-      <p>You have {count} documents</p>
++      <button title="Dokument speichern">{"Speichern"}</button>
++      <p>{"Du hast "}{count}{" Dokumente"}</p>
+     </section>
+   );
+ }
+```
+
+**`delivery: "runtime"`** (one bundle, catalogues loaded in the browser) replaces each string with a lookup. The source text stays in the code as the fallback:
+
+```diff
++import { t as __autoI18nT, format as __autoI18nFormat } from "virtual:autoi18n";
+ export function Doc({ count }: { count: number }) {
+   return (
+     <section>
+-      <button title="Save the current document">Save</button>
+-      <p>You have {count} documents</p>
++      <button title={__autoI18nT("msg_a1", "Save the current document")}>{__autoI18nT("msg_a2", "Save")}</button>
++      <p>{__autoI18nFormat(__autoI18nT("msg_a3", "You have {count} documents"), {"count": count})}</p>
+     </section>
+   );
+ }
+```
+
+If a locale has no translation for an ID, the source text is shown. Nothing breaks while translations are missing.
+
+### Dev server
+
+Saving a file re-runs phases 1 to 3 for that project and pushes the updated catalogues to the browser over `autoi18n:update`, so the page updates without a reload.
+
+## 📚 Examples
+
+### Minimal build with one locale per CI job
+
+Use `locale` or the `AUTOI18N_LOCALE` variable. Only that locale is translated and compiled:
+
+```ts
+// vite.config.ts
+autoI18n({
+  locales: ["en", "de", "fr"],
+  locale: process.env.AUTOI18N_LOCALE, // undefined = all locales
+  provider: new OpenAICompatibleProvider({ apiKey: process.env.OPENAI_API_KEY!, model: "gpt-4.1-mini" }),
+  failOnMissingProvider: true
+})
+```
+
+```yaml
+# .github/workflows/build.yml (excerpt)
+strategy:
+  matrix:
+    locale: [en, de, fr]
+steps:
+  - run: AUTOI18N_LOCALE=${{ matrix.locale }} npx vite build --outDir dist/${{ matrix.locale }}
+```
+
+### Runtime delivery with a locale switcher
+
+```ts
+// vite.config.ts
+autoI18n({ locales: ["en", "de", "fr"], delivery: "runtime" }), // no provider: source text is shown until translations exist
+react() // keep autoI18n before the React plugin
+```
+
+```tsx
+// src/LocaleSwitcher.tsx
+import { useSyncExternalStore } from "react";
+import { getLocale, getVersion, locales, setLocale, subscribe } from "virtual:autoi18n";
+
+export function LocaleSwitcher() {
+  // Re-render when the locale or any catalogue changes
+  useSyncExternalStore(subscribe, getVersion, getVersion);
+  return (
+    <select value={getLocale()} onChange={e => setLocale(e.target.value)}>
+      {locales.map(code => <option key={code} value={code} translate="no">{code}</option>)}
+    </select>
+  );
+}
+```
+
+### Marking copy that should stay untranslated
+
+```tsx
+<h2 translate="no">Sample code</h2>
+<code title="Product SKU">SKU-1042</code>
+```
+
+`translate="no"` also covers the element's descendants and attributes.
+
+### Translating strings outside JSX
+
+Put a block comment directly before the literal. Lookups run when the expression is evaluated, so put marked strings inside a component or function, not at module level, in runtime delivery:
+
+```tsx
+export function Items() {
+  const items = [{ label: /* i18n */ "Shared with your team" }, { label: "Private" }];
+  return <ul>{items.map(i => <li key={i.label}>{i.label}</li>)}</ul>;
+}
+```
+
+Only `"Shared with your team"` is translated. `"Private"` has no marker and stays English.
+
+### Custom marker and custom components
+
+```ts
+autoI18n({
+  locales: ["en", "de"],
+  stringMarker: "t", // write /* t */ "Save" instead
+  componentProps: {
+    Button: ["aria-label", "title", "children"], // <Button>Save</Button> is translated
+    Tooltip: ["content"]
+  }
+})
+```
+
+With this config, `<Button title="Delete">Delete {count} files</Button>` extracts both the attribute and the text as a placeholder message.
+
+### Writing your own provider
+
+Any object with a `translate` method works:
+
+```ts
+import type { TranslationProvider } from "vite-plugin-ai-auto-i18n";
+
+const deepl: TranslationProvider = {
+  async translate({ sourceLocale, targetLocale, messages }) {
+    const out: Record<string, string> = {};
+    for (const m of messages) {
+      // Keep {placeholders} intact; the plugin rejects translations that change them.
+      out[m.id] = await callYourService(m.source, targetLocale);
+    }
+    return out;
+  }
+};
+```
+
+Return only the IDs you translated. Throw `PartialTranslationError` to keep a partial result.
 
 ## 📦 Installation
 
@@ -118,7 +350,7 @@ Messages removed from the source are kept as orphans in `registry.json` so their
 
 🙈 To keep copy out of automatic translation, add `translate="no"` to the element (for example `<h2 translate="no">Sample code</h2>`). This is the standard HTML marker, and it also covers the element's descendants and attributes such as `title`.
 
-🏷️ To translate copy outside JSX, put a `/* i18n */` block comment directly before the string literal, for example `const items = [{ label: /* i18n */ "Shared with your team" }];`. Marked strings are translated in both build and runtime delivery. In runtime delivery the lookup runs when the expression is evaluated, so a marked string in a module-level constant keeps the locale active at import time; put such literals inside a component or function that runs at render. Unmarked string literals are never extracted.
+🏷️ To translate copy outside JSX, put a block comment with the marker text (`/* i18n */` by default, or your `stringMarker`) directly before the string literal, for example `const items = [{ label: /* i18n */ "Shared with your team" }];`. Marked strings are translated in both build and runtime delivery. In runtime delivery the lookup runs when the expression is evaluated, so a marked string in a module-level constant keeps the locale active at import time; put such literals inside a component or function that runs at render. Unmarked string literals are never extracted.
 
 Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and a warning is logged; the plugin continues with an empty state. Writes are atomic, so an interrupted build does not leave a truncated file.
 
@@ -241,7 +473,7 @@ interface TranslationRequest {
   id: string;             // opaque ID to echo back in the result
   source: string;         // English text
   context: string;        // for example "Toolbar > Save button"
-  kind: "text" | "attribute" | "mixed" | "string"; // text node, static attribute, JSX with expressions, or a /* i18n */-marked string literal
+  kind: "text" | "attribute" | "mixed" | "string"; // text node, static attribute, JSX with expressions, or a marked string literal
   placeholders?: string[]; // {name} placeholders that must survive translation
 }
 ```
@@ -275,15 +507,15 @@ npx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
 
 Critical modules such as the plugin hooks (`src/index.ts`), translation pipeline (`src/translate.ts`), build engine (`src/engine.ts`), runtime helpers (`src/runtime/`), and prune CLI (`src/cli/prune.ts`) are all at or above 98% statements.
 
-## ⚠️ Important prototype limitations
+## Known limitations
 
-This is a compiler MVP, not production-ready localization yet:
+This is a beta release. Review these limitations before shipping to production:
 
 1. Runtime delivery loads a catalogue per locale; a message's source text is used until its catalogue has loaded.
 2. Mixed JSX sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as one message with named `{name}` placeholders; translations that change the placeholders, or that repeat a placeholder, are rejected. A placeholder must appear exactly once because build mode copies each source expression, so a repeat would evaluate it twice. Sentences with complex expressions (calls, JSX, computed access) are left entirely in the source language. ICU plural generation is not implemented yet.
 3. Duplicate identical occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`; they are not resolved automatically.
 4. Dev-server HMR re-indexes the whole project after saved or added/removed source files (debounced by 150 ms) rather than only the changed module. This is simple and correct, but may be slow in very large projects.
-5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted automatically. String literals outside JSX are extracted only when marked with `/* i18n */`. Text inside capitalised components (for example `<Button>Save</Button>`) is extracted only when the component lists `children` in `componentProps`. Attributes of capitalised components are extracted only when listed in `componentProps`. Other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
+5. Only JSX text, and the attributes `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription` and `aria-valuetext` on intrinsic (lowercase) elements, are extracted automatically. String literals outside JSX are extracted only when marked with the `stringMarker` comment (`/* i18n */` by default). Text inside capitalised components (for example `<Button>Save</Button>`) is extracted only when the component lists `children` in `componentProps`. Attributes of capitalised components are extracted only when listed in `componentProps`. Other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
 6. The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 7. The initial fingerprint is a heuristic. It excludes file and line position, but component names and nearby semantic signals can still change during refactors.
 
