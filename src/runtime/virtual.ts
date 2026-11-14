@@ -2,17 +2,25 @@ import { createLocaleLoader } from "./loader.js";
 import { resolveLocale } from "./resolve.js";
 
 /**
+ * Encodes a value as a JavaScript string literal. Besides JSON escaping, `<`, `>`, `&`, U+2028 and U+2029 are
+ * written as unicode escapes so the literal cannot close a surrounding script or line early.
+ */
+function toJsStringLiteral(value: string): string {
+  return JSON.stringify(value).replace(/[<>&\u2028\u2029]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`);
+}
+
+/**
  * Builds the `virtual:autoi18n` module. It is plain JavaScript because it runs in the browser and must not
  * import the plugin itself, so the shared helpers are embedded with `toString()`. Those helpers must stay
  * self-contained (see their doc comments).
  */
 export function createRuntimeModule(catalogFiles: Record<string, string>, sourceLocale: string): string {
   const loaders = Object.entries(catalogFiles)
-    .map(([locale, file]) => `  ${JSON.stringify(locale)}: () => import(${JSON.stringify(file)}).then(m => (m.default ?? m).messages)`)
+    .map(([locale, file]) => `  ${toJsStringLiteral(locale)}: () => import(${toJsStringLiteral(file)}).then(m => (m.default ?? m).messages)`)
     .join(",\n");
   return [
     `const loaders = {\n${loaders}\n};`,
-    `const sourceLocale = ${JSON.stringify(sourceLocale)};`,
+    `const sourceLocale = ${toJsStringLiteral(sourceLocale)};`,
     `const resolveLocale = ${resolveLocale.toString()};`,
     `const createLocaleLoader = ${createLocaleLoader.toString()};`,
     `const loadLocale = createLocaleLoader(loaders, sourceLocale);`,

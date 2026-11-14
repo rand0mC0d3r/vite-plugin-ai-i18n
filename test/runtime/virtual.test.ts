@@ -12,6 +12,17 @@ type RuntimeModule = {
   t(id: string, source: string): string;
 };
 
+describe("createRuntimeModule escaping", () => {
+  it("encodes markup and line separators in embedded values", () => {
+    const code = createRuntimeModule({ 'en"</script>\u2028': "/x/en.json" }, "en\u2029&");
+    expect(code).not.toContain("</script>");
+    expect(code).not.toContain("\u2028");
+    expect(code).not.toContain("\u2029");
+    expect(code).toContain("\\u003c/script\\u003e");
+    expect(code).toContain("\\u2029\\u0026");
+  });
+});
+
 describe("generated setLocale", () => {
   let dir: string;
   beforeEach(async () => { dir = await mkdtemp(path.join(os.tmpdir(), "autoi18n-runtime-")); });
