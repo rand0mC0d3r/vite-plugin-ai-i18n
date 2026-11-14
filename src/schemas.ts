@@ -53,5 +53,6 @@ export const optionsSchema = z.object({
   orphanRetentionMinutes: z.optional(z.union([z.number().check(z.minimum(0)), z.literal(Infinity)])),
   localeConcurrency: z.optional(z.number().check(z.minimum(1))),
   componentProps: z.optional(z.record(z.string(), z.array(z.string()))),
+  stringMarker: z.optional(nonEmptyString),
   debug: z.optional(z.boolean())
 });

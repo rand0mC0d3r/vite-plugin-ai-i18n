@@ -53,6 +53,8 @@ export interface AutoI18nOptions {
    * `{ Button: ["aria-label", "title"] }`. Only these attributes are extracted from those components.
    */
   componentProps?: Record<string, string[]>;
+  /** Text of the block comment that marks a string literal for translation. Default `i18n`. */
+  stringMarker?: string;
 }
 
 interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
@@ -84,7 +86,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   const directory = options.directory ?? ".autoi18n";
   const delivery = options.delivery ?? "build";
   const debug = options.debug ?? false;
-  const extractOptions = { componentProps: options.componentProps };
+  const extractOptions = { componentProps: options.componentProps, stringMarker: options.stringMarker };
   const orphanRetentionMinutes = options.orphanRetentionMinutes ?? DEFAULT_ORPHAN_RETENTION_MINUTES;
   let config: ResolvedConfig;
   let registryFile = "";

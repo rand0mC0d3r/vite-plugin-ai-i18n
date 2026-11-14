@@ -159,6 +159,7 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 | `localeConcurrency` | `number` | `2` | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. |
 | `debug` | `boolean` | `false` | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps. |
 | `componentProps` | `Record<string, string[]>` | `{}` | Attributes of custom components whose string values are UI copy, keyed by component name, for example `{ Button: ["aria-label", "title"] }`. Only the listed attributes are extracted from those components. The pseudo-prop `children` also makes a component's text children translatable, including sentences with `{name}` expressions: `{ Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button>Delete {count} files</Button>`. |
+| `stringMarker` | `string` | `"i18n"` | Text of the block comment that marks a string literal outside JSX for translation, for example `/* i18n */ "Save"`. Set it to `"t"` to use `/* t */ "Save"` instead. |
 
 ### `OpenAICompatibleProvider` options
 

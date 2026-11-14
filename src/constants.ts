@@ -25,7 +25,7 @@ export const CHILDREN_PROP = "children";
 // Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
 export const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
 // A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
-export const STRING_MARKER = "i18n";
+export const DEFAULT_STRING_MARKER = "i18n";
 // `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
 export const IGNORE_ATTR = "translate";
 export const IGNORE_VALUE = "no";

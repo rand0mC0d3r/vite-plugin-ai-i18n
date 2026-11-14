@@ -3,7 +3,7 @@ import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import { hasLeadingBlockComment, isStringLiteral, parseSource, walk } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
-import { CHILDREN_PROP, COMPONENT_TAG, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, STRING_MARKER, TRANSLATABLE_ATTRS } from "../constants.js";
+import { CHILDREN_PROP, COMPONENT_TAG, DEFAULT_STRING_MARKER, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, TRANSLATABLE_ATTRS } from "../constants.js";
 
 export interface ExtractOptions {
   /**
@@ -11,6 +11,8 @@ export interface ExtractOptions {
    * `children` also makes the component's text children translatable, for example `{ Button: ["children"] }`.
    */
   componentProps?: Record<string, readonly string[]>;
+  /** Block-comment text that marks a string literal for translation. Default `i18n`. */
+  stringMarker?: string;
 }
 
 type JSXIdentifierNode = Extract<JSXAttribute["name"], { type: "JSXIdentifier" }>;
@@ -186,7 +188,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (ancestors[ancestors.length - 1]?.type === "JSXAttribute") return;
     // Babel attaches a leading comment to the outermost node starting at that offset, so `/* i18n */ "a" + "b"` marks the sum, not "a".
     if (ancestors.some(ancestor => ancestor.start === node.start)) return;
-    if (!hasLeadingBlockComment(code, commentsByEnd, node.start, STRING_MARKER)) return;
+    if (!hasLeadingBlockComment(code, commentsByEnd, node.start, options.stringMarker ?? DEFAULT_STRING_MARKER)) return;
     const source = normalizeSource(node.value);
     if (!source || !/[A-Za-z]/.test(source)) return;
     const item: ExtractedMessage = { source, kind: "string", file: filename, start: node.start, end: node.end, tag: "", component: componentName(ancestors), context: "", fingerprint: "" };

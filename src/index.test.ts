@@ -43,6 +43,11 @@ describe("marked string literals outside JSX", () => {
     expect(messages.map(m => [m.kind, m.source])).toEqual([["string", "Shared with your team"]]);
   });
 
+  it("uses a custom string marker when configured", () => {
+    const custom = `const items = [{ label: /* t */ "Shared with your team" }, { label: /* i18n */ "Ignored" }];\n`;
+    expect(extractMessages(custom, "Items.tsx", { stringMarker: "t" }).map(m => m.source)).toEqual(["Shared with your team"]);
+  });
+
   it("uses the catalogue translation in build mode", () => {
     const { code } = transformSource(CODE, "Items.tsx", messages, "de", { msg_0: "Mit deinem Team geteilt" });
     expect(code).toContain('"Mit deinem Team geteilt"');
