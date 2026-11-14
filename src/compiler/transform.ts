@@ -2,11 +2,8 @@ import MagicString from "magic-string";
 import type { JSXElement, JSXText, StringLiteral } from "oxc-parser";
 import type { Catalog, ResolvedMessage } from "../types.js";
 import { parseSource, walk } from "./ast.js";
-import { PLACEHOLDER, isUsableTranslation } from "./placeholders.js";
-
-export const RUNTIME_MODULE = "virtual:autoi18n";
-const RUNTIME_LOOKUP = "__autoI18nT";
-const RUNTIME_FORMAT = "__autoI18nFormat";
+import { isUsableTranslation } from "./placeholders.js";
+import { PLACEHOLDER, RUNTIME_FORMAT, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
 
 type Target =
   | { kind: "mixed"; node: JSXElement; message: ResolvedMessage }

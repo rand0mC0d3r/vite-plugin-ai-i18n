@@ -1,4 +1,4 @@
-import { PLACEHOLDER_PATTERN } from "../compiler/placeholders.js";
+import { PLACEHOLDER_PATTERN } from "../constants.js";
 import { formatPlaceholders } from "./format.js";
 import { createLocaleLoader } from "./loader.js";
 import { resolveLocale } from "./resolve.js";

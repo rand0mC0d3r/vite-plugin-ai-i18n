@@ -3,13 +3,7 @@ import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import { hasLeadingBlockComment, isStringLiteral, parseSource, walk } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
-
-const COMPONENT_TAG = /^[A-Z]/;
-const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
-// Pseudo-prop in `componentProps` that opts a capitalised component's literal children into translation.
-const CHILDREN_PROP = "children";
-// Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
-const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
+import { CHILDREN_PROP, COMPONENT_TAG, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, STRING_MARKER, TRANSLATABLE_ATTRS } from "../constants.js";
 
 export interface ExtractOptions {
   /**
@@ -18,13 +12,6 @@ export interface ExtractOptions {
    */
   componentProps?: Record<string, readonly string[]>;
 }
-
-// A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
-const STRING_MARKER = "i18n";
-
-// `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
-const IGNORE_ATTR = "translate";
-const IGNORE_VALUE = "no";
 
 type JSXIdentifierNode = Extract<JSXAttribute["name"], { type: "JSXIdentifier" }>;
 

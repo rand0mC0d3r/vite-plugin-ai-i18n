@@ -23,7 +23,7 @@ const baseInput = {
 describe("buildCatalogs", () => {
   it("builds the source catalogue and translates every requested locale", async () => {
     const provider: TranslationProvider = {
-      translate: vi.fn(async ({ targetLocale, messages }) => Object.fromEntries(messages.map(m => [m.id, `${targetLocale}:${m.source}`])))
+      translate: vi.fn(async ({ targetLocale, messages }: Parameters<TranslationProvider["translate"]>[0]) => Object.fromEntries(messages.map(m => [m.id, `${targetLocale}:${m.source}`])))
     };
     const result = await buildCatalogs({
       ...baseInput,

@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import autoI18n, { OpenAICompatibleProvider, PartialTranslationError, type AutoI18nOptions } from "./index.js";
-import { RUNTIME_MODULE } from "./compiler/transform.js";
+import { RUNTIME_MODULE } from "./constants.js";
 import type { TranslationProvider, TranslationRequest } from "./types.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
@@ -270,7 +270,7 @@ describe("autoI18n plugin", () => {
     await start({ locales: ["en", "de"], provider: fakeProvider(), orphanRetentionMinutes: 0, debug: true }).buildStart.call(ctx);
     expect(ctx.info).toHaveBeenCalledWith("autoi18n: removed 1 registry entries no longer in the source.");
     expect(log.mock.calls.map(call => String(call[0])).some(line => line.includes('removed') && line.includes('"Remove me"'))).toBe(true);
-    const registry = JSON.parse(await readFile(path.join(root, ".autoi18n/registry.json"), "utf8"));
+    const registry: { entries: Record<string, { source: string }> } = JSON.parse(await readFile(path.join(root, ".autoi18n/registry.json"), "utf8"));
     expect(Object.values(registry.entries).map((e: { source: string }) => e.source)).toEqual(["Keep"]);
   });
 

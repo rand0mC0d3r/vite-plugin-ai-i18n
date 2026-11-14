@@ -2,6 +2,7 @@ import * as z from "zod/mini";
 import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
+import { ANTHROPIC_BASE_URL, ANTHROPIC_VERSION } from "../constants.js";
 
 export interface AnthropicOptions extends BatchedProviderOptions {
   apiKey: string;
@@ -11,11 +12,9 @@ export interface AnthropicOptions extends BatchedProviderOptions {
   maxTokens?: number;
 }
 
-const ANTHROPIC_VERSION = "2023-06-01";
-
 export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
-    const response = await fetch(`${this.options.baseURL ?? "https://api.anthropic.com/v1"}/messages`, {
+    const response = await fetch(`${this.options.baseURL ?? ANTHROPIC_BASE_URL}/messages`, {
       method: "POST",
       signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
       headers: {

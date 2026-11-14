@@ -6,9 +6,10 @@ import path from "node:path";
 import { debugLog } from "./debug.js";
 import { buildCatalogs } from "./engine.js";
 import { extractMessages } from "./compiler/extract.js";
-import { RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
+import { transformSource } from "./compiler/transform.js";
 import { localeFilePath, readLocaleFile, writeLocaleFile, type LocaleFile } from "./catalog.js";
-import { loadRegistry, DEFAULT_ORPHAN_RETENTION_MINUTES, saveRegistry } from "./identity/registry.js";
+import { loadRegistry, saveRegistry } from "./identity/registry.js";
+import { DEFAULT_EXCLUDE, DEFAULT_INCLUDE, DEFAULT_ORPHAN_RETENTION_MINUTES, RUNTIME_MODULE, UPDATE_EVENT, WATCH_DEBOUNCE_MS } from "./constants.js";
 import { hashContent } from "./io.js";
 import { createRuntimeModule } from "./runtime/virtual.js";
 import { optionsSchema } from "./schemas.js";
@@ -57,11 +58,6 @@ export interface AutoI18nOptions {
 interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
 
 interface ExtractionCacheEntry { hash: string; messages: ExtractedMessage[] }
-
-const UPDATE_EVENT = "autoi18n:update";
-const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
-const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
-const WATCH_DEBOUNCE_MS = 150;
 
 function validateOptions(options: unknown): void {
   const result = z.safeParse(optionsSchema, options);

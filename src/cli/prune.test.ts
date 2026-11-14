@@ -33,7 +33,7 @@ async function runCli(cwd: string, args: string[]): Promise<void> {
   vi.resetModules();
   try {
     await import("./prune.js");
-    await vi.waitFor(() => expect(process.exitCode === 1 || console.log.mock.calls.length + console.error.mock.calls.length > 0).toBe(true));
+    await vi.waitFor(() => expect(process.exitCode === 1 || vi.mocked(console.log).mock.calls.length + vi.mocked(console.error).mock.calls.length > 0).toBe(true));
     await new Promise(resolve => setTimeout(resolve, 20));
   } finally {
     process.argv = originalArgv;

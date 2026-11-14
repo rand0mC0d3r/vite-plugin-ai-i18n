@@ -2,6 +2,7 @@ import * as z from "zod/mini";
 import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
+import { OPENAI_BASE_URL } from "../constants.js";
 
 export interface OpenAICompatibleOptions extends BatchedProviderOptions {
   apiKey: string;
@@ -11,7 +12,7 @@ export interface OpenAICompatibleOptions extends BatchedProviderOptions {
 
 export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
-    const response = await fetch(`${this.options.baseURL ?? "https://api.openai.com/v1"}/chat/completions`, {
+    const response = await fetch(`${this.options.baseURL ?? OPENAI_BASE_URL}/chat/completions`, {
       method: "POST",
       signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
       headers: { Authorization: `Bearer ${this.options.apiKey}`, "Content-Type": "application/json" },

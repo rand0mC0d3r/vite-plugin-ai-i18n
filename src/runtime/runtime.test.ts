@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { formatPlaceholders } from "./format.js";
 import { createLocaleLoader } from "./loader.js";
 import { resolveLocale } from "./resolve.js";
-import { PLACEHOLDER } from "../compiler/placeholders.js";
+import { PLACEHOLDER } from "../constants.js";
 
 describe("formatPlaceholders", () => {
   it("splits the text around known placeholders and keeps the values as they are", () => {

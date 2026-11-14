@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
 import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
 import { registryEntrySchema, registryFileSchema } from "../schemas.js";
+import { MINUTE_MS } from "../constants.js";
 
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
@@ -118,10 +119,6 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
   });
   return { registry, ambiguous, messages: resolved };
 }
-
-const MINUTE_MS = 60 * 1000;
-/** 30 days. */
-export const DEFAULT_ORPHAN_RETENTION_MINUTES = 30 * 24 * 60;
 
 /**
  * Deletes orphaned entries that have not been seen in the source for longer than `retentionMinutes`.

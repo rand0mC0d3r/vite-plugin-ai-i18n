@@ -2,6 +2,7 @@ import * as z from "zod/mini";
 import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
+import { GEMINI_BASE_URL } from "../constants.js";
 
 export interface GeminiOptions extends BatchedProviderOptions {
   apiKey: string;
@@ -13,7 +14,7 @@ export interface GeminiOptions extends BatchedProviderOptions {
 
 export class GeminiProvider extends BatchedProvider<GeminiOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
-    const base = this.options.baseURL ?? "https://generativelanguage.googleapis.com/v1beta";
+    const base = this.options.baseURL ?? GEMINI_BASE_URL;
     const response = await fetch(`${base}/models/${encodeURIComponent(this.options.model)}:generateContent`, {
       method: "POST",
       signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),

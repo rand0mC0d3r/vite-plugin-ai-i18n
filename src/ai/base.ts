@@ -3,6 +3,7 @@ import { mapWithConcurrency } from "../concurrency.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
+import { MAX_RETRY_AFTER_MS } from "../constants.js";
 
 export interface BatchedProviderOptions {
   /** Messages sent per request. Smaller batches keep responses within output limits. Default 40. */
@@ -22,8 +23,6 @@ export interface TranslateInput {
   targetLocale: string;
   messages: TranslationRequest[];
 }
-
-const MAX_RETRY_AFTER_MS = 60_000;
 
 class ProviderError extends Error {
   constructor(message: string, readonly retryable: boolean, readonly retryAfterMs?: number) {

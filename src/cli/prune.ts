@@ -3,7 +3,8 @@ import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "../debug.js";
 import { pruneCatalog, readLocaleFile, writeLocaleFile } from "../catalog.js";
-import { DEFAULT_ORPHAN_RETENTION_MINUTES, loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
+import { loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
+import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "../constants.js";
 
 /** Drops keys for inactive registry ids from every locale file, in both `messages` and `sources`. */
 async function pruneLocaleFiles(localesDir: string, activeIds: Set<string>): Promise<{ file: string; removed: string[] }[]> {
