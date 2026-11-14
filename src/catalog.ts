@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import { ArkErrors } from "arktype";
 import path from "node:path";
 import { readJsonFile, toJson, writeFileAtomic, writeFileIfChanged } from "./io.js";
 import { localeFileSchema } from "./schemas.js";
@@ -37,9 +37,9 @@ const stringValues = (record: Record<string, unknown>, warn?: (message: string) 
  */
 export async function readLocaleFile(file: string, warn?: (message: string) => void): Promise<LocaleFile> {
   const parsed = await readJsonFile<unknown>(file, null, warn);
-  const result = v.safeParse(localeFileSchema, parsed);
-  if (!result.success) return emptyLocaleFile();
-  return { messages: stringValues(result.output.messages, warn, file), sources: stringValues(result.output.sources, warn, file) };
+  const result = localeFileSchema(parsed);
+  if (result instanceof ArkErrors) return emptyLocaleFile();
+  return { messages: stringValues(result.messages, warn, file), sources: stringValues(result.sources, warn, file) };
 }
 
 /** Writes a locale file, leaving it untouched when its content has not changed. */

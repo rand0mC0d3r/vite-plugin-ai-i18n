@@ -1,5 +1,5 @@
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
-import * as v from "valibot";
+import { ArkErrors } from "arktype";
 import { glob, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "./debug.js";
@@ -61,9 +61,9 @@ interface Reporter { info(message: string): void; warn(message: string): void; e
 
 /** Throws a single error listing every invalid option, so a misconfigured plugin fails at startup. */
 function validateOptions(options: unknown): void {
-  const result = v.safeParse(optionsSchema, options);
-  if (result.success) return;
-  const details = result.issues.map(issue => `${issue.path?.map(segment => segment.key).join(".") || "options"}: ${issue.message}`).join("; ");
+  const result = optionsSchema(options);
+  if (!(result instanceof ArkErrors)) return;
+  const details = result.map(issue => `${issue.path.join(".") || "options"}: ${issue.message}`).join("; ");
   throw new Error(`autoi18n: invalid options (${details}).`);
 }
 

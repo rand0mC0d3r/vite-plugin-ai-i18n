@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import { ArkErrors } from "arktype";
 import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -19,7 +19,7 @@ export interface AnthropicOptions extends BatchedProviderOptions {
  */
 export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
-    const envelope = v.safeParse(anthropicMessageSchema, await this.post(
+    const envelope = anthropicMessageSchema(await this.post(
       `${this.options.baseURL ?? ANTHROPIC_BASE_URL}/messages`,
       { "x-api-key": this.options.apiKey, "anthropic-version": ANTHROPIC_VERSION },
       {
@@ -29,6 +29,6 @@ export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
         messages: [{ role: "user", content: userContent(input.messages) }]
       }
     ));
-    return this.toCatalog(envelope.success ? envelope.output.content.filter(block => block.type === "text").map(block => block.text ?? "").join("") : undefined, input.messages);
+    return this.toCatalog(envelope instanceof ArkErrors ? undefined : envelope.content.filter(block => block.type === "text").map(block => block.text ?? "").join(""), input.messages);
   }
 }

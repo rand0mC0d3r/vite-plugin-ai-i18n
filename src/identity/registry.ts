@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import { ArkErrors } from "arktype";
 import { randomUUID } from "node:crypto";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
 import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
@@ -15,15 +15,15 @@ const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 export async function loadRegistry(file: string, warn?: (message: string) => void): Promise<Registry> {
   const parsed = await readJsonFile<unknown>(file, null, warn);
   if (parsed === null) return emptyRegistry();
-  const header = v.safeParse(registryFileSchema, parsed);
-  if (!header.success) {
+  const header = registryFileSchema(parsed);
+  if (header instanceof ArkErrors) {
     warn?.(`autoi18n: ${file} has an unsupported format; message IDs will be regenerated.`);
     return emptyRegistry();
   }
   const entries: Record<string, RegistryEntry> = {};
-  for (const [key, value] of Object.entries(header.output.entries)) {
-    const entry = v.safeParse(registryEntrySchema, value);
-    if (entry.success) entries[key] = entry.output;
+  for (const [key, value] of Object.entries(header.entries)) {
+    const entry = registryEntrySchema(value);
+    if (!(entry instanceof ArkErrors)) entries[key] = entry;
     else warn?.(`autoi18n: dropped invalid registry entry "${key}" in ${file}.`);
   }
   return { version: 1, entries };

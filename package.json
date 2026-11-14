@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-ai-auto-i18n",
-    "version": "0.5.10",
+    "version": "0.5.11",
     "type": "module",
     "description": "Implicit, build-time AI localization for JSX applications",
     "license": "ISC",
@@ -56,8 +56,8 @@
         "vite": "^8.0.0"
     },
     "dependencies": {
-        "magic-string": "^1.4.5",
-        "valibot": "^1.5.0"
+        "arktype": "^2.2.9",
+        "magic-string": "^1.4.5"
     },
     "devDependencies": {
         "@types/node": "^26.6.6",

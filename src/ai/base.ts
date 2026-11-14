@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import { ArkErrors } from "arktype";
 import { Semaphore } from "../concurrency.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
@@ -150,12 +150,12 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
     if (!text) throw new ProviderError("Translation provider returned no content", true);
     let parsed: unknown;
     try { parsed = JSON.parse(text); } catch { throw new ProviderError("Translation provider returned invalid JSON", true); }
-    const map = v.safeParse(translationMapSchema, parsed);
-    if (!map.success) throw new ProviderError("Translation provider returned a non-object", true);
+    const map = translationMapSchema(parsed);
+    if (map instanceof ArkErrors) throw new ProviderError("Translation provider returned a non-object", true);
     // Keep only usable strings for the IDs that were requested; the caller decides what to do with the rest.
     const requested = new Set(messages.map(m => m.id));
     const result: Catalog = {};
-    for (const [id, text] of Object.entries(map.output)) {
+    for (const [id, text] of Object.entries(map)) {
       if (requested.has(id) && typeof text === "string" && text.trim()) result[id] = text;
     }
     return result;

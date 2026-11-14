@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import { ArkErrors } from "arktype";
 import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -20,7 +20,7 @@ export interface OpenAICompatibleOptions extends BatchedProviderOptions {
 export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
     const { apiKey, model, baseURL = OPENAI_BASE_URL } = this.options;
-    const envelope = v.safeParse(chatCompletionSchema, await this.post(
+    const envelope = chatCompletionSchema(await this.post(
       `${baseURL}/chat/completions`,
       apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
       {
@@ -33,6 +33,6 @@ export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOp
         ]
       }
     ));
-    return this.toCatalog(envelope.success ? envelope.output.choices[0].message.content ?? undefined : undefined, input.messages);
+    return this.toCatalog(envelope instanceof ArkErrors ? undefined : envelope.choices[0].message.content ?? undefined, input.messages);
   }
 }
