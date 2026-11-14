@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
 import { extractMessages } from "../src/compiler/extract.js";
+import { parseSource } from "../src/compiler/ast.js";
 import { transformSource } from "../src/compiler/transform.js";
 import { createFingerprint } from "../src/identity/fingerprint.js";
 import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
@@ -19,6 +20,16 @@ function withIds(messages: ExtractedMessage[]): ResolvedMessage[] {
 describe("transformSource", () => {
   const messages = withIds(extractMessages(SOURCE, "App.tsx"));
   const catalog = { msg_0: "Datei speichern", msg_1: "Speichern" };
+
+  it("keeps a translated attribute value containing quotes inside its own attribute in build mode", () => {
+    const payload = `x" onClick={alert(1)} a="b`;
+    const { code } = transformSource(SOURCE, "App.tsx", messages, "de", { msg_0: payload });
+    const button = (parseSource(code, "App.tsx").program as any).body[0];
+    const attributes = button.declaration.body.body[0].argument.openingElement.attributes;
+    expect(attributes).toHaveLength(1);
+    expect(attributes[0].name.name).toBe("title");
+    expect(attributes[0].value.expression.value).toBe(payload);
+  });
 
   it("bakes the selected locale into the code in build mode", () => {
     const { code } = transformSource(SOURCE, "App.tsx", messages, "de", catalog);

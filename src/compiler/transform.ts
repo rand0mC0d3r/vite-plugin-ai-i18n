@@ -120,7 +120,8 @@ export function transformSource(code: string, filename: string, messages: Resolv
     } else if (target.kind === "text") {
       s.overwrite(target.node.start, target.node.end, `{${withAffixes(message)}}`);
     } else if (target.kind === "attribute") {
-      s.overwrite(target.node.start, target.node.end, runtime ? `{${lookup(message)}}` : lookup(message));
+      // JSX attribute strings have no escape sequences, so the value must be an expression container.
+      s.overwrite(target.node.start, target.node.end, `{${lookup(message)}}`);
     } else {
       s.overwrite(target.node.start, target.node.end, lookup(message));
     }
