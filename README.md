@@ -11,7 +11,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
 - Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionMinutes`).
-- Supports a pluggable translation provider; includes an OpenAI-compatible implementation and an Anthropic (Claude) implementation.
+- Supports a pluggable translation provider. Ships with Anthropic and Gemini implementations and one OpenAI-compatible implementation that covers OpenAI, Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras and Ollama (see [Choosing a provider](#choosing-a-provider)).
 - Writes locale JSON catalogues and keeps source English as fallback.
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
 - Re-translates a message when its source text changes, tracked in the `sources` map of `.autoi18n/locales/<locale>.json`.
@@ -267,7 +267,7 @@ Put the key for your provider in `.env.local` and keep that file out of git. For
 OPENAI_API_KEY=your-key-here
 ```
 
-For Claude, use `ANTHROPIC_API_KEY` instead (see [AnthropicProvider options](#anthropicprovider-options)). For Gemini, use `GEMINI_API_KEY` (see [GeminiProvider options](#geminiprovider-options)).
+For Claude, use `ANTHROPIC_API_KEY` instead (see [AnthropicProvider options](#anthropicprovider-options)). For Gemini, use `GEMINI_API_KEY` (see [GeminiProvider options](#geminiprovider-options)). For the other services, see [Choosing a provider](#choosing-a-provider) for the key name and endpoint of each one.
 
 ### 3️⃣ Configure Vite
 
@@ -440,9 +440,39 @@ Create the provider with `new GeminiProvider(options)`. It calls the [Gemini API
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
 
+### Choosing a provider
+
+Every service below is either native (`AnthropicProvider`, `GeminiProvider`) or speaks the OpenAI Chat Completions protocol, so it is used through `OpenAICompatibleProvider` with a different `baseURL`. The library does not read any environment variables itself; the key names below are what the example config uses.
+
+| Service | Class | Key variable | Base URL | Example default model |
+|---|---|---|---|---|
+| Anthropic (Claude) | `AnthropicProvider` | `ANTHROPIC_API_KEY` | `https://api.anthropic.com/v1` | `claude-haiku-5-5` |
+| Gemini | `GeminiProvider` | `GEMINI_API_KEY` | `https://generativelanguage.googleapis.com/v1beta` | `gemini-3.5-flash-lite` |
+| OpenAI | `OpenAICompatibleProvider` | `OPENAI_API_KEY` | `https://api.openai.com/v1` (default) | `gpt-4.1-mini` |
+| Mistral | `OpenAICompatibleProvider` | `MISTRAL_API_KEY` | `https://api.mistral.ai/v1` | `mistral-small-latest` |
+| Groq | `OpenAICompatibleProvider` | `GROQ_API_KEY` | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` |
+| DeepSeek | `OpenAICompatibleProvider` | `DEEPSEEK_API_KEY` | `https://api.deepseek.com/v1` | `deepseek-chat` |
+| OpenRouter | `OpenAICompatibleProvider` | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` | `openai/gpt-4.1-mini` |
+| xAI | `OpenAICompatibleProvider` | `XAI_API_KEY` | `https://api.x.ai/v1` | `grok-3-mini` |
+| Cerebras | `OpenAICompatibleProvider` | `CEREBRAS_API_KEY` | `https://api.cerebras.ai/v1` | `llama-3.3-70b` |
+| Ollama (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:11434/v1` | none, you must set one |
+
+Notes:
+
+- Model names change often. The defaults above are examples; set `model` to any name the service currently offers.
+- The example config enables a provider only when its key variable is set. Ollama has no key, so it is enabled by `OLLAMA_MODEL` (the model you have pulled), with `OLLAMA_BASE_URL` to override the server address. `<NAME>_MODEL` (for example `MISTRAL_MODEL`) overrides the default model of any other service.
+- For a keyless server, omit `apiKey`. The `Authorization` header is then not sent.
+- Use a model that reliably returns JSON. Small local models often do not, and the malformed replies are retried and then left untranslated.
+- The Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras and Ollama endpoints were checked with stubbed HTTP responses only, not against the live services.
+
+```ts
+new OpenAICompatibleProvider({ apiKey: env.GROQ_API_KEY!, baseURL: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" });
+new OpenAICompatibleProvider({ baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b" }); // Ollama, no key
+```
+
 ### Multiple providers and fallback
 
-Pass `provider` as an object with one entry per provider. `primary` names the one tried first. Entries set to `undefined` are skipped, so you can keep every provider in the config and enable each one by its key:
+Pass `provider` as an object with one entry per provider. `primary` names the one tried first. It is never inferred: set it yourself, or leave it out to try the providers in declaration order. Entries set to `undefined` are skipped, so you can keep every provider in the config and enable each one by its key:
 
 ```ts
 provider: {
