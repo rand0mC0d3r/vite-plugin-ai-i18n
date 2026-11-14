@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
-    entry: ["src/index.ts", "src/runtime/index.ts", "src/cli/prune.ts"],
+    entry: ["src/index.ts", "src/runtime/index.ts", "src/cli/prune.ts", "src/cli/stats.ts"],
     plugins: process.env.ANALYZE
         ? [
               visualizer({

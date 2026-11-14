@@ -45,6 +45,7 @@
         "analyze": "ANALYZE=1 tsdown",
         "prepublishOnly": "npm run build",
         "prune": "npm run build && node dist/cli/prune.js --directory example/.autoi18n --retention-minutes 0",
+        "stats": "npm run build && node dist/cli/stats.js --directory example/.autoi18n",
         "example:dev": "vite example",
         "example:build": "vite build example",
         "preview": "vite build example && vite preview example --port 4173 --strictPort",

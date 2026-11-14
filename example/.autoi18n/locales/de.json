@@ -26,14 +26,14 @@
     "msg_dedf14b267fd4ada": "Mit Ihrem Team geteilt",
     "msg_5aa456e5be314f6d": "Dokumentenliste",
     "msg_6b1079c660d54a9c": "Neueste Dokumente",
-    "msg_64e9658c7d9046e9": "Neuer Dokumentenagent",
-    "msg_ab76e13094274726": "Neue Bilder",
     "msg_cf54e660b6944ebe": "{doc_pages} Seiten",
     "msg_6957032b8f904c7d": "Dokumentenbibliothek",
     "msg_81d0eceb33404130": "Dateien für jeden Anlass ausgewählt",
     "msg_e9a5b5f890d542ed": "Beispielcode für Menschen und Tiere",
     "msg_e74230b0b68c4b9b": "Sie haben {selected} Dokumente ausgewählt.",
-    "msg_1684cd467de14d0b": "Änderungen erfolgreich gespeichert."
+    "msg_1684cd467de14d0b": "Änderungen erfolgreich gespeichert.",
+    "msg_801c07d7ac4947c0": "Neue Dokumentenagenten-Routine",
+    "msg_ab6235e5d21e4750": "Neue Bilder für Sie"
   },
   "sources": {
     "msg_e4d7d7268a954554": "Language",
@@ -62,13 +62,13 @@
     "msg_dedf14b267fd4ada": "Shared with your team",
     "msg_5aa456e5be314f6d": "Document list",
     "msg_6b1079c660d54a9c": "Recent documents",
-    "msg_64e9658c7d9046e9": "New Document Agent",
-    "msg_ab76e13094274726": "New Images",
     "msg_cf54e660b6944ebe": "{doc_pages} pages",
     "msg_6957032b8f904c7d": "Document library",
     "msg_81d0eceb33404130": "Files for every occasion selected",
     "msg_e9a5b5f890d542ed": "Sample code for people and animals",
     "msg_e74230b0b68c4b9b": "You have {selected} documents selected.",
-    "msg_1684cd467de14d0b": "Changes saved successfully."
+    "msg_1684cd467de14d0b": "Changes saved successfully.",
+    "msg_801c07d7ac4947c0": "New Document Agent Routine",
+    "msg_ab6235e5d21e4750": "New Images for you"
   }
 }
