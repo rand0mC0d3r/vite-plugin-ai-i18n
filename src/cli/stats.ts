@@ -104,7 +104,7 @@ function formatReport(report: StatsReport, verbose: boolean): string {
 }
 
 /**
- * Entry point for the stats CLI (`npm run stats`). Prints registry counts, per-locale translation coverage, outdated
+ * Entry point for the stats CLI (`bun run stats`). Prints registry counts, per-locale translation coverage, outdated
  * translations, orphaned keys, and orphaned registry entries. Does nothing if no registry exists yet. Failures set
  * `process.exitCode` to 1.
  */

@@ -258,7 +258,7 @@ In your React + Vite project:
 npm install -D vite-plugin-ai-auto-i18n
 ```
 
-Works the same with `pnpm add -D vite-plugin-ai-auto-i18n` or `yarn add -D vite-plugin-ai-auto-i18n`. It requires Vite 8 or newer (a peer dependency) and Node.js 26 or newer. For React, also keep `@vitejs/plugin-react` in your Vite config.
+Works the same with `bun add -D vite-plugin-ai-auto-i18n`, `pnpm add -D vite-plugin-ai-auto-i18n` or `yarn add -D vite-plugin-ai-auto-i18n`. It requires Vite 8 or newer (a peer dependency) and Node.js 26 or newer. For React, also keep `@vitejs/plugin-react` in your Vite config.
 
 ### 2️⃣ Add your API key
 
@@ -320,9 +320,9 @@ Then write ordinary JSX:
 A React document dashboard under `example/`:
 
 ```sh
-npm install
-npm run example:dev     # dev server
-npm run example:build   # production build into example/dist
+bun install
+bun run example:dev     # dev server
+bun run example:build   # production build into example/dist
 ```
 
 Run Vite. The plugin writes `.autoi18n/registry.json` and `.autoi18n/locales/<locale>.json`. Each locale file has two parts: `messages` (the translations) and `sources` (the source text each translation was made from). If the source changes, that message is re-translated on the next build.
@@ -345,9 +345,9 @@ In dev, saving an indexed source file re-reads only that file and reuses cached 
 
 Messages removed from the source are kept as orphans in `registry.json` so their IDs can be reused if the text returns. Orphans not seen for `orphanRetentionMinutes` minutes (default `43200`, i.e. 30 days) are deleted on the next build, and the build logs how many were removed. Use `0` to delete them immediately or `Infinity` to keep them forever. Once deleted, a returning message gets a new ID and is translated again.
 
-🧹 To prune without running a build, use the CLI. In this repository, `npm run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `npm run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from the `messages` and `sources` maps of `locales/*.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/prune.js` with the same options.
+🧹 To prune without running a build, use the CLI. In this repository, `bun run prune` builds and then runs it on the example app's `example/.autoi18n/` with `--retention-minutes 0`, so every orphan is removed. Pass options after `--` to override, for example `bun run prune -- --directory .autoi18n --retention-minutes 1440 --debug`. Options: `--directory` (default `.autoi18n`, relative to the current directory), `--retention-minutes` (default `43200`, i.e. 30 days, the plugin default) and `--debug` (prints each removed entry with its source text and last-seen time). The CLI also removes any key from the `messages` and `sources` maps of `locales/*.json` that is no longer an active registry entry, so the catalogues match the registry. If no registry exists at that path, the CLI says so and changes nothing. Installed packages can run `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/prune.js` with the same options.
 
-📊 To see translation statistics without running a build, use the stats CLI. In this repository, `npm run stats` builds and then reports on the example app's `example/.autoi18n/`. Pass options after `--`, for example `npm run stats -- --directory .autoi18n --source-locale en --verbose`. The report shows registry counts (active, orphaned, by kind and component), and for each locale file the translated count, coverage percentage, missing messages (no translation), outdated messages (translated from a source that has since changed), and orphaned keys (what `prune` would remove). It also lists orphaned registry entries. Options: `--directory` (default `.autoi18n`), `--source-locale` (default `en`, excluded from the figures), `--verbose` (lists the missing, outdated and orphaned IDs per locale) and `--json` (prints the full report as JSON for CI). Installed packages can run `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/stats.js` with the same options.
+📊 To see translation statistics without running a build, use the stats CLI. In this repository, `bun run stats` builds and then reports on the example app's `example/.autoi18n/`. Pass options after `--`, for example `bun run stats -- --directory .autoi18n --source-locale en --verbose`. The report shows registry counts (active, orphaned, by kind and component), and for each locale file the translated count, coverage percentage, missing messages (no translation), outdated messages (translated from a source that has since changed), and orphaned keys (what `prune` would remove). It also lists orphaned registry entries. Options: `--directory` (default `.autoi18n`), `--source-locale` (default `en`, excluded from the figures), `--verbose` (lists the missing, outdated and orphaned IDs per locale) and `--json` (prints the full report as JSON for CI). Installed packages can run `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/stats.js` with the same options.
 
 🐞 Set `debug: true` (default `false`) to print every translation exchange to the console: each message sent to the provider (`sent`) and each translation received back (`received`), prefixed with `[autoi18n debug]` and an ISO timestamp.
 
@@ -568,7 +568,7 @@ Every push to `main` runs [.github/workflows/release.yml](.github/workflows/rele
 
 Test coverage in the release pipeline:
 
-- The `verify` job runs `npm run test:coverage`, which runs the suite with V8 coverage on `src/**` and writes `coverage/coverage-summary.json`. That summary is uploaded as the `coverage-summary` artifact.
+- The `verify` job runs `bun run test:coverage`, which runs the suite with V8 coverage on `src/**` and writes `coverage/coverage-summary.json`. That summary is uploaded as the `coverage-summary` artifact.
 - The `verify` job also runs `npm pack --dry-run --json` after the build and uploads the report as the `package-pack` artifact.
 - The GitHub Release notes end with three generated sections:
   - `## Test coverage`, from the coverage summary, with statements, branches, functions, and lines for the commit being released.
@@ -582,7 +582,7 @@ Test coverage in the release pipeline:
 Run the suite with coverage (V8 provider, `src/**`):
 
 ```bash
-npx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
+bunx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
 ```
 
 | Metric | Coverage |

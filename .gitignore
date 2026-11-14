@@ -83,7 +83,7 @@ out
 dist
 .output
 
-# Bundle analyzer report (npm run analyze)
+# Bundle analyzer report (bun run analyze)
 bundle-stats.html
 
 # Gatsby files

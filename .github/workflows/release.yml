@@ -22,15 +22,18 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 26
-          cache: npm
 
-      - run: npm ci
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
 
-      - run: npm run typecheck
+      - run: bun install --frozen-lockfile
 
-      - run: npm run test:coverage
+      - run: bun run typecheck
 
-      - run: npm run build
+      - run: bun run test:coverage
+
+      - run: bun run build
 
       - run: npm pack --dry-run --json > package-pack.json
 
@@ -67,6 +70,10 @@ jobs:
         with:
           node-version: 26
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
+
       - name: Compute next version from conventional commits
         id: version
         run: node .github/scripts/release.mjs next-version >> "$GITHUB_OUTPUT"
@@ -80,8 +87,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          npm version "$VERSION" --no-git-tag-version
-          git add package.json package-lock.json
+          bun pm version "$VERSION" --no-git-tag-version
+          git add package.json bun.lock
           git commit -m "chore(release): $TAG [skip ci]"
           git tag "$TAG"
           git push origin "HEAD:refs/heads/main" "refs/tags/$TAG"
@@ -103,11 +110,15 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 26
-          cache: npm
           registry-url: https://registry.npmjs.org
 
-      - run: npm ci
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
 
+      - run: bun install --frozen-lockfile
+
+      # npm is used here because `bun publish` does not support --provenance.
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
