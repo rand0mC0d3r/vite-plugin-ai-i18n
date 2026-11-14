@@ -1,7 +1,6 @@
 import type { Logger, Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import * as v from "valibot";
-import { glob } from "tinyglobby";
-import { readFile, rm } from "node:fs/promises";
+import { glob, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "./debug.js";
 import { buildCatalogs } from "./engine.js";
@@ -117,6 +116,15 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     return others;
   }
 
+  // Node's glob resolves paths relative to `cwd`, so they are made absolute here.
+  async function collectFiles(): Promise<string[]> {
+    const found: string[] = [];
+    for await (const file of glob(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, exclude: options.exclude ?? DEFAULT_EXCLUDE })) {
+      found.push(path.resolve(config.root, file));
+    }
+    return found;
+  }
+
   // Re-indexes source files, translates only missing or stale messages and writes the catalogues.
   // With `changedFile` set (a hot update to an already indexed file), only that file is read again and the
   // rest reuse their cached extraction, so the project is not scanned on every save. Adding or removing
@@ -127,7 +135,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     const incremental = changedFile !== undefined && state.extractions.has(changedFile);
     const files = incremental
       ? [...state.extractions.keys()]
-      : await glob(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, ignore: options.exclude ?? DEFAULT_EXCLUDE, absolute: true });
+      : await collectFiles();
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
