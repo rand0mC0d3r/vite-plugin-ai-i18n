@@ -398,13 +398,13 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 
 ### Locale groups
 
-The package exports ready-made locale lists for the `locales` option. Each is a plain array of BCP 47 codes, so spread it to keep the shared export unchanged:
+The package exports a `locales` object with ready-made locale lists for the `locales` option. Each group is a plain array of BCP 47 codes, listed below by its key on `locales`. Spread a group to keep the shared object unchanged:
 
 ```ts
-import autoI18n, { ASIA, EUROPE, WORLDWIDE_POPULAR } from "vite-plugin-ai-auto-i18n";
+import autoI18n, { locales } from "vite-plugin-ai-auto-i18n";
 
-autoI18n({ locales: [...EUROPE] });
-autoI18n({ locales: ["en", ...ASIA] });
+autoI18n({ locales: [...locales.EUROPE] });
+autoI18n({ locales: ["en", ...locales.ASIA] });
 ```
 
 | Group | Languages |

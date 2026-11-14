@@ -1,14 +1,13 @@
 import { describe, expect, it } from "vitest";
 import * as plugin from "../src/index.js";
-import * as locales from "../src/locales.js";
+import { locales } from "../src/locales.js";
 
 describe("locale groups", () => {
   const groups = Object.entries(locales);
 
-  it("are re-exported from the package entry", () => {
-    for (const [name, codes] of groups) {
-      expect(plugin[name as keyof typeof plugin], name).toEqual(codes);
-    }
+  it("are re-exported from the package entry under one locales object", () => {
+    expect(plugin.locales).toEqual(locales);
+    expect(Object.keys(plugin).filter(name => name in locales)).toEqual([]);
   });
 
   it.each(groups)("%s holds unique, valid BCP 47 codes", (_name, codes) => {

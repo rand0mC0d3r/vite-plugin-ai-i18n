@@ -52,7 +52,25 @@ export interface TranslationProvider {
   translate(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog>;
 }
 /**
+ * Named providers. The services listed in the README have typed keys so editors can suggest them; any other name is
+ * accepted through the index signature.
+ */
+export interface NamedProviders {
+  primary?: string;
+  anthropic?: TranslationProvider;
+  gemini?: TranslationProvider;
+  openai?: TranslationProvider;
+  mistral?: TranslationProvider;
+  groq?: TranslationProvider;
+  deepseek?: TranslationProvider;
+  openrouter?: TranslationProvider;
+  xai?: TranslationProvider;
+  cerebras?: TranslationProvider;
+  ollama?: TranslationProvider;
+  [name: string]: TranslationProvider | string | undefined;
+}
+/**
  * A single provider, or named providers. In the named form, `primary` picks the provider tried first; the rest are
  * fallbacks in declaration order. Entries set to `undefined` are skipped, so unconfigured providers can stay in the map.
  */
-export type ProviderConfig = TranslationProvider | ({ primary?: string } & Record<string, TranslationProvider | string | undefined>);
+export type ProviderConfig = TranslationProvider | NamedProviders;
