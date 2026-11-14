@@ -129,11 +129,27 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   /** Sends one batch to the provider and returns the translations it produced for the requested IDs. */
   protected abstract request(input: TranslateInput): Promise<Catalog>;
 
-  /** Parses the model's text reply, which must be a JSON object mapping IDs to strings. */
+  /** POSTs a JSON body with the given headers and returns the parsed JSON reply. Non-2xx replies throw a classified error. */
+  protected async post(url: string, headers: Record<string, string>, body: unknown): Promise<unknown> {
+    const response = await fetch(url, {
+      method: "POST",
+      signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
+      headers: { ...headers, "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!response.ok) throw await httpError(response);
+    return response.json();
+  }
+
+  /**
+   * Parses the model's text reply, which must be a JSON object mapping IDs to strings. A surrounding Markdown code fence
+   * is stripped first, because models sometimes add one even when told not to.
+   */
   protected toCatalog(content: string | undefined, messages: TranslationRequest[]): Catalog {
-    if (!content) throw new ProviderError("Translation provider returned no content", true);
+    const text = content?.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+    if (!text) throw new ProviderError("Translation provider returned no content", true);
     let parsed: unknown;
-    try { parsed = JSON.parse(content); } catch { throw new ProviderError("Translation provider returned invalid JSON", true); }
+    try { parsed = JSON.parse(text); } catch { throw new ProviderError("Translation provider returned invalid JSON", true); }
     const map = v.safeParse(translationMapSchema, parsed);
     if (!map.success) throw new ProviderError("Translation provider returned a non-object", true);
     // Keep only usable strings for the IDs that were requested; the caller decides what to do with the rest.

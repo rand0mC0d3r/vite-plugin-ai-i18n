@@ -1,14 +1,15 @@
 import * as v from "valibot";
-import { BatchedProvider, httpError, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
+import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { OPENAI_BASE_URL } from "../constants.js";
 
 /** Options for an OpenAI or OpenAI-compatible chat completions endpoint. */
 export interface OpenAICompatibleOptions extends BatchedProviderOptions {
-  apiKey: string;
+  /** Sent as a bearer token. Omit it for servers that need no key, such as a local Ollama. */
+  apiKey?: string;
   model: string;
-  /** Overrides the API root, for example to target a proxy or a self-hosted compatible server. */
+  /** API root. Defaults to OpenAI. Point it at any compatible service, for example `http://localhost:11434/v1` for Ollama. */
   baseURL?: string;
 }
 
@@ -18,22 +19,20 @@ export interface OpenAICompatibleOptions extends BatchedProviderOptions {
  */
 export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
-    const response = await fetch(`${this.options.baseURL ?? OPENAI_BASE_URL}/chat/completions`, {
-      method: "POST",
-      signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
-      headers: { Authorization: `Bearer ${this.options.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: this.options.model,
+    const { apiKey, model, baseURL = OPENAI_BASE_URL } = this.options;
+    const envelope = v.safeParse(chatCompletionSchema, await this.post(
+      `${baseURL}/chat/completions`,
+      apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
+      {
+        model,
         temperature: 0,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt(input) },
           { role: "user", content: userContent(input.messages) }
         ]
-      })
-    });
-    if (!response.ok) throw await httpError(response);
-    const envelope = v.safeParse(chatCompletionSchema, await response.json());
+      }
+    ));
     return this.toCatalog(envelope.success ? envelope.output.choices[0].message.content ?? undefined : undefined, input.messages);
   }
 }

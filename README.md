@@ -399,7 +399,7 @@ Create the provider with `new OpenAICompatibleProvider(options)`.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `apiKey` | `string` | _required_ | Bearer token for the endpoint. Read it from an environment variable and do not commit it. |
+| `apiKey` | `string` | _optional_ | Bearer token for the endpoint. Omit it for servers that need no key, such as a local Ollama. Read it from an environment variable and do not commit it. |
 | `model` | `string` | _required_ | Model name sent in each request, for example `"gpt-4.1-mini"`. |
 | `baseURL` | `string` | `"https://api.openai.com/v1"` | Base URL of any OpenAI-compatible API. Requests go to `${baseURL}/chat/completions`. |
 | `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |

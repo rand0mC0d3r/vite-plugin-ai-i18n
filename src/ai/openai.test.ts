@@ -38,6 +38,15 @@ describe("OpenAICompatibleProvider", () => {
     expect(JSON.parse(body.messages[1].content)).toEqual([{ id: "a", text: "Save", context: "", kind: "text" }]);
   });
 
+  it("sends no Authorization header when no apiKey is set (for example Ollama)", async () => {
+    fetchMock.mockResolvedValue(chatResponse(JSON.stringify({ a: "Speichern" })));
+    await new OpenAICompatibleProvider({ model: "llama-test", baseURL: "http://localhost:11434/v1" }).translate(input([request("a")]));
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("http://localhost:11434/v1/chat/completions");
+    expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
+  });
+
   it("uses a custom baseURL", async () => {
     fetchMock.mockResolvedValue(chatResponse(JSON.stringify({ a: "x" })));
     await provider({ baseURL: "https://x.example/v1" }).translate(input([request("a")]));
