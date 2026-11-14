@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AnthropicProvider } from "./ai/anthropic.js";
-import { OpenAICompatibleProvider } from "./ai/openai.js";
-import type { TranslationRequest } from "./types.js";
+import type { TranslationRequest } from "../types.js";
+import { AnthropicProvider } from "./anthropic.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
@@ -85,20 +84,5 @@ describe("AnthropicProvider", () => {
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);
-  });
-});
-
-describe("OpenAICompatibleProvider (shared base)", () => {
-  it("keeps its endpoint and header behavior", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ choices: [{ message: { content: "{\"a\":\"Hallo\"}" } }] })));
-    vi.stubGlobal("fetch", fetchMock);
-    try {
-      expect(await new OpenAICompatibleProvider({ apiKey: "k", model: "m", baseURL: "https://x.example/v1" }).translate(input([request("a", "Hello")]))).toEqual({ a: "Hallo" });
-      const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-      expect(url).toBe("https://x.example/v1/chat/completions");
-      expect((init.headers as Record<string, string>).Authorization).toMatch(/^Bearer k$/);
-    } finally {
-      vi.unstubAllGlobals();
-    }
   });
 });

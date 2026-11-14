@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { GeminiProvider } from "./ai/gemini.js";
-import type { TranslationRequest } from "./types.js";
+import type { TranslationRequest } from "../types.js";
+import { GeminiProvider } from "./gemini.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
@@ -63,5 +63,34 @@ describe("GeminiProvider", () => {
   it("returns nothing for an empty candidate list", async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({ candidates: [] }), { status: 200 }));
     await expect(provider({ maxRetries: 0 }).translate(input([request("a")]))).rejects.toThrow();
+  });
+
+  it("joins text across all parts of the first candidate", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({
+      candidates: [{ content: { role: "model", parts: [{ text: "{\"a\":" }, { text: "\"Speichern\"}" }] } }]
+    })));
+    expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
+  });
+
+  it("drops IDs that were not requested and empty translations", async () => {
+    fetchMock.mockResolvedValue(generateResponse(JSON.stringify({ a: "Speichern", b: "  ", extra: "x" })));
+    expect(await provider().translate(input([request("a"), request("b")]))).toEqual({ a: "Speichern" });
+  });
+
+  it("fails the batch when the reply is not JSON", async () => {
+    fetchMock.mockResolvedValue(generateResponse("Sure! Here you go."));
+    await expect(provider({ maxRetries: 0 }).translate(input([request("a")]))).rejects.toThrow("invalid JSON");
+  });
+
+  it("splits requests into batches and reports partial failures", async () => {
+    fetchMock
+      .mockResolvedValueOnce(generateResponse(JSON.stringify({ a: "A" })))
+      .mockResolvedValueOnce(new Response("{}", { status: 400 }));
+    const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
+      .translate(input([request("a"), request("b")]))
+      .catch(e => e);
+    expect(error.name).toBe("PartialTranslationError");
+    expect(error.partial).toEqual({ a: "A" });
+    expect(error.failed).toBe(1);
   });
 });
