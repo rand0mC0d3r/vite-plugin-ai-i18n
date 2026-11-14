@@ -1,5 +1,5 @@
 import { isUsableTranslation } from "./compiler/placeholders.js";
-import { pruneCatalog, type LocaleFile } from "./catalog.js";
+import { pruneLocaleFile, type LocaleFile } from "./catalog.js";
 import { debugLog } from "./debug.js";
 import { PartialTranslationError } from "./errors.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "./types.js";
@@ -44,8 +44,7 @@ export interface LocaleTranslation {
 export async function translateLocale(input: LocaleTranslationInput): Promise<LocaleTranslation> {
   const { provider, sourceLocale, locale, requests, previous, debug } = input;
   const active = new Set(requests.map(x => x.id));
-  const previousMessages = pruneCatalog(previous.messages, active).catalog;
-  const previousSources = pruneCatalog(previous.sources, active).catalog;
+  const { messages: previousMessages, sources: previousSources } = pruneLocaleFile(previous, active).file;
 
   const missing = requests.filter(x => previousMessages[x.id] === undefined || previousSources[x.id] !== x.source);
   let translated: Catalog = {};

@@ -3,9 +3,9 @@ import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import autoI18n, { OpenAICompatibleProvider, PartialTranslationError, type AutoI18nOptions } from "./index.js";
-import { RUNTIME_MODULE } from "./constants.js";
-import type { TranslationProvider, TranslationRequest } from "./types.js";
+import autoI18n, { OpenAICompatibleProvider, PartialTranslationError, type AutoI18nOptions } from "../src/index.js";
+import { RUNTIME_MODULE } from "../src/constants.js";
+import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
 const TWO_SAVES = `export function App() { return <div><button>Save</button><button>Save</button></div>; }\n`;

@@ -55,3 +55,10 @@ export function pruneCatalog(catalog: Catalog, keep: ReadonlySet<string>): { cat
   }
   return { catalog: kept, removed };
 }
+
+/** Prunes both `messages` and `sources` of a locale file to `keep`. `removed` lists each dropped ID once. */
+export function pruneLocaleFile(file: LocaleFile, keep: ReadonlySet<string>): { file: LocaleFile; removed: string[] } {
+  const messages = pruneCatalog(file.messages, keep);
+  const sources = pruneCatalog(file.sources, keep);
+  return { file: { messages: messages.catalog, sources: sources.catalog }, removed: [...new Set([...messages.removed, ...sources.removed])] };
+}

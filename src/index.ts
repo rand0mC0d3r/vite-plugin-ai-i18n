@@ -58,6 +58,7 @@ export interface AutoI18nOptions {
 
 /** Sink for build-time messages. Vite's logger and the plugin context's `info`/`warn`/`error` both satisfy this shape. */
 interface Reporter { info(message: string): void; warn(message: string): void; error(message: string): void }
+type BuildResult = Awaited<ReturnType<typeof buildCatalogs>>;
 
 /** Throws a single error listing every invalid option, so a misconfigured plugin fails at startup. */
 function validateOptions(options: unknown): void {
@@ -106,12 +107,16 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   let server: ViteDevServer | undefined;
   let queue: Promise<void> = Promise.resolve();
   let watchTimer: ReturnType<typeof setTimeout> | undefined;
-  const selectedLocale = (): string => options.locale ?? process.env.AUTOI18N_LOCALE ?? sourceLocale;
+  const explicitLocale = (): string | undefined => options.locale ?? process.env.AUTOI18N_LOCALE;
+  const selectedLocale = (): string => explicitLocale() ?? sourceLocale;
+  const localesDir = (): string => path.resolve(config.root, directory, "locales");
+  const include = options.include ?? DEFAULT_INCLUDE;
+  const exclude = options.exclude ?? DEFAULT_EXCLUDE;
 
   // With build delivery and an explicit locale (for example one CI matrix job), only that catalogue is needed.
   function localesToTranslate(): string[] {
     const others = options.locales.filter(x => x !== sourceLocale);
-    const explicit = options.locale ?? process.env.AUTOI18N_LOCALE;
+    const explicit = explicitLocale();
     if (delivery === "build" && explicit && config.command !== "serve") return others.filter(x => x === explicit);
     return others;
   }
@@ -119,23 +124,14 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   // Node's glob resolves paths relative to `cwd`, so they are made absolute here.
   async function collectFiles(): Promise<string[]> {
     const found: string[] = [];
-    for await (const file of glob(options.include ?? DEFAULT_INCLUDE, { cwd: config.root, exclude: options.exclude ?? DEFAULT_EXCLUDE })) {
+    for await (const file of glob(include, { cwd: config.root, exclude })) {
       found.push(path.resolve(config.root, file));
     }
     return found;
   }
 
-  // Re-indexes source files, translates only missing or stale messages and writes the catalogues.
-  // With `changedFile` set (a hot update to an already indexed file), only that file is read again and the
-  // rest reuse their cached extraction, so the project is not scanned on every save. Adding or removing
-  // files, and the first build, use a full glob. In-memory state is swapped in before any
-  // translation error is rethrown, so a transform never sees a half-updated index.
-  async function sync(report: Reporter, changedFile?: string): Promise<string[]> {
-    activeReport = report;
-    const incremental = changedFile !== undefined && state.extractions.has(changedFile);
-    const files = incremental
-      ? [...state.extractions.keys()]
-      : await collectFiles();
+  // Reads and extracts each file, reusing a cached extraction whose content hash is unchanged.
+  async function extractFiles(files: string[], incremental: boolean, changedFile: string | undefined) {
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
@@ -151,8 +147,40 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       nextExtractions.set(file, entry);
       indexed.push({ file, messages: entry.messages });
     }
+    return { nextExtractions, indexed };
+  }
 
-    const outDir = path.resolve(config.root, directory, "locales");
+  // Logs the per-locale outcome of a build: missing providers, rejected, untranslated and failed messages.
+  function reportLocales(report: Reporter, result: BuildResult): void {
+    for (const [locale, translation] of result.locales) {
+      if (translation.requested && !provider && options.failOnMissingProvider) {
+        report.error(`Missing ${translation.requested} ${locale} translations and no provider is configured.`);
+      }
+      if (translation.rejected) report.info(`autoi18n: rejected ${translation.rejected} ${locale} translations with changed placeholders.`);
+      if (translation.untranslated) {
+        const log = provider ? report.warn : report.info;
+        log(`autoi18n: ${translation.untranslated} ${locale} messages have no translation and fall back to the source text.`);
+      }
+      if (translation.failed) {
+        report.warn(`autoi18n: ${translation.failed} ${locale} translation batches failed (${translation.failure}); they will be requested again on the next build.`);
+      }
+    }
+  }
+
+  // Re-indexes source files, translates only missing or stale messages and writes the catalogues.
+  // With `changedFile` set (a hot update to an already indexed file), only that file is read again and the
+  // rest reuse their cached extraction, so the project is not scanned on every save. Adding or removing
+  // files, and the first build, use a full glob. In-memory state is swapped in before any
+  // translation error is rethrown, so a transform never sees a half-updated index.
+  async function sync(report: Reporter, changedFile?: string): Promise<string[]> {
+    activeReport = report;
+    const incremental = changedFile !== undefined && state.extractions.has(changedFile);
+    const files = incremental
+      ? [...state.extractions.keys()]
+      : await collectFiles();
+    const { nextExtractions, indexed } = await extractFiles(files, incremental, changedFile);
+
+    const outDir = localesDir();
     const locales = localesToTranslate();
     const previous = new Map<string, LocaleFile>();
     for (const locale of locales) previous.set(locale, await state.readLocale(localeFilePath(outDir, locale), report.warn));
@@ -204,19 +232,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     state.catalogs = nextCatalogs;
     state.catalogFiles = Object.fromEntries(options.locales.map(locale => [locale, localeFilePath(outDir, locale)]));
 
-    for (const [locale, translation] of result.locales) {
-      if (translation.requested && !provider && options.failOnMissingProvider) {
-        report.error(`Missing ${translation.requested} ${locale} translations and no provider is configured.`);
-      }
-      if (translation.rejected) report.info(`autoi18n: rejected ${translation.rejected} ${locale} translations with changed placeholders.`);
-      if (translation.untranslated) {
-        const log = provider ? report.warn : report.info;
-        log(`autoi18n: ${translation.untranslated} ${locale} messages have no translation and fall back to the source text.`);
-      }
-      if (translation.failed) {
-        report.warn(`autoi18n: ${translation.failed} ${locale} translation batches failed (${translation.failure}); they will be requested again on the next build.`);
-      }
-    }
+    reportLocales(report, result);
 
     if (result.messages.length) report.info(`autoi18n: indexed ${result.messages.length} messages across ${files.length} files.`);
 
@@ -259,8 +275,8 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   function isSourceCandidate(file: string): boolean {
     if (!/\.[jt]sx?$/.test(file)) return false;
     const relative = path.relative(config.root, file).split(path.sep).join("/");
-    return (options.include ?? DEFAULT_INCLUDE).some(p => path.matchesGlob(relative, p))
-      && !(options.exclude ?? DEFAULT_EXCLUDE).some(p => path.matchesGlob(relative, p));
+    return include.some(p => path.matchesGlob(relative, p))
+      && !exclude.some(p => path.matchesGlob(relative, p));
   }
 
   return {
@@ -309,7 +325,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     },
     async handleHotUpdate({ file }) {
       // Catalogue writes must not trigger a reload; the new data is pushed over the custom event instead.
-      if (file.startsWith(path.resolve(config.root, directory, "locales") + path.sep)) return [];
+      if (file.startsWith(localesDir() + path.sep)) return [];
       if (!state.fileMessages.has(file)) return;
       await retranslate(file);
     }

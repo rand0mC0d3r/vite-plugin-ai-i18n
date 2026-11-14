@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { translateLocale } from "./translate.js";
-import { PartialTranslationError } from "./errors.js";
-import { emptyLocaleFile } from "./catalog.js";
-import type { TranslationProvider, TranslationRequest } from "./types.js";
+import { translateLocale } from "../src/translate.js";
+import { PartialTranslationError } from "../src/errors.js";
+import { emptyLocaleFile } from "../src/catalog.js";
+import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const text = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const mixed = (id: string, source: string, placeholders: string[]): TranslationRequest => ({ id, source, context: "", kind: "mixed", placeholders });

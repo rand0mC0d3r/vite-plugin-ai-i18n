@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { extractMessages } from "./compiler/extract.js";
-import { transformSource } from "./compiler/transform.js";
+import { extractMessages } from "../src/compiler/extract.js";
+import { transformSource } from "../src/compiler/transform.js";
 
 const CODE = `
 export function App() {

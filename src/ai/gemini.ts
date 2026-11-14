@@ -1,4 +1,3 @@
-import { ArkErrors } from "arktype";
 import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -20,7 +19,7 @@ export interface GeminiOptions extends BatchedProviderOptions {
  */
 export class GeminiProvider extends BatchedProvider<GeminiOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
-    const envelope = geminiResponseSchema(await this.post(
+    return this.complete(
       `${this.options.baseURL ?? GEMINI_BASE_URL}/models/${encodeURIComponent(this.options.model)}:generateContent`,
       { "x-goog-api-key": this.options.apiKey },
       {
@@ -30,8 +29,10 @@ export class GeminiProvider extends BatchedProvider<GeminiOptions> {
           responseMimeType: "application/json",
           maxOutputTokens: this.options.maxOutputTokens ?? 8192
         }
-      }
-    ));
-    return this.toCatalog(envelope instanceof ArkErrors ? undefined : (envelope.candidates[0]?.content?.parts ?? []).map(part => part.text ?? "").join(""), input.messages);
+      },
+      geminiResponseSchema,
+      envelope => (envelope.candidates[0]?.content?.parts ?? []).map(part => part.text ?? "").join(""),
+      input
+    );
   }
 }

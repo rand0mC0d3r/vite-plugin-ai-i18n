@@ -142,6 +142,22 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   }
 
   /**
+   * Posts one batch and reads its translations from the reply. `parse` validates the provider's response envelope and
+   * `text` extracts the model's text from it. An invalid envelope is treated as an empty reply.
+   */
+  protected async complete<E>(
+    url: string,
+    headers: Record<string, string>,
+    body: unknown,
+    parse: (data: unknown) => E | ArkErrors,
+    text: (envelope: E) => string | undefined,
+    input: TranslateInput
+  ): Promise<Catalog> {
+    const envelope = parse(await this.post(url, headers, body));
+    return this.toCatalog(envelope instanceof ArkErrors ? undefined : text(envelope), input.messages);
+  }
+
+  /**
    * Parses the model's text reply, which must be a JSON object mapping IDs to strings. A surrounding Markdown code fence
    * is stripped first, because models sometimes add one even when told not to.
    */

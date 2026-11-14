@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TranslationRequest } from "../types.js";
-import { GeminiProvider } from "./gemini.js";
+import type { TranslationRequest } from "../../src/types.js";
+import { GeminiProvider } from "../../src/ai/gemini.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });

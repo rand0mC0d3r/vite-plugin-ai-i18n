@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import autoI18n, { OpenAICompatibleProvider } from "./index.js";
-import { extractMessages } from "./compiler/extract.js";
-import { transformSource } from "./compiler/transform.js";
-import { createLocaleLoader, resolveLocale } from "./runtime/index.js";
-import { createRuntimeModule } from "./runtime/virtual.js";
-import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "./types.js";
+import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
+import { extractMessages } from "../src/compiler/extract.js";
+import { transformSource } from "../src/compiler/transform.js";
+import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
+import { createRuntimeModule } from "../src/runtime/virtual.js";
+import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
 

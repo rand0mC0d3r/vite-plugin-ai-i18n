@@ -1,4 +1,3 @@
-import { ArkErrors } from "arktype";
 import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
@@ -20,7 +19,7 @@ export interface OpenAICompatibleOptions extends BatchedProviderOptions {
 export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
     const { apiKey, model, baseURL = OPENAI_BASE_URL } = this.options;
-    const envelope = chatCompletionSchema(await this.post(
+    return this.complete(
       `${baseURL}/chat/completions`,
       apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
       {
@@ -31,8 +30,10 @@ export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOp
           { role: "system", content: systemPrompt(input) },
           { role: "user", content: userContent(input.messages) }
         ]
-      }
-    ));
-    return this.toCatalog(envelope instanceof ArkErrors ? undefined : envelope.choices[0].message.content ?? undefined, input.messages);
+      },
+      chatCompletionSchema,
+      envelope => envelope.choices[0].message.content ?? undefined,
+      input
+    );
   }
 }

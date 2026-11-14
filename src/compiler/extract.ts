@@ -28,6 +28,13 @@ function textOf(node: JSXText): string {
   return decodeJsxEntities(node.value);
 }
 
+/** Leading and trailing whitespace of a raw text run, so the translation can be wrapped in the same spacing. */
+function edgeWhitespace(raw: string): { prefix: string; suffix: string } {
+  return { prefix: raw.match(/^\s*/)?.[0] ?? "", suffix: raw.match(/\s*$/)?.[0] ?? "" };
+}
+
+const hasLetter = (text: string): boolean => /[A-Za-z]/.test(text);
+
 /** True when the element carries `translate="no"`, which excludes it and its subtree from extraction. */
 function hasIgnoreMarker(opening: JSXOpeningElement): boolean {
   return opening.attributes.some(a => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && a.name.name === IGNORE_ATTR && attributeText(a.value) === IGNORE_VALUE);
@@ -61,6 +68,12 @@ const isFunction = (node: Node, parent: Node | undefined): boolean => {
 function lastIndexWhere(nodes: Node[], predicate: (node: Node) => boolean): number {
   for (let i = nodes.length - 1; i >= 0; i--) if (predicate(nodes[i])) return i;
   return -1;
+}
+
+/** Index and element of the innermost JSX element among `ancestors`, or undefined when there is none. */
+function nearestElement(ancestors: Node[]): { index: number; element: JSXElement } | undefined {
+  const index = lastIndexWhere(ancestors, ancestor => ancestor.type === "JSXElement");
+  return index < 0 ? undefined : { index, element: ancestors[index] as JSXElement };
 }
 
 /** True when the node or any ancestor element is marked with translate="no". `chain` runs from the root to the node. */
@@ -102,6 +115,10 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
 export function extractMessages(code: string, filename: string, options: ExtractOptions = {}): ExtractedMessage[] {
   const { program, commentsByEnd } = parseSource(code, filename);
   const found: ExtractedMessage[] = [];
+  /** Stores a message with the fingerprint derived from its identifying fields. */
+  const record = (item: Omit<ExtractedMessage, "fingerprint">): void => {
+    found.push({ ...item, fingerprint: createFingerprint(item) });
+  };
   const componentPropsFor = (tag: string): readonly string[] =>
     Object.prototype.hasOwnProperty.call(options.componentProps ?? {}, tag) ? options.componentProps![tag] : [];
   const isTextTag = (name: JSXOpeningElement["name"]): name is JSXIdentifierNode => {
@@ -130,7 +147,7 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (!expressions.length) return;
     if (children.some(child => child.type !== "JSXText" && child.type !== "JSXExpressionContainer")) return;
     if (!expressions.every(child => placeholderExpressionName(child.expression) !== undefined)) return;
-    if (!children.some(child => child.type === "JSXText" && /[A-Za-z]/.test(textOf(child)))) return;
+    if (!children.some(child => child.type === "JSXText" && hasLetter(textOf(child)))) return;
     const rawTag = node.openingElement.name;
     if (!isTextTag(rawTag)) return;
     const names: string[] = [];
@@ -146,13 +163,10 @@ export function extractMessages(code: string, filename: string, options: Extract
     const source = normalizeSource(raw);
     if (!source) return;
     const tag = rawTag.name;
-    const item: ExtractedMessage = {
-      source, prefix: raw.match(/^\s*/)?.[0] ?? "", suffix: raw.match(/\s*$/)?.[0] ?? "",
-      kind: "mixed", placeholders: names, file: filename, start: node.start, end: node.end,
-      tag, component: componentName(ancestors), context: elementContext(node.openingElement, tag), fingerprint: ""
-    };
-    item.fingerprint = createFingerprint(item);
-    found.push(item);
+    record({
+      source, ...edgeWhitespace(raw), kind: "mixed", placeholders: names, file: filename, start: node.start, end: node.end,
+      tag, component: componentName(ancestors), context: elementContext(node.openingElement, tag)
+    });
   }
 
   /** Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to `visitElement`. */
@@ -161,21 +175,18 @@ export function extractMessages(code: string, filename: string, options: Extract
     const raw = textOf(node);
     const source = normalizeSource(raw);
     if (!source) return;
-    const elementIndex = lastIndexWhere(ancestors, ancestor => ancestor.type === "JSXElement");
-    if (elementIndex < 0) return;
-    const element = ancestors[elementIndex] as JSXElement;
+    const nearest = nearestElement(ancestors);
+    if (!nearest) return;
+    const { index: elementIndex, element } = nearest;
     // Mixed-content elements are handled as a whole by the JSXElement visitor, never fragment by fragment.
     if (element.children.some(child => child.type === "JSXExpressionContainer")) return;
     const rawTag = element.openingElement.name;
     if (!isTextTag(rawTag)) return;
     const tag = rawTag.name;
-    const item: ExtractedMessage = {
-      source, prefix: raw.match(/^\s*/)?.[0] ?? "", suffix: raw.match(/\s*$/)?.[0] ?? "",
-      kind: "text", file: filename, start: node.start, end: node.end, tag,
-      component: componentName(ancestors.slice(0, elementIndex)), context: elementContext(element.openingElement, tag), fingerprint: ""
-    };
-    item.fingerprint = createFingerprint(item);
-    found.push(item);
+    record({
+      source, ...edgeWhitespace(raw), kind: "text", file: filename, start: node.start, end: node.end, tag,
+      component: componentName(ancestors.slice(0, elementIndex)), context: elementContext(element.openingElement, tag)
+    });
   }
 
   /** Extracts a string-literal attribute whose name is translatable for this element or component. */
@@ -193,16 +204,14 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (isMarkedUntranslated([...ancestors, node])) return;
     if (!isStringLiteral(node.value)) return;
     const source = normalizeSource(decodeJsxEntities(node.value.value));
-    if (!source || !/[A-Za-z]/.test(source)) return;
-    const elementIndex = lastIndexWhere(ancestors, ancestor => ancestor.type === "JSXElement");
-    if (elementIndex < 0) return;
-    const element = ancestors[elementIndex] as JSXElement;
-    const item: ExtractedMessage = {
+    if (!source || !hasLetter(source)) return;
+    const nearest = nearestElement(ancestors);
+    if (!nearest) return;
+    const { index: elementIndex, element } = nearest;
+    record({
       source, kind: "attribute", file: filename, start: node.value.start, end: node.value.end, tag,
-      component: componentName(ancestors.slice(0, elementIndex)), attribute, context: elementContext(element.openingElement, tag, attribute), fingerprint: ""
-    };
-    item.fingerprint = createFingerprint(item);
-    found.push(item);
+      component: componentName(ancestors.slice(0, elementIndex)), attribute, context: elementContext(element.openingElement, tag, attribute)
+    });
   }
 
   /** Extracts a string literal that is preceded by the string marker comment. */
@@ -213,10 +222,8 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (ancestors.some(ancestor => ancestor.start === node.start)) return;
     if (!hasLeadingBlockComment(code, commentsByEnd, node.start, options.stringMarker ?? DEFAULT_STRING_MARKER)) return;
     const source = normalizeSource(node.value);
-    if (!source || !/[A-Za-z]/.test(source)) return;
-    const item: ExtractedMessage = { source, kind: "string", file: filename, start: node.start, end: node.end, tag: "", component: componentName(ancestors), context: "", fingerprint: "" };
-    item.fingerprint = createFingerprint(item);
-    found.push(item);
+    if (!source || !hasLetter(source)) return;
+    record({ source, kind: "string", file: filename, start: node.start, end: node.end, tag: "", component: componentName(ancestors), context: "" });
   }
 
   walk(program, (node, ancestors) => {

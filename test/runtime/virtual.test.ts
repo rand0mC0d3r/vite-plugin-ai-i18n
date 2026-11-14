@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { createRuntimeModule } from "./virtual.js";
+import { createRuntimeModule } from "../../src/runtime/virtual.js";
 
 type RuntimeModule = {
   setLocale(locale: string): Promise<void>;

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { FallbackProvider, resolveProvider } from "./ai/fallback.js";
-import { PartialTranslationError } from "./errors.js";
-import type { Catalog, TranslationProvider, TranslationRequest } from "./types.js";
+import { FallbackProvider, resolveProvider } from "../src/ai/fallback.js";
+import { PartialTranslationError } from "../src/errors.js";
+import type { Catalog, TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const messages: TranslationRequest[] = [
   { id: "a", source: "Save", context: "", kind: "string" },

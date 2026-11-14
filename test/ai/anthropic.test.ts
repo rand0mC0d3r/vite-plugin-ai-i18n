@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TranslationRequest } from "../types.js";
-import { AnthropicProvider } from "./anthropic.js";
+import type { TranslationRequest } from "../../src/types.js";
+import { AnthropicProvider } from "../../src/ai/anthropic.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });

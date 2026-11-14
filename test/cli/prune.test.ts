@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Registry, RegistryEntry } from "../types.js";
+import type { Registry, RegistryEntry } from "../../src/types.js";
 
 const OLD = "2020-01-01T00:00:00.000Z";
 const RECENT = new Date().toISOString();
@@ -32,7 +32,7 @@ async function runCli(cwd: string, args: string[]): Promise<void> {
   process.chdir(cwd);
   vi.resetModules();
   try {
-    await import("./prune.js");
+    await import("../../src/cli/prune.js");
     await vi.waitFor(() => expect(process.exitCode === 1 || vi.mocked(console.log).mock.calls.length + vi.mocked(console.error).mock.calls.length > 0).toBe(true));
     await new Promise(resolve => setTimeout(resolve, 20));
   } finally {

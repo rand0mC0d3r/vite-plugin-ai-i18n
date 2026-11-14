@@ -2,8 +2,8 @@ import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promis
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { emptyLocaleFile, pruneCatalog, readLocaleFile, writeLocaleFile } from "./catalog.js";
-import { readJsonFile, writeFileAtomic } from "./io.js";
+import { emptyLocaleFile, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/catalog.js";
+import { readJsonFile, writeFileAtomic } from "../src/io.js";
 
 describe("io and catalog helpers", () => {
   let dir: string;

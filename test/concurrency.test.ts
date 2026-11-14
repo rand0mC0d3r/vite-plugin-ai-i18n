@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Semaphore } from "./concurrency.js";
+import { Semaphore } from "../src/concurrency.js";
 
 describe("Semaphore", () => {
   it("never runs more tasks at once than its limit, across callers that share it", async () => {

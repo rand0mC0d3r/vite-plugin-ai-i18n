@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildCatalogs } from "./engine.js";
-import { mapWithConcurrency } from "./concurrency.js";
-import { PartialTranslationError } from "./errors.js";
-import { reconcile } from "./identity/registry.js";
-import type { ExtractedMessage, Registry, TranslationProvider } from "./types.js";
+import { buildCatalogs } from "../src/engine.js";
+import { mapWithConcurrency } from "../src/concurrency.js";
+import { PartialTranslationError } from "../src/errors.js";
+import { reconcile } from "../src/identity/registry.js";
+import type { ExtractedMessage, Registry, TranslationProvider } from "../src/types.js";
 
 const message = (start: number, source = "Save", file = "App.tsx"): ExtractedMessage => ({
   source, kind: "text", file, start, end: start + source.length, tag: "button", component: "App", context: "", fingerprint: `fp-${source}`

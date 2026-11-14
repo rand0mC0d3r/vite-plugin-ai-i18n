@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TranslationRequest } from "../types.js";
-import { OpenAICompatibleProvider } from "./openai.js";
+import type { TranslationRequest } from "../../src/types.js";
+import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });

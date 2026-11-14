@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { debugLog } from "../debug.js";
-import { pruneCatalog, readLocaleFile, writeLocaleFile } from "../catalog.js";
+import { pruneLocaleFile, readLocaleFile, writeLocaleFile } from "../catalog.js";
 import { loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "../constants.js";
 
@@ -13,13 +13,10 @@ async function pruneLocaleFiles(localesDir: string, activeIds: Set<string>): Pro
   for (const name of await readdir(localesDir)) {
     if (!name.endsWith(".json")) continue;
     const file = path.join(localesDir, name);
-    const current = await readLocaleFile(file, message => console.warn(message));
-    const messages = pruneCatalog(current.messages, activeIds);
-    const sources = pruneCatalog(current.sources, activeIds);
-    const removed = [...new Set([...messages.removed, ...sources.removed])];
-    if (!removed.length) continue;
-    await writeLocaleFile(file, { messages: messages.catalog, sources: sources.catalog });
-    results.push({ file, removed });
+    const pruned = pruneLocaleFile(await readLocaleFile(file, message => console.warn(message)), activeIds);
+    if (!pruned.removed.length) continue;
+    await writeLocaleFile(file, pruned.file);
+    results.push({ file, removed: pruned.removed });
   }
   return results;
 }

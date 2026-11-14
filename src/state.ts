@@ -19,6 +19,28 @@ async function stampOf(file: string): Promise<string | undefined> {
   }
 }
 
+/** Keeps parsed files by path, reusing an entry while its on-disk stamp is unchanged. */
+class StampCache<T> {
+  private readonly entries = new Map<string, Cached<T>>();
+
+  /** Returns the cached value while the file's stamp is unchanged; otherwise loads the file again. */
+  async read(file: string, load: () => Promise<T>): Promise<T> {
+    const stamp = await stampOf(file);
+    const cached = this.entries.get(file);
+    if (stamp !== undefined && cached?.stamp === stamp) return cached.value;
+    const value = await load();
+    if (stamp !== undefined) this.entries.set(file, { stamp, value });
+    return value;
+  }
+
+  /** Saves the file, then caches the value under the stamp the save produced. */
+  async write(file: string, value: T, save: () => Promise<void>): Promise<void> {
+    await save();
+    const stamp = await stampOf(file);
+    if (stamp !== undefined) this.entries.set(file, { stamp, value });
+  }
+}
+
 /** Two catalogues are the same when they hold the same keys with the same text. */
 export function sameCatalog(a: Catalog | undefined, b: Catalog): boolean {
   if (!a) return false;
@@ -38,40 +60,27 @@ export class IndexState {
   catalogFiles: Record<string, string> = {};
   readonly warnedFiles = new Set<string>();
   legacySidecarsRemoved = false;
-  private readonly localeFiles = new Map<string, Cached<LocaleFile>>();
-  private registryCache: Cached<Registry> | undefined;
+  private readonly locales = new StampCache<LocaleFile>();
+  private readonly registries = new StampCache<Registry>();
 
   /** Hash of an indexed file. Derived from `extractions`, so the two cannot diverge. */
   hashOf(file: string): string | undefined {
     return this.extractions.get(file)?.hash;
   }
 
-  async readLocale(file: string, warn: (message: string) => void): Promise<LocaleFile> {
-    const stamp = await stampOf(file);
-    const cached = this.localeFiles.get(file);
-    if (stamp !== undefined && cached?.stamp === stamp) return cached.value;
-    const value = await readLocaleFile(file, warn);
-    if (stamp !== undefined) this.localeFiles.set(file, { stamp, value });
-    return value;
+  readLocale(file: string, warn: (message: string) => void): Promise<LocaleFile> {
+    return this.locales.read(file, () => readLocaleFile(file, warn));
   }
 
-  async writeLocale(file: string, content: LocaleFile): Promise<void> {
-    await writeLocaleFile(file, content);
-    const stamp = await stampOf(file);
-    if (stamp !== undefined) this.localeFiles.set(file, { stamp, value: content });
+  writeLocale(file: string, content: LocaleFile): Promise<void> {
+    return this.locales.write(file, content, () => writeLocaleFile(file, content));
   }
 
-  async readRegistry(file: string, warn: (message: string) => void): Promise<Registry> {
-    const stamp = await stampOf(file);
-    if (stamp !== undefined && this.registryCache?.stamp === stamp) return this.registryCache.value;
-    const value = await loadRegistry(file, warn);
-    if (stamp !== undefined) this.registryCache = { stamp, value };
-    return value;
+  readRegistry(file: string, warn: (message: string) => void): Promise<Registry> {
+    return this.registries.read(file, () => loadRegistry(file, warn));
   }
 
-  async writeRegistry(file: string, registry: Registry): Promise<void> {
-    await saveRegistry(file, registry);
-    const stamp = await stampOf(file);
-    if (stamp !== undefined) this.registryCache = { stamp, value: registry };
+  writeRegistry(file: string, registry: Registry): Promise<void> {
+    return this.registries.write(file, registry, () => saveRegistry(file, registry));
   }
 }
