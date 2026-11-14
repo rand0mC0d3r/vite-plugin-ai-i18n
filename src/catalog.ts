@@ -1,7 +1,7 @@
 import { ArkErrors } from "arktype";
 import path from "node:path";
 import { readJsonFile, toJson, writeFileAtomic, writeFileIfChanged } from "./io.js";
-import { localeFileSchema } from "./schemas.js";
+import { LOCALE_TAG, localeFileSchema } from "./schemas.js";
 import type { Catalog } from "./types.js";
 
 /**
@@ -18,6 +18,7 @@ export const emptyLocaleFile = (): LocaleFile => ({ messages: {}, sources: {} })
 
 /** Path of a locale's file inside the output directory, e.g. `<outDir>/de.json`. */
 export function localeFilePath(outDir: string, locale: string): string {
+  if (!LOCALE_TAG.test(locale)) throw new Error(`autoi18n: "${locale}" is not a valid locale tag.`);
   return path.join(outDir, `${locale}.json`);
 }
 

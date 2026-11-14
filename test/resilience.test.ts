@@ -218,4 +218,10 @@ describe("locale configuration", () => {
     expect(() => autoI18n({ locales: ["de"], localeConcurrency: NaN })).toThrow(/invalid options.*localeConcurrency/);
     expect(() => autoI18n({ locales: "de" } as never)).toThrow(/invalid options.*locales/);
   });
+
+  it("rejects locale values that are not BCP 47 tags, since they become file names", () => {
+    expect(() => autoI18n({ locales: ["../../package"] })).toThrow(/invalid options.*locales/);
+    expect(() => autoI18n({ locales: ["en"], sourceLocale: "../x" })).toThrow(/invalid options.*sourceLocale/);
+    expect(() => autoI18n({ locales: ["zh-Hant-TW", "en-US-u-ca-buddhist"] })).not.toThrow();
+  });
 });

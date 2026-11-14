@@ -46,15 +46,19 @@ export const registryFileSchema = type({ version: "1", entries: "Record<string, 
 /** A string that is not empty, used for option values where `""` would be a mistake. */
 const nonEmptyString = type("string >= 1");
 
+/** A simple BCP 47 tag such as `de`, `zh-Hant-TW` or `en-US-u-ca-buddhist`. Locales become file names, so nothing else is allowed. */
+export const LOCALE_TAG = /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/;
+const localeTag = nonEmptyString.narrow(value => LOCALE_TAG.test(value));
+
 /**
  * Validates the plugin options. `validateOptions` in `index.ts` runs it at startup and reports every failure at once.
  * Optional keys also accept `undefined`, so options set from possibly-unset environment variables are allowed.
  */
 export const optionsSchema = type({
-  locales: nonEmptyString.array(),
-  "sourceLocale?": nonEmptyString.or("undefined"),
+  locales: localeTag.array(),
+  "sourceLocale?": localeTag.or("undefined"),
   "delivery?": "'build' | 'runtime' | undefined",
-  "locale?": nonEmptyString.or("undefined"),
+  "locale?": localeTag.or("undefined"),
   "include?": "string[] | undefined",
   "exclude?": "string[] | undefined",
   "directory?": nonEmptyString.or("undefined"),
