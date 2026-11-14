@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { mapWithConcurrency } from "../concurrency.js";
+import { Semaphore } from "../concurrency.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
@@ -15,7 +15,7 @@ export interface BatchedProviderOptions {
   maxRetries?: number;
   /** Base delay before a retry; doubles on each attempt and is jittered. A Retry-After header overrides it (max 60 s). Default 500. */
   retryDelayMs?: number;
-  /** Batches sent in parallel. Default 4. */
+  /** Batches sent in parallel across all locales of one provider instance. Default 4. */
   concurrency?: number;
 }
 
@@ -70,7 +70,12 @@ export async function httpError(response: Response): Promise<Error> {
  * Subclasses implement one request per batch and return the translations it produced.
  */
 export abstract class BatchedProvider<O extends BatchedProviderOptions> implements TranslationProvider {
-  constructor(protected readonly options: O) {}
+  // One limiter per provider instance, so concurrent locales share the request budget instead of multiplying it.
+  private readonly slots: Semaphore;
+
+  constructor(protected readonly options: O) {
+    this.slots = new Semaphore(options.concurrency ?? 4);
+  }
 
   /**
    * Translates in parallel batches. If every batch fails, the first error is thrown. If only some fail,
@@ -81,7 +86,7 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
     const batches: TranslationRequest[][] = [];
     for (let start = 0; start < input.messages.length; start += batchSize) batches.push(input.messages.slice(start, start + batchSize));
 
-    const settled = await mapWithConcurrency(batches, this.options.concurrency ?? 4, batch => this.translateBatch({ ...input, messages: batch }));
+    const settled = await Promise.allSettled(batches.map(batch => this.slots.run(() => this.translateBatch({ ...input, messages: batch }))));
     const result: Catalog = {};
     const errors: unknown[] = [];
     let failed = 0;

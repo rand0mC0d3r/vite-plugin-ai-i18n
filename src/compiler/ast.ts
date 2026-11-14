@@ -2,8 +2,8 @@ import { parseSync, type Comment, type Node, type StringLiteral } from "oxc-pars
 
 /** Nodes from the root down to a node's parent, in order. */
 export type Ancestors = Node[];
-/** Callback invoked by {@link walk} for every node, with its ancestors. */
-export type Visitor = (node: Node, ancestors: Ancestors) => void;
+/** Callback invoked by {@link walk} for every node, with its ancestors. Returning `false` skips the node's children. */
+export type Visitor = (node: Node, ancestors: Ancestors) => void | boolean;
 
 /** A parsed module together with its comments, ready for AST traversal. */
 export interface ParsedSource {
@@ -27,7 +27,7 @@ export function parseSource(code: string, filename: string): ParsedSource {
 export function walk(root: Node, visit: Visitor): void {
   const ancestors: Ancestors = [];
   const visitNode = (node: Node): void => {
-    visit(node, ancestors);
+    if (visit(node, ancestors) === false) return;
     ancestors.push(node);
     for (const key of Object.keys(node)) {
       if (key === "parent") continue;

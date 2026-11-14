@@ -334,6 +334,7 @@ describe("autoI18n plugin", () => {
       await new Promise(resolve => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
 
+      await rm(srcFile());
       dev.handlers.unlink(srcFile());
       await vi.waitFor(() => expect(dev.ws.send).toHaveBeenCalledTimes(1));
     });

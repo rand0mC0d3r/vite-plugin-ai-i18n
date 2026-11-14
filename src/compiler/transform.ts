@@ -40,8 +40,22 @@ export function transformSource(code: string, filename: string, messages: Resolv
   };
   for (const message of messages) byKind[message.kind]?.set(message.start, message);
 
+  // Every target starts inside its parent's range, so a subtree with no message start cannot contain a target.
+  const starts = messages.map(message => message.start).sort((a, b) => a - b);
+  const hasStartWithin = (from: number, to: number): boolean => {
+    let low = 0;
+    let high = starts.length;
+    while (low < high) {
+      const mid = (low + high) >> 1;
+      if (starts[mid] < from) low = mid + 1;
+      else high = mid;
+    }
+    return low < starts.length && starts[low] < to;
+  };
+
   const targets: Target[] = [];
   walk(program, node => {
+    if (!hasStartWithin(node.start, node.end)) return false;
     if (node.type === "JSXElement") {
       const message = byKind.mixed.get(node.start);
       if (message) targets.push({ kind: "mixed", node, message });

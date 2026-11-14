@@ -45,7 +45,7 @@ const Button = ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonEle
 function DocumentList({ items }: { items: DocumentItem[] }) {
   return <section aria-label="Document list">
     <h2>Recent documents</h2>
-    <button>New Document</button>
+    <button>New Document Agent</button>
     <Button>New Images</Button>
     <ul>
       {items.map(doc => <li key={doc.id}>

@@ -138,7 +138,7 @@ If a locale has no translation for an ID, the source text is shown. Nothing brea
 
 ### Dev server
 
-Saving a file re-runs phases 1 to 3 for that project and pushes the updated catalogues to the browser over `autoi18n:update`, so the page updates without a reload.
+Saving a file re-runs phases 1 to 3 for that project and pushes the catalogues that changed to the browser over `autoi18n:update`, so the page updates without a reload. Locales that did not change are not sent.
 
 ## 📚 Examples
 
@@ -334,7 +334,7 @@ If a translation batch fails, the other batches are still stored. The failed mes
 
 All built-in providers (`OpenAICompatibleProvider`, `AnthropicProvider` and `GeminiProvider`) send messages in batches (`batchSize`, default 40), run up to `concurrency` batches at once (default 4), abort a request after `timeoutMs` (default 60000), and retry network errors, timeouts, 408/409/429 and 5xx responses or malformed output up to `maxRetries` times (default 2) with exponential backoff from `retryDelayMs` (default 500). Other 4xx errors fail immediately. If the provider omits some messages, the rest are kept and the missing ones stay in the source language until the next build retries them; the build logs how many were left untranslated.
 
-The plugin translates up to `localeConcurrency` locales at once (default 2). Total parallel requests are roughly `localeConcurrency × concurrency`, so lower one or both if your provider rate-limits your account.
+The plugin translates up to `localeConcurrency` locales at once (default 2). The provider's `concurrency` limit is shared by all locales, so at most `concurrency` batches are in flight per provider instance (not `localeConcurrency × concurrency`). Lower `concurrency` if your provider rate-limits your account.
 
 Ambiguous identity matches (duplicate identical strings whose count changed) are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead. When a message is paired by fingerprint, the component name is used to break ties between identical strings, so reordering or renaming components keeps existing IDs.
 
@@ -369,7 +369,7 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 
 `subscribe(listener)` returns an unsubscribe function. `getVersion()` changes whenever the locale or the catalogues change, so `useSyncExternalStore(subscribe, getVersion, getVersion)` re-renders components that read `t()` during render. Components wrapped in `memo` must subscribe themselves, or they keep the old text until their props change. List `autoI18n()` before `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX. Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
 
-In dev, saving a source file re-indexes the project, translates only new or changed messages and pushes the updated catalogues to the browser over an `autoi18n:update` event. Files added or removed are indexed as well. The page is not reloaded, so new JSX text appears once its translation is ready.
+In dev, saving a source file re-indexes the project, translates only new or changed messages and pushes only the catalogues that changed to the browser over an `autoi18n:update` event. Files added or removed are indexed as well. The page is not reloaded, so new JSX text appears once its translation is ready.
 
 ## ⚙️ Configuration reference
 
@@ -388,7 +388,7 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 | `failOnMissingProvider` | `boolean` | `false` | When `true`, the build fails if a locale has untranslated messages and no `provider` is set. |
 | `onAmbiguous` | `"warn" \| "error"` | `"warn"` | What to do when duplicated identical texts change their occurrence count, so their IDs may have moved. `"error"` fails the build. |
 | `orphanRetentionMinutes` | `number` | `43200` (30 days) | Minutes an orphaned message is kept before it is deleted. `0` deletes on the next build; `Infinity` keeps forever. |
-| `localeConcurrency` | `number` | `2` | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. |
+| `localeConcurrency` | `number` | `2` | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. Batches are still capped by the provider's `concurrency`. |
 | `debug` | `boolean` | `false` | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps. |
 | `componentProps` | `Record<string, string[]>` | `{}` | Attributes of custom components whose string values are UI copy, keyed by component name, for example `{ Button: ["aria-label", "title"] }`. Only the listed attributes are extracted from those components. The pseudo-prop `children` also makes a component's text children translatable, including sentences with `{name}` expressions: `{ Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button>Delete {count} files</Button>`. |
 | `stringMarker` | `string` | `"i18n"` | Text of the block comment that marks a string literal outside JSX for translation, for example `/* i18n */ "Save"`. Set it to `"t"` to use `/* t */ "Save"` instead. |
@@ -403,7 +403,7 @@ Create the provider with `new OpenAICompatibleProvider(options)`.
 | `model` | `string` | _required_ | Model name sent in each request, for example `"gpt-4.1-mini"`. |
 | `baseURL` | `string` | `"https://api.openai.com/v1"` | Base URL of any OpenAI-compatible API. Requests go to `${baseURL}/chat/completions`. |
 | `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
-| `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
+| `concurrency` | `number` | `4` | Batches sent in parallel across all locales of this provider instance. |
 | `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
@@ -419,7 +419,7 @@ Create the provider with `new AnthropicProvider(options)`. It calls the [Anthrop
 | `baseURL` | `string` | `"https://api.anthropic.com/v1"` | Base URL of the Messages API. Requests go to `${baseURL}/messages`. |
 | `maxTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
 | `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
-| `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
+| `concurrency` | `number` | `4` | Batches sent in parallel across all locales of this provider instance. |
 | `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
@@ -435,7 +435,7 @@ Create the provider with `new GeminiProvider(options)`. It calls the [Gemini API
 | `baseURL` | `string` | `"https://generativelanguage.googleapis.com/v1beta"` | Base URL of the Gemini API. Requests go to `${baseURL}/models/${model}:generateContent`. |
 | `maxOutputTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
 | `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
-| `concurrency` | `number` | `4` | Batches sent in parallel for one locale. |
+| `concurrency` | `number` | `4` | Batches sent in parallel across all locales of this provider instance. |
 | `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
