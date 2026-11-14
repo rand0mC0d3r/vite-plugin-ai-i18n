@@ -362,4 +362,5 @@ export { AnthropicProvider } from "./ai/anthropic.js";
 export type { AnthropicOptions } from "./ai/anthropic.js";
 export { GeminiProvider } from "./ai/gemini.js";
 export type { GeminiOptions } from "./ai/gemini.js";
+export * from "./locales.js";
 export type * from "./types.js";

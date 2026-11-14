@@ -396,7 +396,46 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 | `componentProps` | `Record<string, string[]>` | `{}` | Attributes of custom components whose string values are UI copy, keyed by component name, for example `{ Button: ["aria-label", "title"] }`. Only the listed attributes are extracted from those components. The pseudo-prop `children` also makes a component's text children translatable, including sentences with `{name}` expressions: `{ Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button>Delete {count} files</Button>`. |
 | `stringMarker` | `string` | `"i18n"` | Text of the block comment that marks a string literal outside JSX for translation, for example `/* i18n */ "Save"`. Set it to `"t"` to use `/* t */ "Save"` instead. |
 
-### `OpenAICompatibleProvider` options
+### Locale groups
+
+The package exports ready-made locale lists for the `locales` option. Each is a plain array of BCP 47 codes, so spread it to keep the shared export unchanged:
+
+```ts
+import autoI18n, { ASIA, EUROPE, WORLDWIDE_POPULAR } from "vite-plugin-ai-auto-i18n";
+
+autoI18n({ locales: [...EUROPE] });
+autoI18n({ locales: ["en", ...ASIA] });
+```
+
+| Group | Languages |
+|---|---|
+| `EU` | 23 official EU languages |
+| `EUROPE` | `EU` plus Norwegian, Icelandic, Albanian, Bosnian, Macedonian, Serbian, Ukrainian, Russian, Belarusian, Catalan |
+| `NORDIC` | Danish, Finnish, Icelandic, Norwegian, Swedish |
+| `BALTIC` | Estonian, Latvian, Lithuanian |
+| `BALKANS` | Albanian, Bosnian, Bulgarian, Croatian, Greek, Macedonian, Romanian, Serbian, Slovenian |
+| `BENELUX` | Dutch, French, Luxembourgish |
+| `EAST_ASIA` | Chinese, Japanese, Korean, Mongolian |
+| `SOUTH_ASIA` | Hindi, Bengali, Urdu, Punjabi, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Nepali, Sinhala |
+| `SOUTHEAST_ASIA` | Indonesian, Malay, Burmese, Khmer, Lao, Filipino, Thai, Vietnamese |
+| `CENTRAL_ASIA` | Kazakh, Kyrgyz, Tajik, Turkmen, Uzbek |
+| `CAUCASUS` | Armenian, Azerbaijani, Georgian |
+| `ASIA` | `EAST_ASIA`, `SOUTH_ASIA`, `SOUTHEAST_ASIA`, `CENTRAL_ASIA`, `CAUCASUS` |
+| `MIDDLE_EAST` | Arabic, Persian, Hebrew, Turkish, Kurdish |
+| `AFRICA` | Arabic, French, Portuguese, Swahili, Amharic, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Somali, Kinyarwanda, Wolof |
+| `NORTH_AMERICA` | English, French, Spanish |
+| `CENTRAL_AMERICA_CARIBBEAN` | Spanish, English, French, Haitian Creole, Dutch |
+| `SOUTH_AMERICA` | Spanish, Portuguese, Quechua, Guarani, Aymara |
+| `AMERICAS` | `NORTH_AMERICA`, `CENTRAL_AMERICA_CARIBBEAN`, `SOUTH_AMERICA` |
+| `OCEANIA` | English, Maori, Samoan, Tongan |
+| `ASEAN` | `SOUTHEAST_ASIA` languages plus English (working language) |
+| `MERCOSUR` | Spanish, Portuguese, Guarani |
+| `GCC` | Arabic, English |
+| `CIS` | Russian, Belarusian, Armenian, Azerbaijani, Kazakh, Kyrgyz, Tajik, Uzbek |
+| `G7` | English, French, German, Italian, Japanese |
+| `FRANCOPHONE` | French, Haitian Creole, Wolof, Lingala, Kinyarwanda |
+| `WORLDWIDE_POPULAR` | The 17 languages with the most speakers worldwide, including English, Chinese, Hindi, Spanish, and Arabic |
+
 
 Create the provider with `new OpenAICompatibleProvider(options)`.
 
