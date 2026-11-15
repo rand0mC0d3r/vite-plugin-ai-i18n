@@ -11,7 +11,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
 - Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionMinutes`).
-- Supports a pluggable translation provider. Ships with Anthropic and Gemini implementations and one OpenAI-compatible implementation that covers OpenAI, Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras and Ollama (see [Choosing a provider](#choosing-a-provider)).
+- Supports a pluggable translation provider. Ships with Anthropic and Gemini implementations and one OpenAI-compatible implementation that covers OpenAI, Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras, Perplexity, Together AI, Fireworks AI, Hugging Face, DeepInfra, SambaNova, Moonshot and local runtimes such as Ollama, LM Studio, llama.cpp, vLLM, LocalAI and Docker Model Runner (see [Choosing a provider](#choosing-a-provider)).
 - Writes locale JSON catalogues and keeps source English as fallback.
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
 - Re-translates a message when its source text changes, tracked in the `sources` map of `.autoi18n/locales/<locale>.json`.
@@ -497,15 +497,27 @@ Every service below is either native (`AnthropicProvider`, `GeminiProvider`) or 
 | OpenRouter | `OpenAICompatibleProvider` | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` | `openai/gpt-4.1-mini` |
 | xAI | `OpenAICompatibleProvider` | `XAI_API_KEY` | `https://api.x.ai/v1` | `grok-3-mini` |
 | Cerebras | `OpenAICompatibleProvider` | `CEREBRAS_API_KEY` | `https://api.cerebras.ai/v1` | `llama-3.3-70b` |
+| Perplexity | `OpenAICompatibleProvider` | `PERPLEXITY_API_KEY` | `https://api.perplexity.ai` | `sonar` |
+| Together AI | `OpenAICompatibleProvider` | `TOGETHER_API_KEY` | `https://api.together.xyz/v1` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
+| Fireworks AI | `OpenAICompatibleProvider` | `FIREWORKS_API_KEY` | `https://api.fireworks.ai/inference/v1` | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
+| Hugging Face | `OpenAICompatibleProvider` | `HUGGINGFACE_API_KEY` | `https://router.huggingface.co/v1` | `meta-llama/Llama-3.3-70B-Instruct` |
+| DeepInfra | `OpenAICompatibleProvider` | `DEEPINFRA_API_KEY` | `https://api.deepinfra.com/v1/openai` | `meta-llama/Meta-Llama-3.1-70B-Instruct` |
+| SambaNova | `OpenAICompatibleProvider` | `SAMBANOVA_API_KEY` | `https://api.sambanova.ai/v1` | `Meta-Llama-3.3-70B-Instruct` |
+| Moonshot (Kimi) | `OpenAICompatibleProvider` | `MOONSHOT_API_KEY` | `https://api.moonshot.ai/v1` | `moonshot-v1-8k` |
 | Ollama (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:11434/v1` | none, you must set one |
+| LM Studio (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:1234/v1` | none, you must set one |
+| llama.cpp `llama-server` (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:8080/v1` | none, you must set one |
+| vLLM (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:8000/v1` | none, you must set one |
+| LocalAI (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:8080/v1` | none, you must set one |
+| Docker Model Runner (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:12434/engines/v1` | none, you must set one |
 
 Notes:
 
 - Model names change often. The defaults above are examples; set `model` to any name the service currently offers.
-- The example config enables a provider only when its key variable is set. Ollama has no key, so it is enabled by `OLLAMA_MODEL` (the model you have pulled), with `OLLAMA_BASE_URL` to override the server address. `<NAME>_MODEL` (for example `MISTRAL_MODEL`) overrides the default model of any other service.
+- The example config enables a hosted provider only when its key variable is set. Local runtimes have no key, so each is enabled by `<NAME>_MODEL` (the model you have loaded, for example `OLLAMA_MODEL` or `LMSTUDIO_MODEL`), with `<NAME>_BASE_URL` to override the server address (for example `LLAMACPP_BASE_URL`). `<NAME>_MODEL` also overrides the default model of any hosted service (for example `MISTRAL_MODEL`).
 - For a keyless server, omit `apiKey`. The `Authorization` header is then not sent.
 - Use a model that reliably returns JSON. Small local models often do not, and the malformed replies are retried and then left untranslated.
-- The Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras and Ollama endpoints were checked with stubbed HTTP responses only, not against the live services.
+- The Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras, Ollama and the other services added after them were checked against their documentation and with stubbed HTTP responses only, not against the live services. Local runtimes default to their standard ports, which can differ per install.
 
 ```ts
 new OpenAICompatibleProvider({ apiKey: env.GROQ_API_KEY!, baseURL: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" });

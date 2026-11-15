@@ -66,7 +66,19 @@ export interface NamedProviders {
   openrouter?: TranslationProvider;
   xai?: TranslationProvider;
   cerebras?: TranslationProvider;
+  perplexity?: TranslationProvider;
+  together?: TranslationProvider;
+  fireworks?: TranslationProvider;
+  huggingface?: TranslationProvider;
+  deepinfra?: TranslationProvider;
+  sambanova?: TranslationProvider;
+  moonshot?: TranslationProvider;
   ollama?: TranslationProvider;
+  lmstudio?: TranslationProvider;
+  llamacpp?: TranslationProvider;
+  vllm?: TranslationProvider;
+  localai?: TranslationProvider;
+  dockermodelrunner?: TranslationProvider;
   [name: string]: TranslationProvider | string | undefined;
 }
 /**
