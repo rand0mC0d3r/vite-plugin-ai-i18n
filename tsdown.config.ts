@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 import { visualizer } from "rollup-plugin-visualizer";
 
 function analyzerPlugins() {
-  return process.env.ANALYZE
+  return process.env.ANALYZE !== undefined && process.env.ANALYZE !== ""
     ? [
         visualizer({
           filename: "bundle-stats.html",

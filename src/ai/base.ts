@@ -42,7 +42,7 @@ export class ProviderError extends Error {
 
 /** Accepts both forms of Retry-After: delay in seconds, or an HTTP date. */
 function parseRetryAfter(header: string | null, now = Date.now()): number | undefined {
-  if (!header) return undefined;
+  if (header === null || header === "") return undefined;
   const seconds = Number(header);
   if (Number.isFinite(seconds)) return Math.min(Math.max(seconds, 0) * 1000, MAX_RETRY_AFTER_MS);
   const date = Date.parse(header);
@@ -179,7 +179,7 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
    */
   protected toCatalog(content: string | undefined, messages: TranslationRequest[]): Catalog {
     const text = content?.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-    if (!text) throw new ProviderError("Translation provider returned no content", true);
+    if (text === undefined || text === "") throw new ProviderError("Translation provider returned no content", true);
     let parsed: unknown;
     try {
       parsed = JSON.parse(text);

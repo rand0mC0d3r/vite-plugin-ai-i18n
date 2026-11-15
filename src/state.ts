@@ -44,7 +44,7 @@ class StampCache<T> {
   /** True when this process last saved an equal value and the file has not changed since, so saving again would change nothing. */
   async holds(file: string, value: T, same: (a: T, b: T) => boolean): Promise<boolean> {
     const cached = this.entries.get(file);
-    if (!cached?.written || !same(cached.value, value)) return false;
+    if (cached?.written !== true || !same(cached.value, value)) return false;
     return (await stampOf(file)) === cached.stamp;
   }
 

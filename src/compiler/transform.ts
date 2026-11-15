@@ -46,7 +46,7 @@ export function transformSource(
     attribute: new Map<number, ResolvedMessage>(),
     string: new Map<number, ResolvedMessage>(),
   };
-  for (const message of messages) byKind[message.kind]?.set(message.start, message);
+  for (const message of messages) byKind[message.kind].set(message.start, message);
 
   // Every target starts inside its parent's range, so a subtree with no message start cannot contain a target.
   const starts = messages.map((message) => message.start).sort((a, b) => a - b);
@@ -80,9 +80,7 @@ export function transformSource(
   });
 
   const s = new MagicString(code);
-  let usesRuntime = false;
-  let usesFormat = false;
-  let usesLocale = false;
+  const used = { lookup: false, format: false, locale: false };
 
   const textFor = (message: ResolvedMessage): string =>
     locale === sourceLocale ? message.source : (catalog[message.id] ?? message.source);
@@ -90,7 +88,7 @@ export function transformSource(
   /** Expression for a message's text: a `t(id, source)` call at runtime, or the translated string literal in build mode. */
   const lookup = (message: ResolvedMessage): string => {
     if (runtime) {
-      usesRuntime = true;
+      used.lookup = true;
       return `${RUNTIME_LOOKUP}(${JSON.stringify(message.id)}, ${JSON.stringify(message.source)})`;
     }
     return JSON.stringify(textFor(message));
@@ -120,9 +118,9 @@ export function transformSource(
       const start = node.openingElement.end;
       const end = node.closingElement.start;
       const values = names.map((name, index) => `${JSON.stringify(name)}: ${source(index)}`).join(", ");
-      usesFormat = true;
+      used.format = true;
       if (runtime) {
-        usesLocale = true;
+        used.locale = true;
         s.overwrite(start, end, `{${RUNTIME_FORMAT}(${withAffixes(message)}, {${values}}, ${RUNTIME_LOCALE}())}`);
         continue;
       }
@@ -142,11 +140,11 @@ export function transformSource(
   }
 
   const specifiers = [
-    ...(usesRuntime ? [`t as ${RUNTIME_LOOKUP}`] : []),
-    ...(usesLocale ? [`getLocale as ${RUNTIME_LOCALE}`] : []),
+    ...(used.lookup ? [`t as ${RUNTIME_LOOKUP}`] : []),
+    ...(used.locale ? [`getLocale as ${RUNTIME_LOCALE}`] : []),
   ];
   if (specifiers.length) s.prepend(`import { ${specifiers.join(", ")} } from "${RUNTIME_MODULE}";\n`);
-  if (usesFormat) s.prepend(`import { format as ${RUNTIME_FORMAT} } from "${FORMAT_MODULE}";\n`);
+  if (used.format) s.prepend(`import { format as ${RUNTIME_FORMAT} } from "${FORMAT_MODULE}";\n`);
 
   return { code: s.toString(), map: s.generateMap({ source: filename, hires: true, includeContent: true }) };
 }

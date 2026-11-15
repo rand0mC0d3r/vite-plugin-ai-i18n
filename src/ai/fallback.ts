@@ -38,11 +38,11 @@ export class FallbackProvider implements TranslationProvider {
         firstError ??= error;
         lastError = error;
         if (error instanceof PartialTranslationError) Object.assign(result, error.partial);
-        const next = this.providers[index + 1];
-        if (next && remaining.some((m) => result[m.id] === undefined))
+        const next = this.providers.at(index + 1);
+        if (next && remaining.some((m) => !Object.hasOwn(result, m.id)))
           this.onFallback(`${name} failed (${errorMessage(error)}); sending the rest to ${next.name}.`);
       }
-      remaining = remaining.filter((m) => result[m.id] === undefined);
+      remaining = remaining.filter((m) => !Object.hasOwn(result, m.id));
       if (!remaining.length) return result;
     }
 

@@ -131,7 +131,7 @@ export function hosted<S extends HostedService>(
   apiKey: string | undefined,
   model?: string,
 ): HostedProvider<S> | undefined {
-  return apiKey ? HOSTED_FACTORIES[service](apiKey, model) : undefined;
+  return apiKey !== undefined && apiKey !== "" ? HOSTED_FACTORIES[service](apiKey, model) : undefined;
 }
 
 /**
@@ -143,7 +143,7 @@ export function local(
   model: string | undefined,
   baseURL?: string,
 ): OpenAICompatibleProvider | undefined {
-  if (!model) return undefined;
+  if (model === undefined || model === "") return undefined;
   return new OpenAICompatibleProvider({ baseURL: baseURL ?? LOCAL_BASE_URLS[service], model });
 }
 
@@ -152,5 +152,5 @@ export function machine<S extends MachineService>(
   service: S,
   apiKey: string | undefined,
 ): MachineProviders[S] | undefined {
-  return apiKey ? MACHINE_FACTORIES[service](apiKey) : undefined;
+  return apiKey !== undefined && apiKey !== "" ? MACHINE_FACTORIES[service](apiKey) : undefined;
 }

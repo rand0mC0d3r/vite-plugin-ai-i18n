@@ -46,12 +46,12 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
   const active = new Set(requests.map((x) => x.id));
   const { messages: previousMessages, sources: previousSources } = pruneLocaleFile(previous, active).file;
 
-  const missing = requests.filter((x) => previousMessages[x.id] === undefined || previousSources[x.id] !== x.source);
+  const missing = requests.filter((x) => !Object.hasOwn(previousMessages, x.id) || previousSources[x.id] !== x.source);
   let translated: Catalog = {};
   let failed = 0;
   let failure: string | undefined;
   if (missing.length && provider) {
-    if (debug) {
+    if (debug === true) {
       for (const m of missing)
         debugLog(`sent ${sourceLocale} -> ${locale} ${m.id}: ${JSON.stringify(m.source)} (context: ${m.context})`);
     }
@@ -63,7 +63,7 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
       failed = error.failed;
       failure = error.message;
     }
-    if (debug) {
+    if (debug === true) {
       for (const m of missing) {
         const text = translated[m.id];
         debugLog(
@@ -88,6 +88,6 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
     messages[request.id] = text;
     sources[request.id] = request.source;
   }
-  const untranslated = requests.filter((x) => messages[x.id] === undefined).length;
+  const untranslated = requests.filter((x) => !Object.hasOwn(messages, x.id)).length;
   return { file: { messages, sources }, untranslated, rejected, requested: missing.length, failed, failure };
 }

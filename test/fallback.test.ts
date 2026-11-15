@@ -3,6 +3,12 @@ import { FallbackProvider, resolveProvider } from "../src/ai/fallback.js";
 import { PartialTranslationError } from "../src/errors.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../src/types.js";
 
+/** Narrows an optional provider for tests, failing loudly if resolution returned nothing. */
+function must<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error("expected a provider");
+  return value;
+}
+
 const messages: TranslationRequest[] = [
   { id: "a", source: "Save", context: "", kind: "string" },
   { id: "b", source: "Open", context: "", kind: "string" },
@@ -46,12 +52,24 @@ describe("resolveProvider", () => {
 });
 
 describe("FallbackProvider", () => {
+  it("sends message IDs that match Object.prototype names to the fallback", async () => {
+    const requests: TranslationRequest[] = [{ id: "constructor", source: "Build", context: "", kind: "string" }];
+    const primary = fake(() => Promise.resolve({}));
+    const secondary = fake(() => Promise.resolve({ constructor: "Bauen" }));
+    const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary });
+
+    const result = await must(provider).translate({ sourceLocale: "en", targetLocale: "de", messages: requests });
+
+    expect(secondary.translate).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ constructor: "Bauen" });
+  });
+
   it("uses the primary and never calls the fallback when it succeeds", async () => {
     const primary = fake(() => Promise.resolve({ a: "A", b: "B", c: "C" }));
     const secondary = fake(() => Promise.resolve({}));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary });
 
-    expect(await provider!.translate(input)).toEqual({ a: "A", b: "B", c: "C" });
+    expect(await must(provider).translate(input)).toEqual({ a: "A", b: "B", c: "C" });
     expect(secondary.translate).not.toHaveBeenCalled();
   });
 
@@ -61,7 +79,7 @@ describe("FallbackProvider", () => {
     const secondary = fake(() => Promise.resolve({ a: "A", b: "B", c: "C" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary }, onFallback);
 
-    expect(await provider!.translate(input)).toEqual({ a: "A", b: "B", c: "C" });
+    expect(await must(provider).translate(input)).toEqual({ a: "A", b: "B", c: "C" });
     expect(secondary.translate.mock.calls[0][0].messages).toEqual(messages);
     expect(onFallback).toHaveBeenCalledWith(expect.stringContaining("anthropic failed (401 unauthorized)"));
   });
@@ -74,7 +92,7 @@ describe("FallbackProvider", () => {
     const secondary = fake(() => Promise.resolve({ a: "A", b: "B", c: "C" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary }, onFallback);
 
-    await provider!.translate(input);
+    await must(provider).translate(input);
     expect(onFallback).toHaveBeenCalledWith(expect.stringContaining("anthropic failed (quota exhausted)"));
   });
 
@@ -83,7 +101,7 @@ describe("FallbackProvider", () => {
     const secondary = fake(() => Promise.resolve({ b: "B", c: "C" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary });
 
-    expect(await provider!.translate(input)).toEqual({ a: "A", b: "B", c: "C" });
+    expect(await must(provider).translate(input)).toEqual({ a: "A", b: "B", c: "C" });
     expect(secondary.translate.mock.calls[0][0].messages.map((m) => m.id)).toEqual(["b", "c"]);
   });
 
@@ -92,7 +110,7 @@ describe("FallbackProvider", () => {
     const second = fake(() => Promise.resolve({ a: "A", b: "B", c: "C" }));
     const provider = resolveProvider({ openai: first, anthropic: second });
 
-    expect(await provider!.translate(input)).toEqual({ a: "A", b: "B", c: "C" });
+    expect(await must(provider).translate(input)).toEqual({ a: "A", b: "B", c: "C" });
     expect(first.translate).toHaveBeenCalledOnce();
     expect(second.translate).toHaveBeenCalledOnce();
   });

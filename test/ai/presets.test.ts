@@ -9,6 +9,12 @@ import { HostedService, LocalService, MachineService, hosted, local, machine } f
 
 const request: TranslationRequest = { id: "a", source: "Save", context: "", kind: "text" };
 const input = { sourceLocale: "en", targetLocale: "de", messages: [request] };
+
+/** Narrows an optional provider for tests, failing loudly if the factory returned nothing. */
+function must<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error("expected a provider");
+  return value;
+}
 const chatResponse = () =>
   new Response(
     JSON.stringify({
@@ -33,24 +39,24 @@ describe("provider presets", () => {
   });
 
   it("sends hosted requests to the service endpoint with its default model unless overridden", async () => {
-    await hosted(HostedService.Mistral, "key")!.translate(input);
+    await must(hosted(HostedService.Mistral, "key")).translate(input);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.mistral.ai/v1/chat/completions");
     expect((JSON.parse(init.body as string) as { model: string }).model).toBe("mistral-small-latest");
 
     fetchMock.mockClear();
-    await hosted(HostedService.Mistral, "key", "mistral-large-latest")!.translate(input);
+    await must(hosted(HostedService.Mistral, "key", "mistral-large-latest")).translate(input);
     expect(
       (JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string) as { model: string }).model,
     ).toBe("mistral-large-latest");
   });
 
   it("uses the local runtime's default address, or the given override", async () => {
-    await local(LocalService.Ollama, "qwen2.5:7b")!.translate(input);
+    await must(local(LocalService.Ollama, "qwen2.5:7b")).translate(input);
     expect((fetchMock.mock.calls[0] as [string])[0]).toBe("http://localhost:11434/v1/chat/completions");
 
     fetchMock.mockClear();
-    await local(LocalService.Ollama, "qwen2.5:7b", "http://gpu-box:11434/v1")!.translate(input);
+    await must(local(LocalService.Ollama, "qwen2.5:7b", "http://gpu-box:11434/v1")).translate(input);
     expect((fetchMock.mock.calls[0] as [string])[0]).toBe("http://gpu-box:11434/v1/chat/completions");
   });
 

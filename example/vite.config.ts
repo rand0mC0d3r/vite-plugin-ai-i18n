@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
         componentProps: { Button: ["children"] },
         provider: {
           // Set PRIMARY_PROVIDER to a configured name to choose the first provider tried. Otherwise the order below applies.
-          primary: env.PRIMARY_PROVIDER || undefined,
+          primary: env.PRIMARY_PROVIDER === "" ? undefined : env.PRIMARY_PROVIDER,
 
           // Hosted providers
           openai: hosted(HostedService.OpenAI, env.OPENAI_API_KEY, env.OPENAI_MODEL),

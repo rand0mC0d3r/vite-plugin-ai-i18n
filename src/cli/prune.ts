@@ -46,7 +46,7 @@ function parseArgs(argv: string[]): PruneArgs {
     if (arg === "--debug") {
       args.debug = true;
     } else if (arg === "--directory" || arg === "--retention-minutes") {
-      const value = argv[++i];
+      const value = argv.at(++i);
       if (value === undefined) throw new Error(`${arg} needs a value`);
       if (arg === "--directory") args.directory = value;
       else args.retentionMinutes = Number(value);

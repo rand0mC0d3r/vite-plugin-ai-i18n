@@ -13,10 +13,10 @@ export type LocaleLoader = () => Promise<{ default: Record<string, string> } | R
 export function createLocaleLoader(loaders: Record<string, LocaleLoader>, fallback = "en") {
   const cache = new Map<string, Promise<Record<string, string>>>();
   function loadLocale(locale: string): Promise<Record<string, string>> {
-    const selected = loaders[locale] ? locale : fallback;
+    const selected = Object.hasOwn(loaders, locale) ? locale : fallback;
     const cached = cache.get(selected);
     if (cached) return cached;
-    const loader = loaders[selected];
+    const loader: LocaleLoader | undefined = Object.hasOwn(loaders, selected) ? loaders[selected] : undefined;
     if (!loader) return Promise.reject(new Error(`No catalogue loader for locale "${selected}"`));
     const pending = loader().then(
       (module) => ("default" in module ? module.default : module) as Record<string, string>,

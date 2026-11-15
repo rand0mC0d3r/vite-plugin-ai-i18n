@@ -133,7 +133,8 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   function localesToTranslate(): string[] {
     const others = options.locales.filter((x) => x !== sourceLocale);
     const explicit = explicitLocale();
-    if (delivery === "build" && explicit && config.command !== "serve") return others.filter((x) => x === explicit);
+    if (delivery === "build" && explicit !== undefined && explicit !== "" && config.command !== "serve")
+      return others.filter((x) => x === explicit);
     return others;
   }
 
@@ -176,7 +177,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   // Logs the per-locale outcome of a build: missing providers, rejected, untranslated and failed messages.
   function reportLocales(report: Reporter, result: BuildResult): void {
     for (const [locale, translation] of result.locales) {
-      if (translation.requested && !provider && options.failOnMissingProvider) {
+      if (translation.requested > 0 && !provider && options.failOnMissingProvider === true) {
         report.error(`Missing ${translation.requested} ${locale} translations and no provider is configured.`);
       }
       if (translation.rejected)

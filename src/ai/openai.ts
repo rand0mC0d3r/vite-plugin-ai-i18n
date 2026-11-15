@@ -27,7 +27,7 @@ export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOp
     const { apiKey, model, baseURL = OPENAI_BASE_URL } = this.options;
     return this.complete(
       `${baseURL}/chat/completions`,
-      apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
+      apiKey !== undefined && apiKey !== "" ? { Authorization: `Bearer ${apiKey}` } : {},
       {
         model,
         temperature: 0,

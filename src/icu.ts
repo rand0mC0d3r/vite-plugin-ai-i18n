@@ -31,7 +31,8 @@ export function icuArgumentNames(text: string): string[] | undefined {
   const names = new Set<string>();
   const visit = (elements: IcuElement[]): void => {
     for (const element of elements) {
-      if (ARGUMENT_TYPES.has(element.type) && element.value) names.add(element.value);
+      if (ARGUMENT_TYPES.has(element.type) && element.value !== undefined && element.value !== "")
+        names.add(element.value);
       if (element.children) visit(element.children);
       if (element.options) for (const option of Object.values(element.options)) visit(option.value);
     }

@@ -77,7 +77,7 @@ function placeholderExpressionName(expression: Node): string | undefined {
   if (expression.type === "Identifier") return expression.name;
   if (expression.type === "MemberExpression" && !expression.computed && expression.property.type === "Identifier") {
     const object = placeholderExpressionName(expression.object);
-    return object ? `${object}.${expression.property.name}` : undefined;
+    return object !== undefined ? `${object}.${expression.property.name}` : undefined;
   }
   return undefined;
 }
@@ -166,8 +166,10 @@ export function extractMessages(
   const record = (item: Omit<ExtractedMessage, "fingerprint">, identitySource = item.source): void => {
     found.push({ ...item, fingerprint: createFingerprint({ ...item, source: identitySource }) });
   };
-  const componentPropsFor = (tag: string): readonly string[] =>
-    Object.prototype.hasOwnProperty.call(options.componentProps ?? {}, tag) ? options.componentProps![tag] : [];
+  const componentPropsFor = (tag: string): readonly string[] => {
+    const props: readonly string[] | undefined = options.componentProps?.[tag];
+    return Object.prototype.hasOwnProperty.call(options.componentProps ?? {}, tag) && props !== undefined ? props : [];
+  };
   const isTextTag = (name: JSXOpeningElement["name"]): name is JSXIdentifierNode => {
     if (name.type !== "JSXIdentifier") return false;
     const tag = name.name;
@@ -180,7 +182,7 @@ export function extractMessages(
     while (index >= 0 && !isFunction(ancestors[index], ancestors[index - 1])) index--;
     if (index < 0) return "<module>";
     const fn = ancestors[index];
-    const parent = ancestors[index - 1];
+    const parent = index > 0 ? ancestors[index - 1] : undefined;
     if (parent?.type === "VariableDeclarator" && parent.id.type === "Identifier") return parent.id.name;
     if (fn.type === "FunctionDeclaration" && fn.id) return fn.id.name;
     return "<anonymous>";
@@ -195,14 +197,18 @@ export function extractMessages(
     );
     if (!expressions.length) return;
     if (children.some((child) => child.type !== "JSXText" && child.type !== "JSXExpressionContainer")) return;
-    if (!expressions.every((child) => placeholderExpressionName(child.expression) !== undefined)) return;
+    const baseNames: string[] = [];
+    for (const child of expressions) {
+      const base = placeholderExpressionName(child.expression);
+      if (base === undefined) return;
+      baseNames.push(base);
+    }
     if (!children.some((child) => child.type === "JSXText" && hasLetter(textOf(child)))) return;
     const rawTag = node.openingElement.name;
     if (!isTextTag(rawTag)) return;
     // Names as written in the source, made unique. They identify the message, so they stay out of the ICU text.
     const sourceNames: string[] = [];
-    for (const child of expressions) {
-      const base = placeholderExpressionName(child.expression)!;
+    for (const base of baseNames) {
       let name = base;
       for (let suffix = 2; sourceNames.includes(name); suffix++) name = `${base}_${suffix}`;
       sourceNames.push(name);
@@ -280,7 +286,7 @@ export function extractMessages(
   function visitAttribute(node: JSXAttribute, ancestors: Node[]): void {
     if (node.name.type !== "JSXIdentifier") return;
     const attribute = node.name.name;
-    const opening = ancestors[ancestors.length - 1];
+    const opening = ancestors.at(-1);
     if (opening?.type !== "JSXOpeningElement") return;
     const tag = opening.name.type === "JSXIdentifier" ? opening.name.name : "";
     // Components only expose the attributes listed for them in `componentProps`; intrinsic elements use the built-in set.

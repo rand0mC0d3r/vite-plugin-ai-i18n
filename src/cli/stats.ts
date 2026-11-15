@@ -31,7 +31,7 @@ function parseArgs(argv: string[]): StatsArgs {
     } else if (arg === "--verbose") {
       args.verbose = true;
     } else if (arg === "--directory" || arg === "--source-locale") {
-      const value = argv[++i];
+      const value = argv.at(++i);
       if (value === undefined || value.startsWith("--")) throw new Error(`${arg} needs a value`);
       if (arg === "--directory") args.directory = value;
       else args.sourceLocale = value;
