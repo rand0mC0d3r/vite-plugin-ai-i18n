@@ -9,7 +9,7 @@
       "component": "App",
       "context": "span",
       "fingerprint": "db3a8d23b4c510d959b28332",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/main.tsx:525",
+      "location": "src/main.tsx:525",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -23,7 +23,7 @@
       "attribute": "title",
       "context": "button | title | title=Save the current document | onClick",
       "fingerprint": "277f32acf9635229f670b4f9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:235",
+      "location": "src/components/DocumentDashboard.tsx:235",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -36,7 +36,7 @@
       "component": "DocumentToolbar",
       "context": "button | title=Save the current document | onClick",
       "fingerprint": "5f6dd3a312e218b22bf55a6a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:263",
+      "location": "src/components/DocumentDashboard.tsx:263",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -50,7 +50,7 @@
       "attribute": "title",
       "context": "button | title | title=Save a copy under another name | onClick",
       "fingerprint": "031cc2d3fbd7ace342c44fd6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:314",
+      "location": "src/components/DocumentDashboard.tsx:314",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -63,7 +63,7 @@
       "component": "DocumentToolbar",
       "context": "button | title=Save a copy under another name | onClick",
       "fingerprint": "8698431716c18745ceb5add7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:347",
+      "location": "src/components/DocumentDashboard.tsx:347",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -76,7 +76,7 @@
       "component": "DocumentToolbar",
       "context": "button | onClick",
       "fingerprint": "bce440f86f0ca9559a6466e0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:398",
+      "location": "src/components/DocumentDashboard.tsx:398",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -89,7 +89,7 @@
       "component": "DeleteDialog",
       "context": "button | onClick",
       "fingerprint": "bce440f86f0ca9559a6466e0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1135",
+      "location": "src/components/DocumentDashboard.tsx:1135",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -102,7 +102,7 @@
       "component": "FilterPanel",
       "context": "h2",
       "fingerprint": "a56bc921eba38c2454ab94b3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:514",
+      "location": "src/components/DocumentDashboard.tsx:514",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -115,7 +115,7 @@
       "component": "FilterPanel",
       "context": "label",
       "fingerprint": "f4d3090cb8dd8fb48071d13c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:586",
+      "location": "src/components/DocumentDashboard.tsx:586",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -129,7 +129,7 @@
       "attribute": "placeholder",
       "context": "input | placeholder",
       "fingerprint": "3679bb2b2c3716ad694d3002",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:619",
+      "location": "src/components/DocumentDashboard.tsx:619",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -143,7 +143,7 @@
       "attribute": "aria-label",
       "context": "button | aria-label | aria-label=Save these filter settings | onClick",
       "fingerprint": "b3c379743b84074b8e6206cb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:689",
+      "location": "src/components/DocumentDashboard.tsx:689",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -156,7 +156,7 @@
       "component": "FilterPanel",
       "context": "button | aria-label=Save these filter settings | onClick",
       "fingerprint": "a8835aa969ace78287d35e17",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:718",
+      "location": "src/components/DocumentDashboard.tsx:718",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -170,7 +170,7 @@
       "attribute": "aria-label",
       "context": "section | aria-label | aria-label=Delete documents;role=dialog",
       "fingerprint": "8940defe316d7f660e52838a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:924",
+      "location": "src/components/DocumentDashboard.tsx:924",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -183,7 +183,7 @@
       "component": "DeleteDialog",
       "context": "p",
       "fingerprint": "401c1d80540bc3b7cc43c6ed",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:948",
+      "location": "src/components/DocumentDashboard.tsx:948",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -196,7 +196,7 @@
       "component": "DeleteDialog",
       "context": "h2",
       "fingerprint": "d476e70f55a3fba503c90e94",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1023",
+      "location": "src/components/DocumentDashboard.tsx:1023",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -209,7 +209,7 @@
       "component": "DeleteDialog",
       "context": "p",
       "fingerprint": "f803a68e380075e3828751bb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1052",
+      "location": "src/components/DocumentDashboard.tsx:1052",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -223,7 +223,7 @@
       "attribute": "title",
       "context": "button | title | title=Permanently delete selected documents | onClick",
       "fingerprint": "9bf015a403730747e457096c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1188",
+      "location": "src/components/DocumentDashboard.tsx:1188",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -236,7 +236,7 @@
       "component": "DeleteDialog",
       "context": "button | title=Permanently delete selected documents | onClick",
       "fingerprint": "4b303de05220bf35fb78f1a0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1228",
+      "location": "src/components/DocumentDashboard.tsx:1228",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -249,7 +249,7 @@
       "component": "createDocuments",
       "context": "",
       "fingerprint": "debd710103d296f88da5e395",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1573",
+      "location": "src/components/DocumentDashboard.tsx:1573",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -262,7 +262,7 @@
       "component": "createDocuments",
       "context": "",
       "fingerprint": "ab16e048bb27fa2d007e6b1d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1627",
+      "location": "src/components/DocumentDashboard.tsx:1627",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -275,7 +275,7 @@
       "component": "createDocuments",
       "context": "",
       "fingerprint": "ab16e048bb27fa2d007e6b1d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1830",
+      "location": "src/components/DocumentDashboard.tsx:1830",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -288,7 +288,7 @@
       "component": "createDocuments",
       "context": "",
       "fingerprint": "360fafd088699e2f7a447d23",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1682",
+      "location": "src/components/DocumentDashboard.tsx:1682",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -301,7 +301,7 @@
       "component": "createDocuments",
       "context": "",
       "fingerprint": "4f269f9f347109fd165ff4f0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1740",
+      "location": "src/components/DocumentDashboard.tsx:1740",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -314,7 +314,7 @@
       "component": "createDocuments",
       "context": "",
       "fingerprint": "fd8bb5839d24719911326f26",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1781",
+      "location": "src/components/DocumentDashboard.tsx:1781",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -328,7 +328,7 @@
       "attribute": "aria-label",
       "context": "section | aria-label | aria-label=Document list",
       "fingerprint": "38c079620324285c74ce6933",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2083",
+      "location": "src/components/DocumentDashboard.tsx:2083",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -341,7 +341,7 @@
       "component": "DocumentList",
       "context": "h2",
       "fingerprint": "4ac3a88154321fe24acd667c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2108",
+      "location": "src/components/DocumentDashboard.tsx:2108",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -354,7 +354,7 @@
       "component": "DocumentList",
       "context": "button",
       "fingerprint": "8f4b8579ca425f62ff321e61",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2142",
+      "location": "src/components/DocumentDashboard.tsx:2142",
       "status": "orphaned",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T21:46:38.649Z"
@@ -367,7 +367,7 @@
       "component": "DocumentList",
       "context": "Button",
       "fingerprint": "f2e4e64d258b16df88655d9a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2190",
+      "location": "src/components/DocumentDashboard.tsx:2190",
       "status": "orphaned",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T21:50:11.374Z"
@@ -380,7 +380,7 @@
       "component": "<anonymous>",
       "context": "span",
       "fingerprint": "4dabc188e3df0cc800bec1ab",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2318",
+      "location": "src/components/DocumentDashboard.tsx:2318",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -393,7 +393,7 @@
       "component": "DocumentDashboard",
       "context": "h1",
       "fingerprint": "0ce21a57d1c23002dbca4f3d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2579",
+      "location": "src/components/DocumentDashboard.tsx:2579",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -406,7 +406,7 @@
       "component": "DocumentDashboard",
       "context": "h1",
       "fingerprint": "81cb9e5a6a6b2660ce374080",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2609",
+      "location": "src/components/DocumentDashboard.tsx:2609",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -419,7 +419,7 @@
       "component": "DocumentDashboard",
       "context": "h2",
       "fingerprint": "a854ed0ecff42b2c8aaafa43",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2656",
+      "location": "src/components/DocumentDashboard.tsx:2656",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -432,7 +432,7 @@
       "component": "DocumentDashboard",
       "context": "p",
       "fingerprint": "949049f7d6186fff45935b38",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2700",
+      "location": "src/components/DocumentDashboard.tsx:2700",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -445,7 +445,7 @@
       "component": "DocumentDashboard",
       "context": "p | role=status",
       "fingerprint": "0cd541f5303b461a0b6a0548",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2993",
+      "location": "src/components/DocumentDashboard.tsx:2993",
       "status": "active",
       "firstSeen": "2026-11-14T21:46:38.649Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -458,7 +458,7 @@
       "component": "DocumentList",
       "context": "button",
       "fingerprint": "3986e9a2f0d6109dd7057a40",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2142",
+      "location": "src/components/DocumentDashboard.tsx:2142",
       "status": "active",
       "firstSeen": "2026-11-14T21:50:11.374Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"
@@ -471,7 +471,7 @@
       "component": "DocumentList",
       "context": "Button",
       "fingerprint": "9646f111e55473baf71b5a1f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2190",
+      "location": "src/components/DocumentDashboard.tsx:2190",
       "status": "active",
       "firstSeen": "2026-11-14T21:50:57.529Z",
       "lastSeen": "2026-11-14T23:14:15.310Z"

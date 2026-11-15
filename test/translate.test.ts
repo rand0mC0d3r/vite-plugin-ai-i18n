@@ -54,6 +54,27 @@ describe("translateLocale", () => {
     });
   });
 
+  it("re-requests a persisted mixed translation that contains rich-text tags", async () => {
+    const p = provider({ a: "Hallo {handler}" });
+    const previous = {
+      messages: { a: "<handler>{handler}</handler>" },
+      sources: { a: "{handler}" },
+    };
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [mixed("a", "{handler}", ["handler"])],
+      previous,
+    });
+
+    expect(p.translate).toHaveBeenCalledWith({
+      sourceLocale: "en",
+      targetLocale: "de",
+      messages: [mixed("a", "{handler}", ["handler"])],
+    });
+    expect(result.file.messages).toEqual({ a: "Hallo {handler}" });
+  });
+
   it("re-requests a message whose recorded source no longer matches", async () => {
     const p = provider({ a: "Neu" });
     const previous = { messages: { a: "Alt" }, sources: { a: "Old text" } };

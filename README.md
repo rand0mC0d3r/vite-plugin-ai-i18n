@@ -5,7 +5,6 @@
 > [!WARNING]
 > **Beta.** Configuration options and `.autoi18n/` file formats are meant to stay stable, but review the [known limitations](#-known-limitations) before shipping to production. Pin the version while in beta.
 
-
 ![AI Auto i18n](images/landing.png)
 
 ## 📑 Contents

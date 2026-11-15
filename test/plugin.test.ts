@@ -95,10 +95,38 @@ describe("autoI18n plugin", () => {
     const hooks = start({ locales: ["en", "de"], provider: fakeProvider(), locale: "de" });
     const ctx = context();
     await hooks.buildStart.call(ctx);
+    const registry = await readJson<{ entries: Record<string, { location: string }> }>(
+      path.join(root, ".autoi18n/registry.json"),
+    );
+    expect(Object.values(registry.entries).map((entry) => entry.location)).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^src\/App\.tsx:/)]),
+    );
+    expect(JSON.stringify(registry)).not.toContain(root);
     const result = await hooks.transform.call(ctx, SOURCE, srcFile());
     expect(result?.code).toContain('"DE:Save the file"');
     expect(result?.code).toContain('"DE:Save"');
     expect(result?.code).not.toContain(RUNTIME_MODULE);
+  });
+
+  it("redacts absolute paths retained in orphan registry entries", async () => {
+    await writeFile(srcFile(), SOURCE);
+    const hooks = start({ locales: ["en", "de"], provider: fakeProvider() });
+    await hooks.buildStart.call(context());
+
+    const registryFile = path.join(root, ".autoi18n/registry.json");
+    const registry = await readJson<{ entries: Record<string, { location: string }> }>(registryFile);
+    const entries = Object.values(registry.entries);
+    entries[0].location = `${srcFile()}:1`;
+    entries[1].location = "C:\\Users\\developer\\project\\src\\App.tsx:2";
+    await writeFile(registryFile, JSON.stringify(registry));
+    await rm(srcFile());
+
+    await start({ locales: ["en", "de"], provider: fakeProvider() }).buildStart.call(context());
+    const updated = await readJson<{ entries: Record<string, { location: string }> }>(registryFile);
+
+    expect(Object.values(updated.entries).map((entry) => entry.location)).toEqual(["App.tsx:1", "App.tsx:2"]);
+    expect(JSON.stringify(updated)).not.toContain(root);
+    expect(JSON.stringify(updated)).not.toContain("Users");
   });
 
   it("uses the source text in serve mode, even when another locale is selected", async () => {

@@ -13,7 +13,7 @@ import { type LocaleFile, localeFilePath } from "./io/catalog.js";
 import { hashContent } from "./io/files.js";
 import { type ExtractionCacheEntry, IndexState, sameCatalog } from "./io/state.js";
 import type { AutoI18nOptions } from "./options.js";
-import type { Catalog, ExtractedMessage } from "./types.js";
+import type { Catalog, ExtractedMessage, Registry } from "./types.js";
 
 /** Default source globs scanned for translatable text. */
 const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
@@ -36,7 +36,23 @@ export const reporterFor = (logger: Logger): Reporter => ({
 
 // Pre-merge builds wrote `<locale>.sources.json` next to `<locale>.json`. Nothing reads those files any more.
 async function removeLegacySidecars(outDir: string, locales: string[]): Promise<void> {
-  await Promise.all(locales.map((locale) => rm(path.join(outDir, `${locale}.sources.json`), { force: true })));
+  await Promise.all(
+    locales.map((locale) => {
+      const file = localeFilePath(outDir, locale);
+      return rm(`${file.slice(0, -".json".length)}.sources.json`, { force: true });
+    }),
+  );
+}
+
+function redactAbsoluteLocations(registry: Registry): void {
+  for (const entry of Object.values(registry.entries)) {
+    const split = entry.location.lastIndexOf(":");
+    if (split < 0) continue;
+    const file = entry.location.slice(0, split);
+    if (!path.isAbsolute(file) && !path.win32.isAbsolute(file)) continue;
+    const basename = path.isAbsolute(file) ? path.basename(file) : path.win32.basename(file);
+    entry.location = `${basename}:${entry.location.slice(split + 1)}`;
+  }
 }
 
 /**
@@ -140,7 +156,8 @@ export class Syncer {
           entry = cached;
         } else {
           const parsed = parseSource(code, file);
-          entry = { hash, messages: extractMessages(code, file, this.extractOptions, parsed) };
+          const relativeFile = path.relative(this.config.root, file).split(path.sep).join("/");
+          entry = { hash, messages: extractMessages(code, relativeFile, this.extractOptions, parsed) };
           nextParsed.set(file, parsed);
         }
       }
@@ -203,6 +220,7 @@ export class Syncer {
       debug: this.debug,
     });
 
+    redactAbsoluteLocations(result.registry);
     if (this.debug)
       for (const entry of result.pruned)
         debugLog(`removed ${entry.id} ${JSON.stringify(entry.source)} (last seen ${entry.lastSeen})`);

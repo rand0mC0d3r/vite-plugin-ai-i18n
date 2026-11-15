@@ -46,7 +46,12 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
   const active = new Set(requests.map((x) => x.id));
   const { messages: previousMessages, sources: previousSources } = pruneLocaleFile(previous, active).file;
 
-  const missing = requests.filter((x) => !Object.hasOwn(previousMessages, x.id) || previousSources[x.id] !== x.source);
+  const missing = requests.filter(
+    (x) =>
+      !Object.hasOwn(previousMessages, x.id) ||
+      previousSources[x.id] !== x.source ||
+      (x.kind === "mixed" && !isUsableTranslation(previousMessages[x.id], x.placeholders ?? [])),
+  );
   let translated: Catalog = {};
   let failed = 0;
   let failure: string | undefined;

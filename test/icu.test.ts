@@ -9,6 +9,10 @@ describe("isUsableTranslation", () => {
     expect(isUsableTranslation("{total} files", ["n"])).toBe(false);
   });
 
+  it("rejects rich-text tags even when their names match a placeholder", () => {
+    expect(isUsableTranslation("<handler>{handler}</handler>", ["handler"])).toBe(false);
+  });
+
   it("accepts a translation that repeats or reorders the source arguments", () => {
     expect(isUsableTranslation("{b} {a} {a}", ["a", "b"])).toBe(true);
   });
@@ -43,5 +47,9 @@ describe("icuArgumentNames", () => {
 
   it("returns undefined for text that is not valid ICU", () => {
     expect(icuArgumentNames("{count Dokumente")).toBeUndefined();
+  });
+
+  it("includes arguments nested inside rich-text tags", () => {
+    expect(icuArgumentNames("<b>{name}</b>")).toEqual(["name"]);
   });
 });

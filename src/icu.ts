@@ -10,6 +10,30 @@ interface IcuElement {
 
 const ARGUMENT_TYPES = new Set([1, 2, 3, 4, 5, 6]);
 
+function parseIcu(text: string): IcuElement[] | undefined {
+  try {
+    return new IntlMessageFormat(text, "en").getAst();
+  } catch {
+    return undefined;
+  }
+}
+
+function inspectIcu(elements: IcuElement[]): { names: Set<string>; hasTags: boolean } {
+  const names = new Set<string>();
+  let hasTags = false;
+  const visit = (nodes: IcuElement[]): void => {
+    for (const element of nodes) {
+      if (ARGUMENT_TYPES.has(element.type) && element.value !== undefined && element.value !== "")
+        names.add(element.value);
+      if (element.type === 8) hasTags = true;
+      if (element.children) visit(element.children);
+      if (element.options) for (const option of Object.values(element.options)) visit(option.value);
+    }
+  };
+  visit(elements);
+  return { names, hasTags };
+}
+
 /** Escapes source text so ICU reads it literally: apostrophes are doubled and braces are quoted. */
 export function escapeIcu(text: string): string {
   return text.replace(/['{}]/g, (char) => (char === "'" ? "''" : `'${char}'`));
@@ -22,23 +46,8 @@ export function argumentName(expression: string): string {
 
 /** Returns the distinct argument names an ICU message uses, or undefined when the message does not parse. */
 export function icuArgumentNames(text: string): string[] | undefined {
-  let ast: IcuElement[];
-  try {
-    ast = new IntlMessageFormat(text, "en").getAst();
-  } catch {
-    return undefined;
-  }
-  const names = new Set<string>();
-  const visit = (elements: IcuElement[]): void => {
-    for (const element of elements) {
-      if (ARGUMENT_TYPES.has(element.type) && element.value !== undefined && element.value !== "")
-        names.add(element.value);
-      if (element.children) visit(element.children);
-      if (element.options) for (const option of Object.values(element.options)) visit(option.value);
-    }
-  };
-  visit(ast);
-  return [...names];
+  const ast = parseIcu(text);
+  return ast === undefined ? undefined : [...inspectIcu(ast).names];
 }
 
 /** True when both lists contain the same distinct names, regardless of order or repetition. */
@@ -54,6 +63,8 @@ function sameNames(a: string[], b: string[]): boolean {
  */
 export function isUsableTranslation(text: string, placeholders: string[]): boolean {
   if (text.trim() === "") return false;
-  const found = icuArgumentNames(text);
-  return found !== undefined && sameNames(found, placeholders);
+  const ast = parseIcu(text);
+  if (ast === undefined) return false;
+  const { names, hasTags } = inspectIcu(ast);
+  return !hasTags && sameNames([...names], placeholders);
 }

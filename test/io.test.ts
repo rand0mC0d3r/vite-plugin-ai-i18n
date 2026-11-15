@@ -11,6 +11,7 @@ describe("io and catalog helpers", () => {
   it("builds a locale file path and rejects an invalid locale tag", () => {
     expect(localeFilePath("out", "de-CH")).toBe(path.join("out", "de-CH.json"));
     expect(() => localeFilePath("out", "not a locale")).toThrow("is not a valid locale tag");
+    expect(() => localeFilePath("out", "../../package")).toThrow("is not a valid locale tag");
   });
 
   let dir: string;
