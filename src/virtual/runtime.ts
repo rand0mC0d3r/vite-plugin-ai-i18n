@@ -1,5 +1,5 @@
-import { createLocaleLoader } from "./loader.js";
-import { resolveLocale } from "./resolve.js";
+import { createLocaleLoader } from "../runtime/loader.js";
+import { resolveLocale } from "../runtime/resolve.js";
 
 /**
  * Encodes a value as a JavaScript string literal. Besides JSON escaping, `<`, `>`, `&`, U+2028 and U+2029 are written

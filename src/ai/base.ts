@@ -1,6 +1,6 @@
 import { ArkErrors } from "arktype";
 
-import { Semaphore } from "../concurrency.js";
+import { Semaphore } from "../core/concurrency.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";

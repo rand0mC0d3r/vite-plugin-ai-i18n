@@ -1,20 +1,19 @@
 import { existsSync } from "node:fs";
-import { readdir } from "node:fs/promises";
 import path from "node:path";
 
-import { pruneLocaleFile, readLocaleFile, writeLocaleFile } from "../catalog.js";
 import { debugLog } from "../debug.js";
-import { DEFAULT_ORPHAN_RETENTION_MINUTES, loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
+import { DEFAULT_ORPHAN_RETENTION_MINUTES, pruneOrphans } from "../identity/registry.js";
+import { pruneLocaleFile, readLocaleFile, writeLocaleFile } from "../io/catalog.js";
+import { loadRegistry, saveRegistry } from "../io/registry-file.js";
+import { listLocaleFiles, parseCliArgs } from "./common.js";
 
 /** Drops keys for inactive registry ids from every locale file, in both `messages` and `sources`. */
 async function pruneLocaleFiles(
   localesDir: string,
   activeIds: Set<string>,
 ): Promise<{ file: string; removed: string[] }[]> {
-  if (!existsSync(localesDir)) return [];
   const results: { file: string; removed: string[] }[] = [];
-  for (const name of await readdir(localesDir)) {
-    if (!name.endsWith(".json")) continue;
+  for (const name of await listLocaleFiles(localesDir)) {
     const file = path.join(localesDir, name);
     const pruned = pruneLocaleFile(await readLocaleFile(file, (message) => console.warn(message)), activeIds);
     if (!pruned.removed.length) continue;
@@ -24,36 +23,17 @@ async function pruneLocaleFiles(
   return results;
 }
 
-/** Parsed command-line options for the prune CLI. */
-interface PruneArgs {
-  /** Directory holding `registry.json` and `locales/`, relative to the working directory. */
-  directory: string;
-  /** Orphaned registry entries younger than this many minutes are kept. */
-  retentionMinutes: number;
-  /** When true, each removed entry and key is logged via `debugLog`. */
-  debug: boolean;
-}
-
 /**
  * Parses `--directory`, `--retention-minutes` and `--debug` from the arguments after the script name.
  *
  * @throws If an option is unknown, lacks its value, or the retention is not a non-negative number.
  */
-function parseArgs(argv: string[]): PruneArgs {
-  const args: PruneArgs = { directory: ".autoi18n", retentionMinutes: DEFAULT_ORPHAN_RETENTION_MINUTES, debug: false };
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
-    if (arg === "--debug") {
-      args.debug = true;
-    } else if (arg === "--directory" || arg === "--retention-minutes") {
-      const value = argv.at(++i);
-      if (value === undefined) throw new Error(`${arg} needs a value`);
-      if (arg === "--directory") args.directory = value;
-      else args.retentionMinutes = Number(value);
-    } else {
-      throw new Error(`Unknown option ${arg}`);
-    }
-  }
+function parseArgs(argv: string[]) {
+  const args = parseCliArgs<{ directory: string; retentionMinutes: number; debug: boolean }>(argv, {
+    directory: ".autoi18n",
+    retentionMinutes: DEFAULT_ORPHAN_RETENTION_MINUTES,
+    debug: false,
+  });
   if (!(args.retentionMinutes >= 0)) throw new Error("--retention-minutes must be a number of minutes, 0 or more");
   return args;
 }

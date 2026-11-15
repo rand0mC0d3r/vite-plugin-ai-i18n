@@ -1,9 +1,9 @@
 import { IntlMessageFormat } from "intl-messageformat";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createFormatModule, formatMessage } from "../../src/runtime/format.js";
 import { createLocaleLoader } from "../../src/runtime/loader.js";
 import { resolveLocale } from "../../src/runtime/resolve.js";
+import { createFormatModule, formatMessage } from "../../src/virtual/format.js";
 
 const format = (text: string, values: Record<string, unknown>, locale = "en") =>
   formatMessage(IntlMessageFormat, new Map<string, IntlMessageFormat>(), text, values, locale);

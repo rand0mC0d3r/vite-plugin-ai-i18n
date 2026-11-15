@@ -1,8 +1,8 @@
 import MagicString, { type SourceMap } from "magic-string";
 
+import { isUsableTranslation } from "../icu.js";
 import type { Catalog, ResolvedMessage } from "../types.js";
 import { type JSXElement, type JSXText, type ParsedSource, parseSource, type StringLiteral, walk } from "./ast.js";
-import { isUsableTranslation } from "./placeholders.js";
 
 /** Virtual module id that exposes the runtime `setLocale()` and catalogues. */
 export const RUNTIME_MODULE = "virtual:autoi18n";

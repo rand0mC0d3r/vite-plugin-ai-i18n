@@ -4,11 +4,11 @@ import { fileURLToPath } from "node:url";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
 import { FORMAT_MODULE, RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
-import { hashContent } from "./io.js";
+import { hashContent } from "./io/files.js";
 import { type AutoI18nOptions, validateOptions } from "./options.js";
-import { FORMAT_LIBRARY, createFormatModule } from "./runtime/format.js";
-import { createRuntimeModule } from "./runtime/virtual.js";
-import { Syncer, reporterFor } from "./sync.js";
+import { reporterFor, Syncer } from "./sync.js";
+import { createFormatModule, FORMAT_LIBRARY } from "./virtual/format.js";
+import { createRuntimeModule } from "./virtual/runtime.js";
 
 /** HMR event name that carries updated catalogues to the browser in dev. */
 const UPDATE_EVENT = "autoi18n:update";

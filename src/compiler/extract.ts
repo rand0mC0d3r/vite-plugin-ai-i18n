@@ -1,5 +1,5 @@
 import { argumentName, escapeIcu } from "../icu.js";
-import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
+import { createFingerprint } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import {
   hasLeadingBlockComment,
@@ -15,6 +15,7 @@ import {
   walk,
 } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
+import { normalizeSource } from "./normalize.js";
 
 /** Matches a tag or component name that starts with an uppercase letter, i.e. a React component. */
 const COMPONENT_TAG = /^[A-Z]/;

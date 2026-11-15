@@ -1,8 +1,8 @@
-import { type LocaleFile, pruneLocaleFile } from "./catalog.js";
-import { isUsableTranslation } from "./compiler/placeholders.js";
-import { debugLog } from "./debug.js";
-import { PartialTranslationError } from "./errors.js";
-import type { Catalog, TranslationProvider, TranslationRequest } from "./types.js";
+import { debugLog } from "../debug.js";
+import { PartialTranslationError } from "../errors.js";
+import { isUsableTranslation } from "../icu.js";
+import { type LocaleFile, pruneLocaleFile } from "../io/catalog.js";
+import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
 
 /** Inputs for {@link translateLocale}, which brings a single target locale up to date. */
 export interface LocaleTranslationInput {

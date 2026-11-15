@@ -1,7 +1,5 @@
-import { emptyLocaleFile, type LocaleFile } from "./catalog.js";
-import { mapWithConcurrency } from "./concurrency.js";
-import { pruneOrphans, reconcile } from "./identity/registry.js";
-import { type LocaleTranslation, translateLocale } from "./translate.js";
+import { pruneOrphans, reconcile } from "../identity/registry.js";
+import { emptyLocaleFile, type LocaleFile } from "../io/catalog.js";
 import type {
   Catalog,
   ExtractedMessage,
@@ -9,7 +7,9 @@ import type {
   RegistryEntry,
   ResolvedMessage,
   TranslationProvider,
-} from "./types.js";
+} from "../types.js";
+import { mapWithConcurrency } from "./concurrency.js";
+import { type LocaleTranslation, translateLocale } from "./translate.js";
 
 /** Inputs for {@link buildCatalogs}. */
 export interface CatalogBuildInput {

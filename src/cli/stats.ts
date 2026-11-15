@@ -1,54 +1,30 @@
 import { existsSync } from "node:fs";
-import { readdir } from "node:fs/promises";
 import path from "node:path";
 
-import { type LocaleFile, readLocaleFile } from "../catalog.js";
-import { loadRegistry } from "../identity/registry.js";
-import { computeStats, type StatsReport } from "../stats.js";
-
-/** Parsed command-line options for the stats CLI. */
-interface StatsArgs {
-  /** Directory holding `registry.json` and `locales/`, relative to the working directory. */
-  directory: string;
-  /** Locale whose file is the source text. It is excluded from the translation figures. */
-  sourceLocale: string;
-  /** When true, the report is printed as JSON instead of text. */
-  json: boolean;
-  /** When true, the text report lists the missing and outdated message IDs per locale. */
-  verbose: boolean;
-}
+import { computeStats, type StatsReport } from "../core/stats.js";
+import { type LocaleFile, readLocaleFile } from "../io/catalog.js";
+import { loadRegistry } from "../io/registry-file.js";
+import { listLocaleFiles, parseCliArgs } from "./common.js";
 
 /**
  * Parses `--directory`, `--source-locale`, `--json` and `--verbose` from the arguments after the script name.
  *
  * @throws If an option is unknown or lacks its value.
  */
-function parseArgs(argv: string[]): StatsArgs {
-  const args: StatsArgs = { directory: ".autoi18n", sourceLocale: "en", json: false, verbose: false };
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
-    if (arg === "--json") {
-      args.json = true;
-    } else if (arg === "--verbose") {
-      args.verbose = true;
-    } else if (arg === "--directory" || arg === "--source-locale") {
-      const value = argv.at(++i);
-      if (value === undefined || value.startsWith("--")) throw new Error(`${arg} needs a value`);
-      if (arg === "--directory") args.directory = value;
-      else args.sourceLocale = value;
-    } else {
-      throw new Error(`Unknown option ${arg}`);
-    }
-  }
-  return args;
+function parseArgs(argv: string[]) {
+  return parseCliArgs<{ directory: string; sourceLocale: string; json: boolean; verbose: boolean }>(argv, {
+    directory: ".autoi18n",
+    sourceLocale: "en",
+    json: false,
+    verbose: false,
+  });
 }
 
 /** Reads every translated locale file (all `*.json` except the source locale and legacy `*.sources.json` sidecars). */
 async function readLocales(localesDir: string, sourceLocale: string): Promise<Record<string, LocaleFile>> {
   const locales: Record<string, LocaleFile> = {};
-  if (!existsSync(localesDir)) return locales;
-  for (const name of await readdir(localesDir)) {
-    if (!name.endsWith(".json") || name.endsWith(".sources.json")) continue;
+  for (const name of await listLocaleFiles(localesDir)) {
+    if (name.endsWith(".sources.json")) continue;
     const locale = name.slice(0, -".json".length);
     if (locale === sourceLocale) continue;
     locales[locale] = await readLocaleFile(path.join(localesDir, name), (message) => console.warn(message));

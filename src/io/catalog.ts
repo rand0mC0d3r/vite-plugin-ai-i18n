@@ -2,9 +2,9 @@ import path from "node:path";
 
 import { ArkErrors } from "arktype";
 
-import { readJsonFile, toJson, writeFileIfChanged } from "./io.js";
-import { LOCALE_TAG, localeFileSchema } from "./schemas.js";
-import type { Catalog } from "./types.js";
+import { LOCALE_TAG, localeFileSchema } from "../schemas.js";
+import type { Catalog } from "../types.js";
+import { readJsonFile, toJson, writeFileIfChanged } from "./files.js";
 
 /**
  * One locale's file on disk (`locales/<locale>.json`). `messages` is what the runtime and build read, and `sources`

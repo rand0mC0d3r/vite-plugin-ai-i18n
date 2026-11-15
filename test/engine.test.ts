@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { mapWithConcurrency } from "../src/concurrency.js";
-import { buildCatalogs } from "../src/engine.js";
+import { mapWithConcurrency } from "../src/core/concurrency.js";
+import { buildCatalogs } from "../src/core/engine.js";
 import { PartialTranslationError } from "../src/errors.js";
 import { reconcile } from "../src/identity/registry.js";
 import type { ExtractedMessage, Registry, TranslationProvider } from "../src/types.js";

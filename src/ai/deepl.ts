@@ -3,7 +3,7 @@ import { ArkErrors } from "arktype";
 import { deeplResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { BatchedProvider, type BatchedProviderOptions, ProviderError, type TranslateInput } from "./base.js";
-import { alignedCatalog, protectText } from "./machine.js";
+import { alignedCatalog, protectText } from "./machine-helpers.js";
 
 /** DeepL Pro API root. */
 const DEEPL_BASE_URL = "https://api.deepl.com";

@@ -4,15 +4,15 @@ import path from "node:path";
 import type { Logger, ResolvedConfig } from "vite";
 
 import { resolveProvider } from "./ai/fallback.js";
-import { type LocaleFile, localeFilePath } from "./catalog.js";
 import { type ParsedSource, parseSource } from "./compiler/ast.js";
 import { extractMessages } from "./compiler/extract.js";
+import { buildCatalogs } from "./core/engine.js";
 import { debugLog } from "./debug.js";
-import { buildCatalogs } from "./engine.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "./identity/registry.js";
-import { hashContent } from "./io.js";
+import { type LocaleFile, localeFilePath } from "./io/catalog.js";
+import { hashContent } from "./io/files.js";
+import { type ExtractionCacheEntry, IndexState, sameCatalog } from "./io/state.js";
 import type { AutoI18nOptions } from "./options.js";
-import { type ExtractionCacheEntry, IndexState, sameCatalog } from "./state.js";
 import type { Catalog, ExtractedMessage } from "./types.js";
 
 /** Default source globs scanned for translatable text. */
@@ -40,8 +40,8 @@ async function removeLegacySidecars(outDir: string, locales: string[]): Promise<
 }
 
 /**
- * Owns the source index for one plugin instance: which files are extracted, which messages are translated, and what
- * is written to disk. Syncs run one at a time through `runSync`.
+ * Owns the source index for one plugin instance: which files are extracted, which messages are translated, and what is
+ * written to disk. Syncs run one at a time through `runSync`.
  */
 export class Syncer {
   readonly sourceLocale: string;
@@ -100,7 +100,8 @@ export class Syncer {
     if (!/\.[jt]sx?$/.test(file)) return false;
     const relative = path.relative(this.config.root, file).split(path.sep).join("/");
     return (
-      this.include.some((p) => path.matchesGlob(relative, p)) && !this.exclude.some((p) => path.matchesGlob(relative, p))
+      this.include.some((p) => path.matchesGlob(relative, p)) &&
+      !this.exclude.some((p) => path.matchesGlob(relative, p))
     );
   }
 
@@ -241,7 +242,9 @@ export class Syncer {
     state.extractions = nextExtractions;
     state.parsedSources = nextParsed;
     state.catalogs = nextCatalogs;
-    state.catalogFiles = Object.fromEntries(this.options.locales.map((locale) => [locale, localeFilePath(outDir, locale)]));
+    state.catalogFiles = Object.fromEntries(
+      this.options.locales.map((locale) => [locale, localeFilePath(outDir, locale)]),
+    );
 
     this.reportLocales(report, result);
 

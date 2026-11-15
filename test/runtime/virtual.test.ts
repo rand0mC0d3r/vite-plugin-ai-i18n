@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createRuntimeModule } from "../../src/runtime/virtual.js";
+import { createRuntimeModule } from "../../src/virtual/runtime.js";
 
 type RuntimeModule = {
   setLocale(locale: string): Promise<void>;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { computeStats } from "../src/stats.js";
+import { computeStats } from "../src/core/stats.js";
 import type { Registry, RegistryEntry } from "../src/types.js";
 
 function entry(id: string, overrides: Partial<RegistryEntry> = {}): RegistryEntry {

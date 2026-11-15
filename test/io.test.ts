@@ -4,8 +4,8 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { emptyLocaleFile, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/catalog.js";
-import { readJsonFile, writeFileAtomic } from "../src/io.js";
+import { emptyLocaleFile, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/io/catalog.js";
+import { readJsonFile, writeFileAtomic } from "../src/io/files.js";
 
 describe("io and catalog helpers", () => {
   let dir: string;

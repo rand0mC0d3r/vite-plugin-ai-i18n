@@ -1,9 +1,5 @@
 import { randomUUID } from "node:crypto";
 
-import { ArkErrors } from "arktype";
-
-import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
-import { registryEntrySchema, registryFileSchema } from "../schemas.js";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
 
 /** Milliseconds in one minute. Converts `orphanRetentionMinutes` to a timestamp offset. */
@@ -12,28 +8,7 @@ const MINUTE_MS = 60 * 1000;
 export const DEFAULT_ORPHAN_RETENTION_MINUTES = 30 * 24 * 60;
 
 /** A registry with no entries, used when no usable file exists yet. */
-const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
-
-/**
- * Loads the registry. Invalid entries are dropped individually so the IDs of the valid ones stay stable; a file with
- * the wrong top-level shape is replaced by an empty registry.
- */
-export async function loadRegistry(file: string, warn?: (message: string) => void): Promise<Registry> {
-  const parsed = await readJsonFile<unknown>(file, null, warn);
-  if (parsed === null) return emptyRegistry();
-  const header = registryFileSchema(parsed);
-  if (header instanceof ArkErrors) {
-    warn?.(`autoi18n: ${file} has an unsupported format; message IDs will be regenerated.`);
-    return emptyRegistry();
-  }
-  const entries: Record<string, RegistryEntry> = {};
-  for (const [key, value] of Object.entries(header.entries)) {
-    const entry = registryEntrySchema(value);
-    if (!(entry instanceof ArkErrors)) entries[key] = entry;
-    else warn?.(`autoi18n: dropped invalid registry entry "${key}" in ${file}.`);
-  }
-  return { version: 1, entries };
-}
+export const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
 /** One ordering key for both old and new occurrences, so IDs follow the same position in each list. */
 function orderKey(file: string, start: number): string {
@@ -172,9 +147,4 @@ export function pruneOrphans(registry: Registry, retentionMinutes: number, now =
     }
   }
   return removed;
-}
-
-/** Writes the registry to `file`, skipping the write when the content has not changed. */
-export async function saveRegistry(file: string, registry: Registry): Promise<void> {
-  await writeFileIfChanged(file, toJson(registry));
 }

@@ -1,9 +1,9 @@
 import { stat } from "node:fs/promises";
 
+import type { ParsedSource } from "../compiler/ast.js";
+import type { Catalog, ExtractedMessage, Registry, ResolvedMessage } from "../types.js";
 import { type LocaleFile, readLocaleFile, writeLocaleFile } from "./catalog.js";
-import type { ParsedSource } from "./compiler/ast.js";
-import { loadRegistry, saveRegistry } from "./identity/registry.js";
-import type { Catalog, ExtractedMessage, Registry, ResolvedMessage } from "./types.js";
+import { loadRegistry, saveRegistry } from "./registry-file.js";
 
 /** Last extraction of one source file. The hash lets an unchanged file skip re-extraction. */
 export interface ExtractionCacheEntry {

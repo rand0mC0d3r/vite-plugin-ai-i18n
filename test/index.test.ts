@@ -7,12 +7,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parseSource } from "../src/compiler/ast.js";
 import { extractMessages } from "../src/compiler/extract.js";
 import { transformSource } from "../src/compiler/transform.js";
-import { FORMAT_LIBRARY } from "../src/runtime/format.js";
 import { createFingerprint } from "../src/identity/fingerprint.js";
 import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
 import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
-import { createRuntimeModule } from "../src/runtime/virtual.js";
 import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
+import { FORMAT_LIBRARY } from "../src/virtual/format.js";
+import { createRuntimeModule } from "../src/virtual/runtime.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
 
