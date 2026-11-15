@@ -1,4 +1,4 @@
-# 🌍 vite-plugin-ai-auto-i18n
+# 🌍 vite-plugin-ai-auto-i18n (Vite AI i18n plugin)
 
 **Build-time localization for JSX.** Write English directly. The compiler extracts user-facing copy, gives each message a stable ID, and can translate it with an AI or machine-translation provider.
 
