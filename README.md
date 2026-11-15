@@ -293,7 +293,7 @@ npm install -D vite-plugin-ai-auto-i18n
 
 Equivalent commands: `bun add -D`, `pnpm add -D`, or `yarn add -D`, with the same package name.
 
-- Requires **Vite 8+** (peer dependency) and **Node.js 26+**.
+- Requires **Vite 7+** (peer dependency) and **Node.js 26+**.
 - For React, also keep `@vitejs/plugin-react` in your Vite config.
 
 ### 2️⃣ Add your API key
