@@ -70,6 +70,8 @@ export default defineConfig(({ mode }) => {
           vllm: localRuntime("vllm", "http://localhost:8000/v1"),
           localai: localRuntime("localai", "http://localhost:8080/v1"),
           dockermodelrunner: localRuntime("dockermodelrunner", "http://localhost:12434/engines/v1"),
+
+          // Add any additional local runtime providers here if needed.
           anthropic: keyed("anthropic", env.ANTHROPIC_API_KEY, "claude-haiku-5-5", (apiKey, model) => new AnthropicProvider({ apiKey, model })),
           gemini: keyed("gemini", env.GEMINI_API_KEY, "gemini-3.5-flash-lite", (apiKey, model) => new GeminiProvider({ apiKey, model })),
 
