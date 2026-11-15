@@ -44,7 +44,8 @@ export async function readLocaleFile(file: string, warn?: (message: string) => v
 }
 
 /** Writes a locale file, leaving it untouched when its content has not changed. */
-export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> => writeFileIfChanged(file, toJson(content));
+export const writeLocaleFile = (file: string, content: LocaleFile): Promise<void> =>
+  writeFileIfChanged(file, toJson(content));
 
 /** Returns a copy of `catalog` that keeps only `keep`, plus the keys that were dropped. */
 export function pruneCatalog(catalog: Catalog, keep: ReadonlySet<string>): { catalog: Catalog; removed: string[] } {
@@ -61,5 +62,8 @@ export function pruneCatalog(catalog: Catalog, keep: ReadonlySet<string>): { cat
 export function pruneLocaleFile(file: LocaleFile, keep: ReadonlySet<string>): { file: LocaleFile; removed: string[] } {
   const messages = pruneCatalog(file.messages, keep);
   const sources = pruneCatalog(file.sources, keep);
-  return { file: { messages: messages.catalog, sources: sources.catalog }, removed: [...new Set([...messages.removed, ...sources.removed])] };
+  return {
+    file: { messages: messages.catalog, sources: sources.catalog },
+    removed: [...new Set([...messages.removed, ...sources.removed])],
+  };
 }

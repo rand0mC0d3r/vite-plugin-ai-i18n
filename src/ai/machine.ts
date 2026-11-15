@@ -12,14 +12,16 @@ const ENTITY = /&(#\d+|#x[\da-f]+|[a-z]+);/gi;
  */
 export function protectText(source: string, open: string, close: string): string {
   const escaped = source.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  return escaped.replace(PLACEHOLDER, name => `${open}${name}${close}`);
+  return escaped.replace(PLACEHOLDER, (name) => `${open}${name}${close}`);
 }
 
 /** Removes the wrappers added by protectText and decodes the HTML entities the engine returns, in a single pass. */
 export function restoreText(translated: string, open: string, close: string): string {
   return translated
-    .split(open).join("")
-    .split(close).join("")
+    .split(open)
+    .join("")
+    .split(close)
+    .join("")
     .replace(ENTITY, (match, entity: string) => {
       if (entity[0] !== "#") return NAMED_ENTITIES[entity.toLowerCase()] ?? match;
       const code = entity[1].toLowerCase() === "x" ? parseInt(entity.slice(2), 16) : Number(entity.slice(1));
@@ -31,8 +33,14 @@ export function restoreText(translated: string, open: string, close: string): st
  * Pairs index-aligned engine output with the requested messages. Engines that don't echo IDs return translations in
  * request order, so a count mismatch means the reply can't be trusted and the batch is retried.
  */
-export function alignedCatalog(messages: TranslationRequest[], translations: string[], open: string, close: string): Catalog {
-  if (translations.length !== messages.length) throw new ProviderError("Translation provider returned a different number of translations", true);
+export function alignedCatalog(
+  messages: TranslationRequest[],
+  translations: string[],
+  open: string,
+  close: string,
+): Catalog {
+  if (translations.length !== messages.length)
+    throw new ProviderError("Translation provider returned a different number of translations", true);
   const result: Catalog = {};
   messages.forEach((message, index) => {
     const text = restoreText(translations[index], open, close);

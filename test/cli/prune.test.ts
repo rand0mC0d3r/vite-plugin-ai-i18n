@@ -20,7 +20,7 @@ function entry(id: string, status: RegistryEntry["status"], lastSeen: string): R
     firstSeen: OLD,
     lastSeen,
     context: "",
-    fingerprint: id
+    fingerprint: id,
   } as RegistryEntry;
 }
 
@@ -33,8 +33,13 @@ async function runCli(cwd: string, args: string[]): Promise<void> {
   vi.resetModules();
   try {
     await import("../../src/cli/prune.js");
-    await vi.waitFor(() => expect(process.exitCode === 1 || vi.mocked(console.log).mock.calls.length + vi.mocked(console.error).mock.calls.length > 0).toBe(true));
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await vi.waitFor(() =>
+      expect(
+        process.exitCode === 1 ||
+          vi.mocked(console.log).mock.calls.length + vi.mocked(console.error).mock.calls.length > 0,
+      ).toBe(true),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 20));
   } finally {
     process.argv = originalArgv;
     process.chdir(originalCwd);
@@ -73,13 +78,13 @@ describe("prune CLI", () => {
       entries: {
         keep: entry("keep", "active", RECENT),
         recent: entry("recent", "orphaned", RECENT),
-        gone: entry("gone", "orphaned", OLD)
-      }
+        gone: entry("gone", "orphaned", OLD),
+      },
     };
     await writeFile(path.join(outDir, "registry.json"), JSON.stringify(registry));
     await writeFile(
       path.join(outDir, "locales", "de.json"),
-      JSON.stringify({ messages: { keep: "A", recent: "B", gone: "C" }, sources: { gone: "C-src", keep: "A-src" } })
+      JSON.stringify({ messages: { keep: "A", recent: "B", gone: "C" }, sources: { gone: "C-src", keep: "A-src" } }),
     );
     await writeFile(path.join(outDir, "locales", "notes.txt"), "ignored");
 
@@ -92,7 +97,9 @@ describe("prune CLI", () => {
     expect(locale.messages).toEqual({ keep: "A" });
     expect(locale.sources).toEqual({ keep: "A-src" });
 
-    expect(console.log).toHaveBeenCalledWith("autoi18n: removed 1 registry entries orphaned for more than 43200 minutes.");
+    expect(console.log).toHaveBeenCalledWith(
+      "autoi18n: removed 1 registry entries orphaned for more than 43200 minutes.",
+    );
     expect(console.log).toHaveBeenCalledWith("autoi18n: removed stale keys from 1 locale files.");
   });
 
@@ -103,14 +110,19 @@ describe("prune CLI", () => {
 
     await runCli(root, []);
 
-    expect(console.log).toHaveBeenCalledWith("autoi18n: removed 0 registry entries orphaned for more than 43200 minutes.");
+    expect(console.log).toHaveBeenCalledWith(
+      "autoi18n: removed 0 registry entries orphaned for more than 43200 minutes.",
+    );
     expect(console.log).not.toHaveBeenCalledWith(expect.stringMatching(/stale keys/));
   });
 
   it("honours --directory and --retention-minutes", async () => {
     const custom = path.join(root, "i18n");
     await mkdir(custom, { recursive: true });
-    const registry: Registry = { version: 1, entries: { gone: entry("gone", "orphaned", new Date(Date.now() - 5 * 60_000).toISOString()) } };
+    const registry: Registry = {
+      version: 1,
+      entries: { gone: entry("gone", "orphaned", new Date(Date.now() - 5 * 60_000).toISOString()) },
+    };
     await writeFile(path.join(custom, "registry.json"), JSON.stringify(registry));
 
     await runCli(root, ["--directory", "i18n", "--retention-minutes", "1"]);
@@ -127,9 +139,9 @@ describe("prune CLI", () => {
 
     await runCli(root, ["--debug"]);
 
-    const output = vi.mocked(console.log).mock.calls.map(call => String(call[0]));
-    expect(output.some(line => /removed gone "text gone"/.test(line))).toBe(true);
-    expect(output.some(line => /removed gone from .*de\.json/.test(line))).toBe(true);
+    const output = vi.mocked(console.log).mock.calls.map((call) => String(call[0]));
+    expect(output.some((line) => /removed gone "text gone"/.test(line))).toBe(true);
+    expect(output.some((line) => /removed gone from .*de\.json/.test(line))).toBe(true);
   });
 
   it("reports an error and sets exit code 1 for an unknown option", async () => {

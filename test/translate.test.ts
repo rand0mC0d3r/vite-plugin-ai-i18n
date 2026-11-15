@@ -5,10 +5,16 @@ import { emptyLocaleFile } from "../src/catalog.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const text = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
-const mixed = (id: string, source: string, placeholders: string[]): TranslationRequest => ({ id, source, context: "", kind: "mixed", placeholders });
+const mixed = (id: string, source: string, placeholders: string[]): TranslationRequest => ({
+  id,
+  source,
+  context: "",
+  kind: "mixed",
+  placeholders,
+});
 
 const provider = (result: Record<string, string>): TranslationProvider & { translate: ReturnType<typeof vi.fn> } => ({
-  translate: vi.fn(async () => result)
+  translate: vi.fn(async () => result),
 });
 
 const base = { sourceLocale: "en", locale: "de" };
@@ -18,8 +24,17 @@ describe("translateLocale", () => {
 
   it("requests every message when the previous file is empty and stores the results with their sources", async () => {
     const p = provider({ a: "Speichern", b: "Abbrechen" });
-    const result = await translateLocale({ ...base, provider: p, requests: [text("a"), text("b", "Cancel")], previous: emptyLocaleFile() });
-    expect(p.translate).toHaveBeenCalledWith({ sourceLocale: "en", targetLocale: "de", messages: [text("a"), text("b", "Cancel")] });
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [text("a"), text("b", "Cancel")],
+      previous: emptyLocaleFile(),
+    });
+    expect(p.translate).toHaveBeenCalledWith({
+      sourceLocale: "en",
+      targetLocale: "de",
+      messages: [text("a"), text("b", "Cancel")],
+    });
     expect(result.file).toEqual({ messages: { a: "Speichern", b: "Abbrechen" }, sources: { a: "Save", b: "Cancel" } });
     expect(result).toMatchObject({ untranslated: 0, rejected: 0, requested: 2, failed: 0, failure: undefined });
   });
@@ -29,7 +44,11 @@ describe("translateLocale", () => {
     const previous = { messages: { a: "Speichern" }, sources: { a: "Save" } };
     const result = await translateLocale({ ...base, provider: p, requests: [text("a")], previous });
     expect(p.translate).not.toHaveBeenCalled();
-    expect(result).toMatchObject({ requested: 0, untranslated: 0, file: { messages: { a: "Speichern" }, sources: { a: "Save" } } });
+    expect(result).toMatchObject({
+      requested: 0,
+      untranslated: 0,
+      file: { messages: { a: "Speichern" }, sources: { a: "Save" } },
+    });
   });
 
   it("re-requests a message whose recorded source no longer matches", async () => {
@@ -43,7 +62,12 @@ describe("translateLocale", () => {
 
   it("prunes keys for messages that are no longer active", async () => {
     const previous = { messages: { keep: "Behalten", gone: "Weg" }, sources: { keep: "Keep", gone: "Gone" } };
-    const result = await translateLocale({ ...base, provider: provider({}), requests: [text("keep", "Keep")], previous });
+    const result = await translateLocale({
+      ...base,
+      provider: provider({}),
+      requests: [text("keep", "Keep")],
+      previous,
+    });
     expect(result.file).toEqual({ messages: { keep: "Behalten" }, sources: { keep: "Keep" } });
   });
 
@@ -54,7 +78,12 @@ describe("translateLocale", () => {
 
   it("drops blank and non-string translations so they are requested again later", async () => {
     const p = provider({ a: "   ", b: 42 as unknown as string });
-    const result = await translateLocale({ ...base, provider: p, requests: [text("a"), text("b")], previous: emptyLocaleFile() });
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [text("a"), text("b")],
+      previous: emptyLocaleFile(),
+    });
     expect(result.file.messages).toEqual({});
     expect(result.untranslated).toBe(2);
   });
@@ -72,7 +101,12 @@ describe("translateLocale", () => {
   it("accepts mixed-content translations that repeat an argument, since each value is passed once", async () => {
     const source = "{count} documents";
     const p = provider({ a: "{count} Dokumente, {count} gesamt" });
-    const result = await translateLocale({ ...base, provider: p, requests: [mixed("a", source, ["count"])], previous: emptyLocaleFile() });
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [mixed("a", source, ["count"])],
+      previous: emptyLocaleFile(),
+    });
     expect(result.rejected).toBe(0);
     expect(result.file.messages).toEqual({ a: "{count} Dokumente, {count} gesamt" });
   });
@@ -80,41 +114,72 @@ describe("translateLocale", () => {
   it("rejects mixed-content translations that are not valid ICU", async () => {
     const source = "{count} documents";
     const p = provider({ a: "{count Dokumente" });
-    const result = await translateLocale({ ...base, provider: p, requests: [mixed("a", source, ["count"])], previous: emptyLocaleFile() });
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [mixed("a", source, ["count"])],
+      previous: emptyLocaleFile(),
+    });
     expect(result.rejected).toBe(1);
     expect(result.file.messages).toEqual({});
   });
 
   it("keeps the partial translations and reports failed batches when the provider throws PartialTranslationError", async () => {
     const error = new PartialTranslationError("1 messages failed to translate: busy", { a: "Speichern" }, 1);
-    const p: TranslationProvider = { translate: vi.fn(async () => { throw error; }) };
-    const result = await translateLocale({ ...base, provider: p, requests: [text("a"), text("b")], previous: emptyLocaleFile() });
+    const p: TranslationProvider = {
+      translate: vi.fn(async () => {
+        throw error;
+      }),
+    };
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [text("a"), text("b")],
+      previous: emptyLocaleFile(),
+    });
     expect(result.file.messages).toEqual({ a: "Speichern" });
     expect(result).toMatchObject({ failed: 1, failure: error.message, untranslated: 1 });
   });
 
   it("rethrows errors that are not partial failures", async () => {
-    const p: TranslationProvider = { translate: vi.fn(async () => { throw new Error("offline"); }) };
-    await expect(translateLocale({ ...base, provider: p, requests: [text("a")], previous: emptyLocaleFile() })).rejects.toThrow("offline");
+    const p: TranslationProvider = {
+      translate: vi.fn(async () => {
+        throw new Error("offline");
+      }),
+    };
+    await expect(
+      translateLocale({ ...base, provider: p, requests: [text("a")], previous: emptyLocaleFile() }),
+    ).rejects.toThrow("offline");
   });
 
   it("logs sent and received messages when debug is enabled", async () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
     const p = provider({ a: "Speichern" });
-    await translateLocale({ ...base, provider: p, requests: [text("a"), text("b")], previous: emptyLocaleFile(), debug: true });
-    const lines = log.mock.calls.map(call => String(call[0]));
+    await translateLocale({
+      ...base,
+      provider: p,
+      requests: [text("a"), text("b")],
+      previous: emptyLocaleFile(),
+      debug: true,
+    });
+    const lines = log.mock.calls.map((call) => String(call[0]));
     expect(lines).toEqual([
       expect.stringMatching(/sent en -> de a: "Save" \(context: \)$/),
       expect.stringMatching(/sent en -> de b: "Save" \(context: \)$/),
       expect.stringMatching(/received en -> de a: "Speichern"$/),
-      expect.stringMatching(/received en -> de b: \(no translation\)$/)
+      expect.stringMatching(/received en -> de b: \(no translation\)$/),
     ]);
     expect(lines[0]).toMatch(/^\[autoi18n debug\] \d{4}-\d{2}-\d{2}T/);
   });
 
   it("does not log anything when debug is disabled", async () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
-    await translateLocale({ ...base, provider: provider({ a: "Speichern" }), requests: [text("a")], previous: emptyLocaleFile() });
+    await translateLocale({
+      ...base,
+      provider: provider({ a: "Speichern" }),
+      requests: [text("a")],
+      previous: emptyLocaleFile(),
+    });
     expect(log).not.toHaveBeenCalled();
   });
 });

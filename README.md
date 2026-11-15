@@ -41,9 +41,29 @@ The compiler parses each file in `include` and records every translatable string
 
 ```jsonc
 [
-  { "source": "Save the current document", "kind": "attribute", "tag": "button", "attribute": "title", "component": "Doc", "context": "button | title | title=Save the current document" },
-  { "source": "Save", "kind": "text", "tag": "button", "component": "Doc", "context": "button | title=Save the current document" },
-  { "source": "You have {count} documents", "kind": "mixed", "placeholders": ["count"], "tag": "p", "component": "Doc", "context": "p" }
+  {
+    "source": "Save the current document",
+    "kind": "attribute",
+    "tag": "button",
+    "attribute": "title",
+    "component": "Doc",
+    "context": "button | title | title=Save the current document",
+  },
+  {
+    "source": "Save",
+    "kind": "text",
+    "tag": "button",
+    "component": "Doc",
+    "context": "button | title=Save the current document",
+  },
+  {
+    "source": "You have {count} documents",
+    "kind": "mixed",
+    "placeholders": ["count"],
+    "tag": "p",
+    "component": "Doc",
+    "context": "p",
+  },
 ]
 ```
 
@@ -69,9 +89,9 @@ Each extracted message is matched against `.autoi18n/registry.json`. A match kee
       "location": "src/Doc.tsx:4",
       "status": "active",
       "firstSeen": "2026-11-02T17:28:36.128Z",
-      "lastSeen": "2026-11-14T14:54:42.201Z"
-    }
-  }
+      "lastSeen": "2026-11-14T14:54:42.201Z",
+    },
+  },
 }
 ```
 
@@ -87,13 +107,13 @@ Only new or changed messages (source text changed since the last build) are sent
   "messages": {
     "msg_a1": "Dokument speichern",
     "msg_a2": "Speichern",
-    "msg_a3": "Du hast {count} Dokumente"
+    "msg_a3": "Du hast {count} Dokumente",
   },
   "sources": {
     "msg_a1": "Save the current document",
     "msg_a2": "Save",
-    "msg_a3": "You have {count} documents"
-  }
+    "msg_a3": "You have {count} documents",
+  },
 }
 ```
 
@@ -153,8 +173,8 @@ autoI18n({
   locales: ["en", "de", "fr"],
   locale: process.env.AUTOI18N_LOCALE, // undefined = all locales
   provider: new OpenAICompatibleProvider({ apiKey: process.env.OPENAI_API_KEY!, model: "gpt-4.1-mini" }),
-  failOnMissingProvider: true
-})
+  failOnMissingProvider: true,
+});
 ```
 
 ```yaml
@@ -170,8 +190,8 @@ steps:
 
 ```ts
 // vite.config.ts
-autoI18n({ locales: ["en", "de", "fr"], delivery: "runtime" }), // no provider: source text is shown until translations exist
-react() // keep autoI18n before the React plugin
+(autoI18n({ locales: ["en", "de", "fr"], delivery: "runtime" }), // no provider: source text is shown until translations exist
+  react()); // keep autoI18n before the React plugin
 ```
 
 ```tsx
@@ -183,8 +203,12 @@ export function LocaleSwitcher() {
   // Re-render when the locale or any catalogue changes
   useSyncExternalStore(subscribe, getVersion, getVersion);
   return (
-    <select value={getLocale()} onChange={e => setLocale(e.target.value)}>
-      {locales.map(code => <option key={code} value={code} translate="no">{code}</option>)}
+    <select value={getLocale()} onChange={(e) => setLocale(e.target.value)}>
+      {locales.map((code) => (
+        <option key={code} value={code} translate="no">
+          {code}
+        </option>
+      ))}
     </select>
   );
 }
@@ -206,7 +230,13 @@ Put a block comment directly before the literal. Lookups run when the expression
 ```tsx
 export function Items() {
   const items = [{ label: /* i18n */ "Shared with your team" }, { label: "Private" }];
-  return <ul>{items.map(i => <li key={i.label}>{i.label}</li>)}</ul>;
+  return (
+    <ul>
+      {items.map((i) => (
+        <li key={i.label}>{i.label}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
@@ -220,9 +250,9 @@ autoI18n({
   stringMarker: "t", // write /* t */ "Save" instead
   componentProps: {
     Button: ["aria-label", "title", "children"], // <Button>Save</Button> is translated
-    Tooltip: ["content"]
-  }
-})
+    Tooltip: ["content"],
+  },
+});
 ```
 
 With this config, `<Button title="Delete">Delete {count} files</Button>` extracts both the attribute and the text as a placeholder message.
@@ -242,7 +272,7 @@ const deepl: TranslationProvider = {
       out[m.id] = await callYourService(m.source, targetLocale);
     }
     return out;
-  }
+  },
 };
 ```
 
@@ -291,16 +321,16 @@ export default defineConfig(({ mode }) => {
           primary: "anthropic",
           anthropic: new AnthropicProvider({
             apiKey: env.ANTHROPIC_API_KEY!,
-            model: "claude-haiku-5-5"
+            model: "claude-haiku-5-5",
           }),
           openai: new OpenAICompatibleProvider({
             apiKey: env.OPENAI_API_KEY!,
-            model: "gpt-4.1-mini"
-          })
-        }
+            model: "gpt-4.1-mini",
+          }),
+        },
       }),
-      react() // in runtime delivery, keep autoI18n before the React plugin
-    ]
+      react(), // in runtime delivery, keep autoI18n before the React plugin
+    ],
   };
 });
 ```
@@ -378,23 +408,23 @@ In dev, saving a source file re-indexes the project, translates only new or chan
 
 ### Plugin options (`autoI18n({...})`)
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `locales` | `string[]` | _required_ | Locales the app ships, for example `["en", "de", "fr"]`. The source locale is never translated, so including it is harmless. |
-| `sourceLocale` | `string` | `"en"` | Language the JSX is written in. Used as the fallback when a translation is missing. |
-| `delivery` | `"build" \| "runtime"` | `"build"` | `build` compiles one locale per build. `runtime` ships every catalogue and switches locale in the browser with `setLocale()` from `virtual:autoi18n`. |
-| `locale` | `string` | `sourceLocale` | Locale to compile in `build` delivery. Also read from the `AUTOI18N_LOCALE` environment variable, which is handy for CI matrix builds. In `build` delivery during a non-dev build, only this locale is translated. |
-| `include` | `string[]` | `["src/**/*.{tsx,jsx,ts,js}"]` | Glob patterns of source files to scan, relative to the Vite root. |
-| `exclude` | `string[]` | `["**/*.test.*", "**/node_modules/**"]` | Glob patterns of files to skip, relative to the Vite root. |
-| `directory` | `string` | `".autoi18n"` | Folder for `registry.json` and `locales/`, relative to the Vite root. |
-| `provider` | `TranslationProvider \| { primary?, [name]: TranslationProvider \| undefined }` | `undefined` | Translates missing and changed messages. Pass one provider, or named providers with a `primary` (see [Multiple providers and fallback](#multiple-providers-and-fallback)). Without one, untranslated messages fall back to the source text. |
-| `failOnMissingProvider` | `boolean` | `false` | When `true`, the build fails if a locale has untranslated messages and no `provider` is set. |
-| `onAmbiguous` | `"warn" \| "error"` | `"warn"` | What to do when duplicated identical texts change their occurrence count, so their IDs may have moved. `"error"` fails the build. |
-| `orphanRetentionMinutes` | `number` | `43200` (30 days) | Minutes an orphaned message is kept before it is deleted. `0` deletes on the next build; `Infinity` keeps forever. |
-| `localeConcurrency` | `number` | `2` | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. Batches are still capped by the provider's `concurrency`. |
-| `debug` | `boolean` | `false` | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps. |
-| `componentProps` | `Record<string, string[]>` | `{}` | Attributes of custom components whose string values are UI copy, keyed by component name, for example `{ Button: ["aria-label", "title"] }`. Only the listed attributes are extracted from those components. The pseudo-prop `children` also makes a component's text children translatable, including sentences with `{name}` expressions: `{ Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button>Delete {count} files</Button>`. |
-| `stringMarker` | `string` | `"i18n"` | Text of the block comment that marks a string literal outside JSX for translation, for example `/* i18n */ "Save"`. Set it to `"t"` to use `/* t */ "Save"` instead. |
+| Option                   | Type                                                                            | Default                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `locales`                | `string[]`                                                                      | _required_                              | Locales the app ships, for example `["en", "de", "fr"]`. The source locale is never translated, so including it is harmless.                                                                                                                                                                                                                                                                                                                                       |
+| `sourceLocale`           | `string`                                                                        | `"en"`                                  | Language the JSX is written in. Used as the fallback when a translation is missing.                                                                                                                                                                                                                                                                                                                                                                                |
+| `delivery`               | `"build" \| "runtime"`                                                          | `"build"`                               | `build` compiles one locale per build. `runtime` ships every catalogue and switches locale in the browser with `setLocale()` from `virtual:autoi18n`.                                                                                                                                                                                                                                                                                                              |
+| `locale`                 | `string`                                                                        | `sourceLocale`                          | Locale to compile in `build` delivery. Also read from the `AUTOI18N_LOCALE` environment variable, which is handy for CI matrix builds. In `build` delivery during a non-dev build, only this locale is translated.                                                                                                                                                                                                                                                 |
+| `include`                | `string[]`                                                                      | `["src/**/*.{tsx,jsx,ts,js}"]`          | Glob patterns of source files to scan, relative to the Vite root.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `exclude`                | `string[]`                                                                      | `["**/*.test.*", "**/node_modules/**"]` | Glob patterns of files to skip, relative to the Vite root.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `directory`              | `string`                                                                        | `".autoi18n"`                           | Folder for `registry.json` and `locales/`, relative to the Vite root.                                                                                                                                                                                                                                                                                                                                                                                              |
+| `provider`               | `TranslationProvider \| { primary?, [name]: TranslationProvider \| undefined }` | `undefined`                             | Translates missing and changed messages. Pass one provider, or named providers with a `primary` (see [Multiple providers and fallback](#multiple-providers-and-fallback)). Without one, untranslated messages fall back to the source text.                                                                                                                                                                                                                        |
+| `failOnMissingProvider`  | `boolean`                                                                       | `false`                                 | When `true`, the build fails if a locale has untranslated messages and no `provider` is set.                                                                                                                                                                                                                                                                                                                                                                       |
+| `onAmbiguous`            | `"warn" \| "error"`                                                             | `"warn"`                                | What to do when duplicated identical texts change their occurrence count, so their IDs may have moved. `"error"` fails the build.                                                                                                                                                                                                                                                                                                                                  |
+| `orphanRetentionMinutes` | `number`                                                                        | `43200` (30 days)                       | Minutes an orphaned message is kept before it is deleted. `0` deletes on the next build; `Infinity` keeps forever.                                                                                                                                                                                                                                                                                                                                                 |
+| `localeConcurrency`      | `number`                                                                        | `2`                                     | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down. Batches are still capped by the provider's `concurrency`.                                                                                                                                                                                                                                                                                                     |
+| `debug`                  | `boolean`                                                                       | `false`                                 | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps.                                                                                                                                                                                                                                                                                                                                                       |
+| `componentProps`         | `Record<string, string[]>`                                                      | `{}`                                    | Attributes of custom components whose string values are UI copy, keyed by component name, for example `{ Button: ["aria-label", "title"] }`. Only the listed attributes are extracted from those components. The pseudo-prop `children` also makes a component's text children translatable, including sentences with `{name}` expressions: `{ Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button>Delete {count} files</Button>`. |
+| `stringMarker`           | `string`                                                                        | `"i18n"`                                | Text of the block comment that marks a string literal outside JSX for translation, for example `/* i18n */ "Save"`. Set it to `"t"` to use `/* t */ "Save"` instead.                                                                                                                                                                                                                                                                                               |
 
 ### Locale groups
 
@@ -407,80 +437,79 @@ autoI18n({ locales: [...locales.EUROPE] });
 autoI18n({ locales: ["en", ...locales.ASIA] });
 ```
 
-| Group | Languages |
-|---|---|
-| `EU` | 23 official EU languages |
-| `EUROPE` | `EU` plus Norwegian, Icelandic, Albanian, Bosnian, Macedonian, Serbian, Ukrainian, Russian, Belarusian, Catalan |
-| `NORDIC` | Danish, Finnish, Icelandic, Norwegian, Swedish |
-| `BALTIC` | Estonian, Latvian, Lithuanian |
-| `BALKANS` | Albanian, Bosnian, Bulgarian, Croatian, Greek, Macedonian, Romanian, Serbian, Slovenian |
-| `BENELUX` | Dutch, French, Luxembourgish |
-| `EAST_ASIA` | Chinese, Japanese, Korean, Mongolian |
-| `SOUTH_ASIA` | Hindi, Bengali, Urdu, Punjabi, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Nepali, Sinhala |
-| `SOUTHEAST_ASIA` | Indonesian, Malay, Burmese, Khmer, Lao, Filipino, Thai, Vietnamese |
-| `CENTRAL_ASIA` | Kazakh, Kyrgyz, Tajik, Turkmen, Uzbek |
-| `CAUCASUS` | Armenian, Azerbaijani, Georgian |
-| `ASIA` | `EAST_ASIA`, `SOUTH_ASIA`, `SOUTHEAST_ASIA`, `CENTRAL_ASIA`, `CAUCASUS` |
-| `MIDDLE_EAST` | Arabic, Persian, Hebrew, Turkish, Kurdish |
-| `AFRICA` | Arabic, French, Portuguese, Swahili, Amharic, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Somali, Kinyarwanda, Wolof |
-| `NORTH_AMERICA` | English, French, Spanish |
-| `CENTRAL_AMERICA_CARIBBEAN` | Spanish, English, French, Haitian Creole, Dutch |
-| `SOUTH_AMERICA` | Spanish, Portuguese, Quechua, Guarani, Aymara |
-| `AMERICAS` | `NORTH_AMERICA`, `CENTRAL_AMERICA_CARIBBEAN`, `SOUTH_AMERICA` |
-| `OCEANIA` | English, Maori, Samoan, Tongan |
-| `ASEAN` | `SOUTHEAST_ASIA` languages plus English (working language) |
-| `MERCOSUR` | Spanish, Portuguese, Guarani |
-| `GCC` | Arabic, English |
-| `CIS` | Russian, Belarusian, Armenian, Azerbaijani, Kazakh, Kyrgyz, Tajik, Uzbek |
-| `G7` | English, French, German, Italian, Japanese |
-| `FRANCOPHONE` | French, Haitian Creole, Wolof, Lingala, Kinyarwanda |
-| `WORLDWIDE_POPULAR` | The 17 languages with the most speakers worldwide, including English, Chinese, Hindi, Spanish, and Arabic |
-
+| Group                       | Languages                                                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `EU`                        | 23 official EU languages                                                                                              |
+| `EUROPE`                    | `EU` plus Norwegian, Icelandic, Albanian, Bosnian, Macedonian, Serbian, Ukrainian, Russian, Belarusian, Catalan       |
+| `NORDIC`                    | Danish, Finnish, Icelandic, Norwegian, Swedish                                                                        |
+| `BALTIC`                    | Estonian, Latvian, Lithuanian                                                                                         |
+| `BALKANS`                   | Albanian, Bosnian, Bulgarian, Croatian, Greek, Macedonian, Romanian, Serbian, Slovenian                               |
+| `BENELUX`                   | Dutch, French, Luxembourgish                                                                                          |
+| `EAST_ASIA`                 | Chinese, Japanese, Korean, Mongolian                                                                                  |
+| `SOUTH_ASIA`                | Hindi, Bengali, Urdu, Punjabi, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Nepali, Sinhala                  |
+| `SOUTHEAST_ASIA`            | Indonesian, Malay, Burmese, Khmer, Lao, Filipino, Thai, Vietnamese                                                    |
+| `CENTRAL_ASIA`              | Kazakh, Kyrgyz, Tajik, Turkmen, Uzbek                                                                                 |
+| `CAUCASUS`                  | Armenian, Azerbaijani, Georgian                                                                                       |
+| `ASIA`                      | `EAST_ASIA`, `SOUTH_ASIA`, `SOUTHEAST_ASIA`, `CENTRAL_ASIA`, `CAUCASUS`                                               |
+| `MIDDLE_EAST`               | Arabic, Persian, Hebrew, Turkish, Kurdish                                                                             |
+| `AFRICA`                    | Arabic, French, Portuguese, Swahili, Amharic, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Somali, Kinyarwanda, Wolof |
+| `NORTH_AMERICA`             | English, French, Spanish                                                                                              |
+| `CENTRAL_AMERICA_CARIBBEAN` | Spanish, English, French, Haitian Creole, Dutch                                                                       |
+| `SOUTH_AMERICA`             | Spanish, Portuguese, Quechua, Guarani, Aymara                                                                         |
+| `AMERICAS`                  | `NORTH_AMERICA`, `CENTRAL_AMERICA_CARIBBEAN`, `SOUTH_AMERICA`                                                         |
+| `OCEANIA`                   | English, Maori, Samoan, Tongan                                                                                        |
+| `ASEAN`                     | `SOUTHEAST_ASIA` languages plus English (working language)                                                            |
+| `MERCOSUR`                  | Spanish, Portuguese, Guarani                                                                                          |
+| `GCC`                       | Arabic, English                                                                                                       |
+| `CIS`                       | Russian, Belarusian, Armenian, Azerbaijani, Kazakh, Kyrgyz, Tajik, Uzbek                                              |
+| `G7`                        | English, French, German, Italian, Japanese                                                                            |
+| `FRANCOPHONE`               | French, Haitian Creole, Wolof, Lingala, Kinyarwanda                                                                   |
+| `WORLDWIDE_POPULAR`         | The 17 languages with the most speakers worldwide, including English, Chinese, Hindi, Spanish, and Arabic             |
 
 Create the provider with `new OpenAICompatibleProvider(options)`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `apiKey` | `string` | _optional_ | Bearer token for the endpoint. Omit it for servers that need no key, such as a local Ollama. Read it from an environment variable and do not commit it. |
-| `model` | `string` | _required_ | Model name sent in each request, for example `"gpt-4.1-mini"`. |
-| `baseURL` | `string` | `"https://api.openai.com/v1"` | Base URL of any OpenAI-compatible API. Requests go to `${baseURL}/chat/completions`. |
-| `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
-| `concurrency` | `number` | `4` | Batches sent in parallel across all locales of this provider instance. |
-| `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
-| `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
-| `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+| Option         | Type     | Default                       | Description                                                                                                                                             |
+| -------------- | -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apiKey`       | `string` | _optional_                    | Bearer token for the endpoint. Omit it for servers that need no key, such as a local Ollama. Read it from an environment variable and do not commit it. |
+| `model`        | `string` | _required_                    | Model name sent in each request, for example `"gpt-4.1-mini"`.                                                                                          |
+| `baseURL`      | `string` | `"https://api.openai.com/v1"` | Base URL of any OpenAI-compatible API. Requests go to `${baseURL}/chat/completions`.                                                                    |
+| `batchSize`    | `number` | `40`                          | Messages per request. Smaller batches keep responses within output limits.                                                                              |
+| `concurrency`  | `number` | `4`                           | Batches sent in parallel across all locales of this provider instance.                                                                                  |
+| `timeoutMs`    | `number` | `60000`                       | Milliseconds before a single request is aborted.                                                                                                        |
+| `maxRetries`   | `number` | `2`                           | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output.                                                            |
+| `retryDelayMs` | `number` | `500`                         | Delay before the first retry. It doubles on each attempt.                                                                                               |
 
 ### `AnthropicProvider` options
 
 Create the provider with `new AnthropicProvider(options)`. It calls the [Anthropic Messages API](https://docs.anthropic.com/en/api/messages). The batching, concurrency and retry options are the same as for `OpenAICompatibleProvider`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `apiKey` | `string` | _required_ | Anthropic API key, sent as `x-api-key`. Read it from an environment variable and do not commit it. |
-| `model` | `string` | _required_ | Claude model name sent in each request, for example `"claude-haiku-5-5"`. |
-| `baseURL` | `string` | `"https://api.anthropic.com/v1"` | Base URL of the Messages API. Requests go to `${baseURL}/messages`. |
-| `maxTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
-| `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
-| `concurrency` | `number` | `4` | Batches sent in parallel across all locales of this provider instance. |
-| `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
-| `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
-| `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+| Option         | Type     | Default                          | Description                                                                                        |
+| -------------- | -------- | -------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `apiKey`       | `string` | _required_                       | Anthropic API key, sent as `x-api-key`. Read it from an environment variable and do not commit it. |
+| `model`        | `string` | _required_                       | Claude model name sent in each request, for example `"claude-haiku-5-5"`.                          |
+| `baseURL`      | `string` | `"https://api.anthropic.com/v1"` | Base URL of the Messages API. Requests go to `${baseURL}/messages`.                                |
+| `maxTokens`    | `number` | `8192`                           | Maximum tokens the model may generate per batch. Lower it only if your model limits output.        |
+| `batchSize`    | `number` | `40`                             | Messages per request. Smaller batches keep responses within output limits.                         |
+| `concurrency`  | `number` | `4`                              | Batches sent in parallel across all locales of this provider instance.                             |
+| `timeoutMs`    | `number` | `60000`                          | Milliseconds before a single request is aborted.                                                   |
+| `maxRetries`   | `number` | `2`                              | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output.       |
+| `retryDelayMs` | `number` | `500`                            | Delay before the first retry. It doubles on each attempt.                                          |
 
 ### `GeminiProvider` options
 
 Create the provider with `new GeminiProvider(options)`. It calls the [Gemini API `generateContent` endpoint](https://ai.google.dev/api/generate-content) in JSON output mode. The batching, concurrency and retry options are the same as for `OpenAICompatibleProvider`.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `apiKey` | `string` | _required_ | Gemini API key, sent as `x-goog-api-key`. Read it from an environment variable and do not commit it. |
-| `model` | `string` | _required_ | Gemini model name, for example `"gemini-3.5-flash-lite"`. |
-| `baseURL` | `string` | `"https://generativelanguage.googleapis.com/v1beta"` | Base URL of the Gemini API. Requests go to `${baseURL}/models/${model}:generateContent`. |
-| `maxOutputTokens` | `number` | `8192` | Maximum tokens the model may generate per batch. Lower it only if your model limits output. |
-| `batchSize` | `number` | `40` | Messages per request. Smaller batches keep responses within output limits. |
-| `concurrency` | `number` | `4` | Batches sent in parallel across all locales of this provider instance. |
-| `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
-| `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
-| `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+| Option            | Type     | Default                                              | Description                                                                                          |
+| ----------------- | -------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `apiKey`          | `string` | _required_                                           | Gemini API key, sent as `x-goog-api-key`. Read it from an environment variable and do not commit it. |
+| `model`           | `string` | _required_                                           | Gemini model name, for example `"gemini-3.5-flash-lite"`.                                            |
+| `baseURL`         | `string` | `"https://generativelanguage.googleapis.com/v1beta"` | Base URL of the Gemini API. Requests go to `${baseURL}/models/${model}:generateContent`.             |
+| `maxOutputTokens` | `number` | `8192`                                               | Maximum tokens the model may generate per batch. Lower it only if your model limits output.          |
+| `batchSize`       | `number` | `40`                                                 | Messages per request. Smaller batches keep responses within output limits.                           |
+| `concurrency`     | `number` | `4`                                                  | Batches sent in parallel across all locales of this provider instance.                               |
+| `timeoutMs`       | `number` | `60000`                                              | Milliseconds before a single request is aborted.                                                     |
+| `maxRetries`      | `number` | `2`                                                  | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output.         |
+| `retryDelayMs`    | `number` | `500`                                                | Delay before the first retry. It doubles on each attempt.                                            |
 
 ### Machine-translation providers: DeepL and Google Translate
 
@@ -497,30 +526,30 @@ The example config enables each of these only when its credentials are set.
 
 Every service below is either a native API (Anthropic, Gemini) or speaks the OpenAI Chat Completions protocol, so it is used through `OpenAICompatibleProvider` with a different `baseURL`. The library does not read any environment variables itself; the key names below are what the example config uses.
 
-| Service | Class | Key variable | Base URL | Example default model |
-|---|---|---|---|---|
-| Anthropic (Claude) | `AnthropicProvider` | `ANTHROPIC_API_KEY` | `https://api.anthropic.com/v1` | `claude-haiku-5-5` |
-| Gemini | `GeminiProvider` | `GEMINI_API_KEY` | `https://generativelanguage.googleapis.com/v1beta` | `gemini-3.5-flash-lite` |
-| OpenAI | `OpenAICompatibleProvider` | `OPENAI_API_KEY` | `https://api.openai.com/v1` (default) | `gpt-4.1-mini` |
-| Mistral | `OpenAICompatibleProvider` | `MISTRAL_API_KEY` | `https://api.mistral.ai/v1` | `mistral-small-latest` |
-| Groq | `OpenAICompatibleProvider` | `GROQ_API_KEY` | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` |
-| DeepSeek | `OpenAICompatibleProvider` | `DEEPSEEK_API_KEY` | `https://api.deepseek.com/v1` | `deepseek-chat` |
-| OpenRouter | `OpenAICompatibleProvider` | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` | `openai/gpt-4.1-mini` |
-| xAI | `OpenAICompatibleProvider` | `XAI_API_KEY` | `https://api.x.ai/v1` | `grok-3-mini` |
-| Cerebras | `OpenAICompatibleProvider` | `CEREBRAS_API_KEY` | `https://api.cerebras.ai/v1` | `llama-3.3-70b` |
-| Perplexity | `OpenAICompatibleProvider` | `PERPLEXITY_API_KEY` | `https://api.perplexity.ai` | `sonar` |
-| Together AI | `OpenAICompatibleProvider` | `TOGETHER_API_KEY` | `https://api.together.xyz/v1` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
-| Fireworks AI | `OpenAICompatibleProvider` | `FIREWORKS_API_KEY` | `https://api.fireworks.ai/inference/v1` | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
-| Hugging Face | `OpenAICompatibleProvider` | `HUGGINGFACE_API_KEY` | `https://router.huggingface.co/v1` | `meta-llama/Llama-3.3-70B-Instruct` |
-| DeepInfra | `OpenAICompatibleProvider` | `DEEPINFRA_API_KEY` | `https://api.deepinfra.com/v1/openai` | `meta-llama/Meta-Llama-3.1-70B-Instruct` |
-| SambaNova | `OpenAICompatibleProvider` | `SAMBANOVA_API_KEY` | `https://api.sambanova.ai/v1` | `Meta-Llama-3.3-70B-Instruct` |
-| Moonshot (Kimi) | `OpenAICompatibleProvider` | `MOONSHOT_API_KEY` | `https://api.moonshot.ai/v1` | `moonshot-v1-8k` |
-| Ollama (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:11434/v1` | none, you must set one |
-| LM Studio (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:1234/v1` | none, you must set one |
-| llama.cpp `llama-server` (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:8080/v1` | none, you must set one |
-| vLLM (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:8000/v1` | none, you must set one |
-| LocalAI (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:8080/v1` | none, you must set one |
-| Docker Model Runner (local, no key) | `OpenAICompatibleProvider` | none | `http://localhost:12434/engines/v1` | none, you must set one |
+| Service                                  | Class                      | Key variable          | Base URL                                           | Example default model                               |
+| ---------------------------------------- | -------------------------- | --------------------- | -------------------------------------------------- | --------------------------------------------------- |
+| Anthropic (Claude)                       | `AnthropicProvider`        | `ANTHROPIC_API_KEY`   | `https://api.anthropic.com/v1`                     | `claude-haiku-5-5`                                  |
+| Gemini                                   | `GeminiProvider`           | `GEMINI_API_KEY`      | `https://generativelanguage.googleapis.com/v1beta` | `gemini-3.5-flash-lite`                             |
+| OpenAI                                   | `OpenAICompatibleProvider` | `OPENAI_API_KEY`      | `https://api.openai.com/v1` (default)              | `gpt-4.1-mini`                                      |
+| Mistral                                  | `OpenAICompatibleProvider` | `MISTRAL_API_KEY`     | `https://api.mistral.ai/v1`                        | `mistral-small-latest`                              |
+| Groq                                     | `OpenAICompatibleProvider` | `GROQ_API_KEY`        | `https://api.groq.com/openai/v1`                   | `llama-3.3-70b-versatile`                           |
+| DeepSeek                                 | `OpenAICompatibleProvider` | `DEEPSEEK_API_KEY`    | `https://api.deepseek.com/v1`                      | `deepseek-chat`                                     |
+| OpenRouter                               | `OpenAICompatibleProvider` | `OPENROUTER_API_KEY`  | `https://openrouter.ai/api/v1`                     | `openai/gpt-4.1-mini`                               |
+| xAI                                      | `OpenAICompatibleProvider` | `XAI_API_KEY`         | `https://api.x.ai/v1`                              | `grok-3-mini`                                       |
+| Cerebras                                 | `OpenAICompatibleProvider` | `CEREBRAS_API_KEY`    | `https://api.cerebras.ai/v1`                       | `llama-3.3-70b`                                     |
+| Perplexity                               | `OpenAICompatibleProvider` | `PERPLEXITY_API_KEY`  | `https://api.perplexity.ai`                        | `sonar`                                             |
+| Together AI                              | `OpenAICompatibleProvider` | `TOGETHER_API_KEY`    | `https://api.together.xyz/v1`                      | `meta-llama/Llama-3.3-70B-Instruct-Turbo`           |
+| Fireworks AI                             | `OpenAICompatibleProvider` | `FIREWORKS_API_KEY`   | `https://api.fireworks.ai/inference/v1`            | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
+| Hugging Face                             | `OpenAICompatibleProvider` | `HUGGINGFACE_API_KEY` | `https://router.huggingface.co/v1`                 | `meta-llama/Llama-3.3-70B-Instruct`                 |
+| DeepInfra                                | `OpenAICompatibleProvider` | `DEEPINFRA_API_KEY`   | `https://api.deepinfra.com/v1/openai`              | `meta-llama/Meta-Llama-3.1-70B-Instruct`            |
+| SambaNova                                | `OpenAICompatibleProvider` | `SAMBANOVA_API_KEY`   | `https://api.sambanova.ai/v1`                      | `Meta-Llama-3.3-70B-Instruct`                       |
+| Moonshot (Kimi)                          | `OpenAICompatibleProvider` | `MOONSHOT_API_KEY`    | `https://api.moonshot.ai/v1`                       | `moonshot-v1-8k`                                    |
+| Ollama (local, no key)                   | `OpenAICompatibleProvider` | none                  | `http://localhost:11434/v1`                        | none, you must set one                              |
+| LM Studio (local, no key)                | `OpenAICompatibleProvider` | none                  | `http://localhost:1234/v1`                         | none, you must set one                              |
+| llama.cpp `llama-server` (local, no key) | `OpenAICompatibleProvider` | none                  | `http://localhost:8080/v1`                         | none, you must set one                              |
+| vLLM (local, no key)                     | `OpenAICompatibleProvider` | none                  | `http://localhost:8000/v1`                         | none, you must set one                              |
+| LocalAI (local, no key)                  | `OpenAICompatibleProvider` | none                  | `http://localhost:8080/v1`                         | none, you must set one                              |
+| Docker Model Runner (local, no key)      | `OpenAICompatibleProvider` | none                  | `http://localhost:12434/engines/v1`                | none, you must set one                              |
 
 Notes:
 
@@ -531,7 +560,11 @@ Notes:
 - The Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras, Ollama and the other services added after them were checked against their documentation and with stubbed HTTP responses only, not against the live services. Local runtimes default to their standard ports, which can differ per install.
 
 ```ts
-new OpenAICompatibleProvider({ apiKey: env.GROQ_API_KEY!, baseURL: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" });
+new OpenAICompatibleProvider({
+  apiKey: env.GROQ_API_KEY!,
+  baseURL: "https://api.groq.com/openai/v1",
+  model: "llama-3.3-70b-versatile",
+});
 new OpenAICompatibleProvider({ baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b" }); // Ollama, no key
 ```
 
@@ -539,14 +572,21 @@ new OpenAICompatibleProvider({ baseURL: "http://localhost:11434/v1", model: "qwe
 
 Instead of writing the `env.X ? new Provider(...) : undefined` pattern for each service, use the helpers exported from the package. Each returns `undefined` when its credentials are missing, so the entry is skipped. They take values, not environment names, so the library still reads no environment variables. The endpoints and default models come from the table above.
 
-| Helper | Enum | Enabled by | Returns |
-|---|---|---|---|
-| `hosted(HostedService.X, apiKey, model?)` | `HostedService` (Anthropic and Gemini included) | `apiKey` | `AnthropicProvider`, `GeminiProvider`, or `OpenAICompatibleProvider` |
-| `local(LocalService.X, model, baseURL?)` | `LocalService` | `model` (you have loaded it) | `OpenAICompatibleProvider` |
-| `machine(MachineService.X, apiKey)` | `MachineService` (`DeepL`, `Google`) | `apiKey` | `DeepLProvider` or `GoogleTranslateProvider` |
+| Helper                                    | Enum                                            | Enabled by                   | Returns                                                              |
+| ----------------------------------------- | ----------------------------------------------- | ---------------------------- | -------------------------------------------------------------------- |
+| `hosted(HostedService.X, apiKey, model?)` | `HostedService` (Anthropic and Gemini included) | `apiKey`                     | `AnthropicProvider`, `GeminiProvider`, or `OpenAICompatibleProvider` |
+| `local(LocalService.X, model, baseURL?)`  | `LocalService`                                  | `model` (you have loaded it) | `OpenAICompatibleProvider`                                           |
+| `machine(MachineService.X, apiKey)`       | `MachineService` (`DeepL`, `Google`)            | `apiKey`                     | `DeepLProvider` or `GoogleTranslateProvider`                         |
 
 ```ts
-import autoI18n, { HostedService, LocalService, MachineService, hosted, local, machine } from "vite-plugin-ai-auto-i18n";
+import autoI18n, {
+  HostedService,
+  LocalService,
+  MachineService,
+  hosted,
+  local,
+  machine,
+} from "vite-plugin-ai-auto-i18n";
 
 autoI18n({
   provider: {
@@ -554,8 +594,8 @@ autoI18n({
     mistral: hosted(HostedService.Mistral, env.MISTRAL_API_KEY, env.MISTRAL_MODEL),
     ollama: local(LocalService.Ollama, env.OLLAMA_MODEL, env.OLLAMA_BASE_URL),
     anthropic: hosted(HostedService.Anthropic, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL),
-    deepl: machine(MachineService.DeepL, env.DEEPL_API_KEY)
-  }
+    deepl: machine(MachineService.DeepL, env.DEEPL_API_KEY),
+  },
 });
 ```
 
@@ -578,7 +618,6 @@ If the primary fails (for example a bad key, an outage, or rate limits that surv
 
 Naming a `primary` that is not configured fails the build with a clear error. Passing a single provider instance (`provider: new AnthropicProvider(...)`) still works and needs no map.
 
-
 Any object with this shape can be passed as `provider`:
 
 ```ts
@@ -591,9 +630,9 @@ interface TranslationProvider {
 }
 
 interface TranslationRequest {
-  id: string;             // opaque ID to echo back in the result
-  source: string;         // English text
-  context: string;        // for example "Toolbar > Save button"
+  id: string; // opaque ID to echo back in the result
+  source: string; // English text
+  context: string; // for example "Toolbar > Save button"
   kind: "text" | "attribute" | "mixed" | "string"; // text node, static attribute, JSX with expressions, or a marked string literal
   placeholders?: string[]; // ICU argument names (for example "count") that must survive translation
 }
@@ -603,8 +642,8 @@ Return only the IDs you translated. Omitted IDs stay in the source language and 
 
 ### Environment variables
 
-| Variable | Effect |
-|---|---|
+| Variable          | Effect                                                          |
+| ----------------- | --------------------------------------------------------------- |
 | `AUTOI18N_LOCALE` | Same as the `locale` option. The option wins when both are set. |
 
 ### Prune CLI
@@ -634,12 +673,12 @@ Run the suite with coverage (V8 provider, `src/**`):
 bunx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
 ```
 
-| Metric | Coverage |
-|---|---|
+| Metric     | Coverage          |
+| ---------- | ----------------- |
 | Statements | 89.4% (1100/1230) |
-| Branches | 82.8% (564/681) |
-| Functions | 91.1% (246/270) |
-| Lines | 91.9% (874/951) |
+| Branches   | 82.8% (564/681)   |
+| Functions  | 91.1% (246/270)   |
+| Lines      | 91.9% (874/951)   |
 
 Per module: the plugin hooks (`src/index.ts`) are at 95.9% statements, the translation pipeline (`src/translate.ts`) and runtime helpers (`src/runtime/`) at 100%, and the prune CLI (`src/cli/prune.ts`) at 96.5%. The stats CLI (`src/cli/stats.ts`) has no test coverage (0%), and the compiler's entity table (`src/compiler/entities.ts`) is at 28.6%.
 

@@ -41,7 +41,6 @@ export const RUNTIME_FORMAT = "__autoI18nFormat";
 /** Global name of the current-locale getter injected into transformed code. */
 export const RUNTIME_LOCALE = "__autoI18nLocale";
 
-
 /** Matches a tag or component name that starts with an uppercase letter, i.e. a React component. */
 export const COMPONENT_TAG = /^[A-Z]/;
 /** Tags whose text is never translated. */
@@ -49,7 +48,18 @@ export const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
 // Pseudo-prop in `componentProps` that opts a capitalised component's literal children into translation.
 export const CHILDREN_PROP = "children";
 // Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
-export const TRANSLATABLE_ATTRS = new Set(["alt", "title", "placeholder", "label", "summary", "aria-label", "aria-description", "aria-placeholder", "aria-roledescription", "aria-valuetext"]);
+export const TRANSLATABLE_ATTRS = new Set([
+  "alt",
+  "title",
+  "placeholder",
+  "label",
+  "summary",
+  "aria-label",
+  "aria-description",
+  "aria-placeholder",
+  "aria-roledescription",
+  "aria-valuetext",
+]);
 // A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
 export const DEFAULT_STRING_MARKER = "i18n";
 // `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
@@ -81,10 +91,12 @@ export const NAMED_ENTITIES = new Map(
     "lowast:2217 radic:221A prop:221D infin:221E ang:2220 and:2227 or:2228 cap:2229 cup:222A int:222B there4:2234 sim:223C cong:2245 " +
     "asymp:2248 ne:2260 equiv:2261 le:2264 ge:2265 sub:2282 sup:2283 nsub:2284 sube:2286 supe:2287 oplus:2295 otimes:2297 perp:22A5 " +
     "sdot:22C5 lceil:2308 rceil:2309 lfloor:230A rfloor:230B lang:2329 rang:232A loz:25CA spades:2660 clubs:2663 hearts:2665 diams:2666"
-  ).split(" ").map(entry => {
-    const [name, hex] = entry.split(":");
-    return [name, String.fromCharCode(parseInt(hex, 16))] as const;
-  })
+  )
+    .split(" ")
+    .map((entry) => {
+      const [name, hex] = entry.split(":");
+      return [name, String.fromCharCode(parseInt(hex, 16))] as const;
+    }),
 );
 
 /** Matches a decimal or hex numeric character reference, or a named one, in JSX text. */

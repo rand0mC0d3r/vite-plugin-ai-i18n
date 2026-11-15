@@ -5,7 +5,7 @@
 export async function mapWithConcurrency<T, R>(
   items: readonly T[],
   limit: number,
-  task: (item: T) => Promise<R>
+  task: (item: T) => Promise<R>,
 ): Promise<PromiseSettledResult<R>[]> {
   const results: PromiseSettledResult<R>[] = new Array(items.length);
   let next = 0;
@@ -50,7 +50,7 @@ export class Semaphore {
       this.available--;
       return Promise.resolve();
     }
-    return new Promise(resolve => this.waiters.push(resolve));
+    return new Promise((resolve) => this.waiters.push(resolve));
   }
 
   private release(): void {

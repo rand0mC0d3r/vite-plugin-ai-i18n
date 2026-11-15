@@ -81,7 +81,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
   const seen = new Set<string>();
   const ambiguous: string[] = [];
   for (const [fingerprint, current] of incoming) {
-    const previous = (groups.get(fingerprint) ?? []).filter(x => x.status === "active");
+    const previous = (groups.get(fingerprint) ?? []).filter((x) => x.status === "active");
     // For repeated identical occurrences, preserve IDs by stable source ordering.
     // This survives line shifts and most edits, but deliberately cannot promise identity
     // when indistinguishable duplicates are reordered or independently moved.
@@ -102,9 +102,12 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
     }
     current.forEach((message, index) => {
       const match = byComponent.get(message.component)?.shift();
-      if (match) { pairs[index] = match; taken.add(match); }
+      if (match) {
+        pairs[index] = match;
+        taken.add(match);
+      }
     });
-    const leftovers = previous.filter(p => !taken.has(p));
+    const leftovers = previous.filter((p) => !taken.has(p));
     let next = 0;
     current.forEach((_, index) => {
       if (pairs[index] === undefined && next < leftovers.length) pairs[index] = leftovers[next++];
@@ -123,11 +126,18 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
         const id = `msg_${randomUUID().replaceAll("-", "").slice(0, 16)}`;
         assigned.set(message, id);
         registry.entries[id] = {
-          id, source: message.source, kind: message.kind, tag: message.tag,
-          component: message.component, attribute: message.attribute,
-          context: message.context, fingerprint: message.fingerprint,
+          id,
+          source: message.source,
+          kind: message.kind,
+          tag: message.tag,
+          component: message.component,
+          attribute: message.attribute,
+          context: message.context,
+          fingerprint: message.fingerprint,
           location: `${message.file}:${message.start}`,
-          status: "active", firstSeen: now, lastSeen: now
+          status: "active",
+          firstSeen: now,
+          lastSeen: now,
         };
         seen.add(id);
       }

@@ -38,7 +38,7 @@ describe("computeStats", () => {
     expect(report.registry.orphaned).toBe(2);
     expect(report.registry.byKind).toEqual({ text: 2, attribute: 1 });
     expect(report.registry.byComponent).toEqual({ Header: 2, Footer: 1 });
-    expect(report.registry.orphans.map(orphan => orphan.id)).toEqual(["old2", "old1"]);
+    expect(report.registry.orphans.map((orphan) => orphan.id)).toEqual(["old2", "old1"]);
   });
 
   it("measures coverage, missing, outdated and orphaned keys per locale", () => {
@@ -65,7 +65,7 @@ describe("computeStats", () => {
       fr: { messages: { a: "x", b: "y", c: "z" }, sources: { a: "text a", b: "text b", c: "text c" } },
       de: { messages: {}, sources: {} },
     });
-    expect(report.locales.map(stats => stats.locale)).toEqual(["de", "fr"]);
+    expect(report.locales.map((stats) => stats.locale)).toEqual(["de", "fr"]);
     expect(report.locales[0].coverage).toBe(0);
     expect(report.locales[1].coverage).toBe(1);
     expect(report.averageCoverage).toBe(0.5);

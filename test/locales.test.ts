@@ -7,7 +7,7 @@ describe("locale groups", () => {
 
   it("are re-exported from the package entry under one locales object", () => {
     expect(plugin.locales).toEqual(locales);
-    expect(Object.keys(plugin).filter(name => name in locales)).toEqual([]);
+    expect(Object.keys(plugin).filter((name) => name in locales)).toEqual([]);
   });
 
   it.each(groups)("%s holds unique, valid BCP 47 codes", (_name, codes) => {
@@ -22,7 +22,9 @@ describe("locale groups", () => {
 
   it("composite groups contain their parts", () => {
     expect(locales.EUROPE).toEqual(expect.arrayContaining(locales.EU));
-    expect(locales.ASIA).toEqual(expect.arrayContaining([...locales.EAST_ASIA, ...locales.SOUTH_ASIA, ...locales.SOUTHEAST_ASIA]));
+    expect(locales.ASIA).toEqual(
+      expect.arrayContaining([...locales.EAST_ASIA, ...locales.SOUTH_ASIA, ...locales.SOUTHEAST_ASIA]),
+    );
     expect(locales.AMERICAS).toEqual(expect.arrayContaining(locales.SOUTH_AMERICA));
   });
 });

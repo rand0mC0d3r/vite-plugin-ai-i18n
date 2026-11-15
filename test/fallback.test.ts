@@ -6,7 +6,7 @@ import type { Catalog, TranslationProvider, TranslationRequest } from "../src/ty
 const messages: TranslationRequest[] = [
   { id: "a", source: "Save", context: "", kind: "string" },
   { id: "b", source: "Open", context: "", kind: "string" },
-  { id: "c", source: "Close", context: "", kind: "string" }
+  { id: "c", source: "Close", context: "", kind: "string" },
 ];
 const input = { sourceLocale: "en", targetLocale: "de", messages };
 
@@ -31,11 +31,15 @@ describe("resolveProvider", () => {
   });
 
   it("rejects a primary that is not configured", () => {
-    expect(() => resolveProvider({ primary: "openai", anthropic: fake(async () => ({})) })).toThrow(/primary provider "openai" is not configured/);
+    expect(() => resolveProvider({ primary: "openai", anthropic: fake(async () => ({})) })).toThrow(
+      /primary provider "openai" is not configured/,
+    );
   });
 
   it("rejects an entry that is not a provider", () => {
-    expect(() => resolveProvider({ anthropic: "key" as unknown as TranslationProvider })).toThrow(/provider "anthropic" must be/);
+    expect(() => resolveProvider({ anthropic: "key" as unknown as TranslationProvider })).toThrow(
+      /provider "anthropic" must be/,
+    );
   });
 });
 
@@ -51,7 +55,9 @@ describe("FallbackProvider", () => {
 
   it("falls back to the next provider when the primary throws", async () => {
     const onFallback = vi.fn();
-    const primary = fake(async () => { throw new Error("401 unauthorized"); });
+    const primary = fake(async () => {
+      throw new Error("401 unauthorized");
+    });
     const secondary = fake(async () => ({ a: "A", b: "B", c: "C" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary }, onFallback);
 
@@ -62,7 +68,9 @@ describe("FallbackProvider", () => {
 
   it("describes a thrown value that is not an Error by its string form", async () => {
     const onFallback = vi.fn();
-    const primary = fake(async () => { throw "quota exhausted"; });
+    const primary = fake(async () => {
+      throw "quota exhausted";
+    });
     const secondary = fake(async () => ({ a: "A", b: "B", c: "C" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary }, onFallback);
 
@@ -71,7 +79,9 @@ describe("FallbackProvider", () => {
   });
 
   it("sends only the missing messages after a partial result", async () => {
-    const primary = fake(async () => { throw new PartialTranslationError("1 failed", { a: "A" }, 2); });
+    const primary = fake(async () => {
+      throw new PartialTranslationError("1 failed", { a: "A" }, 2);
+    });
     const secondary = fake(async () => ({ b: "B", c: "C" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary });
 
@@ -80,7 +90,9 @@ describe("FallbackProvider", () => {
   });
 
   it("uses the declared order when no primary is set", async () => {
-    const first = fake(async () => { throw new Error("down"); });
+    const first = fake(async () => {
+      throw new Error("down");
+    });
     const second = fake(async () => ({ a: "A", b: "B", c: "C" }));
     const provider = resolveProvider({ openai: first, anthropic: second });
 
@@ -92,8 +104,18 @@ describe("FallbackProvider", () => {
   it("rethrows the first error when every provider fails completely", async () => {
     const first = new Error("first");
     const provider = new FallbackProvider([
-      { name: "anthropic", provider: fake(async () => { throw first; }) },
-      { name: "openai", provider: fake(async () => { throw new Error("second"); }) }
+      {
+        name: "anthropic",
+        provider: fake(async () => {
+          throw first;
+        }),
+      },
+      {
+        name: "openai",
+        provider: fake(async () => {
+          throw new Error("second");
+        }),
+      },
     ]);
 
     await expect(provider.translate(input)).rejects.toBe(first);
@@ -102,10 +124,15 @@ describe("FallbackProvider", () => {
   it("throws a PartialTranslationError when some messages remain after every provider", async () => {
     const provider = new FallbackProvider([
       { name: "anthropic", provider: fake(async () => ({ a: "A" })) },
-      { name: "openai", provider: fake(async () => { throw new Error("down"); }) }
+      {
+        name: "openai",
+        provider: fake(async () => {
+          throw new Error("down");
+        }),
+      },
     ]);
 
-    const error = await provider.translate(input).catch(e => e);
+    const error = await provider.translate(input).catch((e) => e);
     expect(error).toBeInstanceOf(PartialTranslationError);
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(2);

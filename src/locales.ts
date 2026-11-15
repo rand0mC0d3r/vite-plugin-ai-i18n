@@ -4,7 +4,31 @@
  */
 
 /** European Union: the 23 official languages (English dropped after Brexit). */
-const EU: string[] = ["bg", "cs", "da", "de", "el", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "lt", "lv", "mt", "nl", "pl", "pt", "ro", "sk", "sl", "sv"];
+const EU: string[] = [
+  "bg",
+  "cs",
+  "da",
+  "de",
+  "el",
+  "es",
+  "et",
+  "fi",
+  "fr",
+  "ga",
+  "hr",
+  "hu",
+  "it",
+  "lt",
+  "lv",
+  "mt",
+  "nl",
+  "pl",
+  "pt",
+  "ro",
+  "sk",
+  "sl",
+  "sv",
+];
 /** Nordic countries: Danish, Finnish, Icelandic, Norwegian, Swedish. */
 const NORDIC: string[] = ["da", "fi", "is", "no", "sv"];
 /** Baltic states: Estonian, Latvian, Lithuanian. */
@@ -60,7 +84,25 @@ const G7: string[] = ["en", "fr", "de", "it", "ja"];
 const FRANCOPHONE: string[] = ["fr", "ht", "wo", "ln", "rw"];
 
 /** Most widely spoken languages worldwide by total speakers. */
-const WORLDWIDE_POPULAR: string[] = ["en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ja", "de", "fr", "ko", "it", "tr", "vi", "id", "ur"];
+const WORLDWIDE_POPULAR: string[] = [
+  "en",
+  "zh",
+  "hi",
+  "es",
+  "ar",
+  "bn",
+  "pt",
+  "ru",
+  "ja",
+  "de",
+  "fr",
+  "ko",
+  "it",
+  "tr",
+  "vi",
+  "id",
+  "ur",
+];
 
 /** Ready-made locale lists for the `locales` option, grouped by region or organization: `locales: [...locales.EUROPE]`. */
 export const locales = {
@@ -89,5 +131,5 @@ export const locales = {
   CIS,
   G7,
   FRANCOPHONE,
-  WORLDWIDE_POPULAR
+  WORLDWIDE_POPULAR,
 };

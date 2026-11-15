@@ -1,8 +1,28 @@
-import { CHILDREN_PROP, COMPONENT_TAG, DEFAULT_STRING_MARKER, IGNORED_TAGS, IGNORE_ATTR, IGNORE_VALUE, TRANSLATABLE_ATTRS } from "../constants.js";
+import {
+  CHILDREN_PROP,
+  COMPONENT_TAG,
+  DEFAULT_STRING_MARKER,
+  IGNORED_TAGS,
+  IGNORE_ATTR,
+  IGNORE_VALUE,
+  TRANSLATABLE_ATTRS,
+} from "../constants.js";
 import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import { argumentName, escapeIcu } from "../icu.js";
 import type { ExtractedMessage } from "../types.js";
-import { hasLeadingBlockComment, isStringLiteral, parseSource, walk, type JSXAttribute, type JSXElement, type JSXExpressionContainer, type JSXOpeningElement, type JSXText, type Node, type ParsedSource } from "./ast.js";
+import {
+  hasLeadingBlockComment,
+  isStringLiteral,
+  parseSource,
+  walk,
+  type JSXAttribute,
+  type JSXElement,
+  type JSXExpressionContainer,
+  type JSXOpeningElement,
+  type JSXText,
+  type Node,
+  type ParsedSource,
+} from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
 
 /** Options that tune which JSX and string literals are extracted. */
@@ -38,7 +58,13 @@ const hasLetter = (text: string): boolean => /[A-Za-z]/.test(text);
 
 /** True when the element carries `translate="no"`, which excludes it and its subtree from extraction. */
 function hasIgnoreMarker(opening: JSXOpeningElement): boolean {
-  return opening.attributes.some(a => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && a.name.name === IGNORE_ATTR && attributeText(a.value) === IGNORE_VALUE);
+  return opening.attributes.some(
+    (a) =>
+      a.type === "JSXAttribute" &&
+      a.name.type === "JSXIdentifier" &&
+      a.name.name === IGNORE_ATTR &&
+      attributeText(a.value) === IGNORE_VALUE,
+  );
 }
 
 /** Only intrinsic elements (lowercase DOM tags) carry copy by default; capitalised components need `children` in `componentProps`. */
@@ -59,7 +85,8 @@ function placeholderExpressionName(expression: Node): string | undefined {
 const isFunction = (node: Node, parent: Node | undefined): boolean => {
   if (node.type === "FunctionExpression") {
     // Methods are not function expressions in Babel, so they are skipped here to keep component names identical.
-    const isMethod = parent?.type === "MethodDefinition" || (parent?.type === "Property" && (parent.method || parent.kind !== "init"));
+    const isMethod =
+      parent?.type === "MethodDefinition" || (parent?.type === "Property" && (parent.method || parent.kind !== "init"));
     return !isMethod;
   }
   return node.type === "FunctionDeclaration" || node.type === "ArrowFunctionExpression";
@@ -73,14 +100,15 @@ function lastIndexWhere(nodes: Node[], predicate: (node: Node) => boolean): numb
 
 /** Index and element of the innermost JSX element among `ancestors`, or undefined when there is none. */
 function nearestElement(ancestors: Node[]): { index: number; element: JSXElement } | undefined {
-  const index = lastIndexWhere(ancestors, ancestor => ancestor.type === "JSXElement");
+  const index = lastIndexWhere(ancestors, (ancestor) => ancestor.type === "JSXElement");
   return index < 0 ? undefined : { index, element: ancestors[index] as JSXElement };
 }
 
 /** True when the node or any ancestor element is marked with translate="no". `chain` runs from the root to the node. */
 function isMarkedUntranslated(chain: Node[]): boolean {
-  return chain.some(node => {
-    const opening = node.type === "JSXOpeningElement" ? node : node.type === "JSXElement" ? node.openingElement : undefined;
+  return chain.some((node) => {
+    const opening =
+      node.type === "JSXOpeningElement" ? node : node.type === "JSXElement" ? node.openingElement : undefined;
     return opening !== undefined && hasIgnoreMarker(opening);
   });
 }
@@ -91,14 +119,24 @@ function isMarkedUntranslated(chain: Node[]): boolean {
  */
 function elementContext(opening: JSXOpeningElement, tag: string, attr?: string): string {
   const attrs = opening.attributes
-    .filter((a): a is JSXAttribute => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && ["aria-label", "title", "name", "type", "role"].includes(a.name.name))
-    .map(a => `${(a.name as JSXIdentifierNode).name}=${attributeText(a.value) ?? "{expr}"}`)
-    .sort().join(";");
+    .filter(
+      (a): a is JSXAttribute =>
+        a.type === "JSXAttribute" &&
+        a.name.type === "JSXIdentifier" &&
+        ["aria-label", "title", "name", "type", "role"].includes(a.name.name),
+    )
+    .map((a) => `${(a.name as JSXIdentifierNode).name}=${attributeText(a.value) ?? "{expr}"}`)
+    .sort()
+    .join(";");
   // Only the presence of a handler is recorded: renaming the function it points at should not change the identity.
   const handlers = opening.attributes
-    .filter((a): a is JSXAttribute => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && /^on[A-Z]/.test(a.name.name))
-    .map(a => (a.name as JSXIdentifierNode).name)
-    .sort().join(",");
+    .filter(
+      (a): a is JSXAttribute =>
+        a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && /^on[A-Z]/.test(a.name.name),
+    )
+    .map((a) => (a.name as JSXIdentifierNode).name)
+    .sort()
+    .join(",");
   return [tag, attr ?? "", attrs, handlers].filter(Boolean).join(" | ");
 }
 
@@ -113,7 +151,12 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
  * @returns The extracted messages, sorted by their start offset in `code`.
  * @throws SyntaxError if `code` cannot be parsed.
  */
-export function extractMessages(code: string, filename: string, options: ExtractOptions = {}, parsed: ParsedSource = parseSource(code, filename)): ExtractedMessage[] {
+export function extractMessages(
+  code: string,
+  filename: string,
+  options: ExtractOptions = {},
+  parsed: ParsedSource = parseSource(code, filename),
+): ExtractedMessage[] {
   const { program, commentsByEnd } = parsed;
   const found: ExtractedMessage[] = [];
   /**
@@ -147,11 +190,13 @@ export function extractMessages(code: string, filename: string, options: Extract
   function visitElement(node: JSXElement, ancestors: Node[]): void {
     if (isMarkedUntranslated([...ancestors, node])) return;
     const children = node.children;
-    const expressions = children.filter((child): child is JSXExpressionContainer => child.type === "JSXExpressionContainer");
+    const expressions = children.filter(
+      (child): child is JSXExpressionContainer => child.type === "JSXExpressionContainer",
+    );
     if (!expressions.length) return;
-    if (children.some(child => child.type !== "JSXText" && child.type !== "JSXExpressionContainer")) return;
-    if (!expressions.every(child => placeholderExpressionName(child.expression) !== undefined)) return;
-    if (!children.some(child => child.type === "JSXText" && hasLetter(textOf(child)))) return;
+    if (children.some((child) => child.type !== "JSXText" && child.type !== "JSXExpressionContainer")) return;
+    if (!expressions.every((child) => placeholderExpressionName(child.expression) !== undefined)) return;
+    if (!children.some((child) => child.type === "JSXText" && hasLetter(textOf(child)))) return;
     const rawTag = node.openingElement.name;
     if (!isTextTag(rawTag)) return;
     // Names as written in the source, made unique. They identify the message, so they stay out of the ICU text.
@@ -187,10 +232,21 @@ export function extractMessages(code: string, filename: string, options: Extract
     const source = normalizeSource(icu);
     if (!source) return;
     const tag = rawTag.name;
-    record({
-      source, ...edgeWhitespace(raw), kind: "mixed", placeholders: names, file: filename, start: node.start, end: node.end,
-      tag, component: componentName(ancestors), context: elementContext(node.openingElement, tag)
-    }, normalizeSource(raw));
+    record(
+      {
+        source,
+        ...edgeWhitespace(raw),
+        kind: "mixed",
+        placeholders: names,
+        file: filename,
+        start: node.start,
+        end: node.end,
+        tag,
+        component: componentName(ancestors),
+        context: elementContext(node.openingElement, tag),
+      },
+      normalizeSource(raw),
+    );
   }
 
   /** Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to `visitElement`. */
@@ -203,13 +259,20 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (!nearest) return;
     const { index: elementIndex, element } = nearest;
     // Mixed-content elements are handled as a whole by the JSXElement visitor, never fragment by fragment.
-    if (element.children.some(child => child.type === "JSXExpressionContainer")) return;
+    if (element.children.some((child) => child.type === "JSXExpressionContainer")) return;
     const rawTag = element.openingElement.name;
     if (!isTextTag(rawTag)) return;
     const tag = rawTag.name;
     record({
-      source, ...edgeWhitespace(raw), kind: "text", file: filename, start: node.start, end: node.end, tag,
-      component: componentName(ancestors.slice(0, elementIndex)), context: elementContext(element.openingElement, tag)
+      source,
+      ...edgeWhitespace(raw),
+      kind: "text",
+      file: filename,
+      start: node.start,
+      end: node.end,
+      tag,
+      component: componentName(ancestors.slice(0, elementIndex)),
+      context: elementContext(element.openingElement, tag),
     });
   }
 
@@ -233,8 +296,15 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (!nearest) return;
     const { index: elementIndex, element } = nearest;
     record({
-      source, kind: "attribute", file: filename, start: node.value.start, end: node.value.end, tag,
-      component: componentName(ancestors.slice(0, elementIndex)), attribute, context: elementContext(element.openingElement, tag, attribute)
+      source,
+      kind: "attribute",
+      file: filename,
+      start: node.value.start,
+      end: node.value.end,
+      tag,
+      component: componentName(ancestors.slice(0, elementIndex)),
+      attribute,
+      context: elementContext(element.openingElement, tag, attribute),
     });
   }
 
@@ -243,19 +313,32 @@ export function extractMessages(code: string, filename: string, options: Extract
     if (!isStringLiteral(node)) return;
     if (ancestors[ancestors.length - 1]?.type === "JSXAttribute") return;
     // Babel attaches a leading comment to the outermost node starting at that offset, so `/* i18n */ "a" + "b"` marks the sum, not "a".
-    if (ancestors.some(ancestor => ancestor.start === node.start)) return;
+    if (ancestors.some((ancestor) => ancestor.start === node.start)) return;
     if (!hasLeadingBlockComment(code, commentsByEnd, node.start, options.stringMarker ?? DEFAULT_STRING_MARKER)) return;
     const source = normalizeSource(node.value);
     if (!source || !hasLetter(source)) return;
-    record({ source, kind: "string", file: filename, start: node.start, end: node.end, tag: "", component: componentName(ancestors), context: "" });
+    record({
+      source,
+      kind: "string",
+      file: filename,
+      start: node.start,
+      end: node.end,
+      tag: "",
+      component: componentName(ancestors),
+      context: "",
+    });
   }
 
   walk(program, (node, ancestors) => {
     switch (node.type) {
-      case "JSXElement": return visitElement(node, ancestors);
-      case "JSXText": return visitText(node, ancestors);
-      case "JSXAttribute": return visitAttribute(node, ancestors);
-      case "Literal": return visitString(node, ancestors);
+      case "JSXElement":
+        return visitElement(node, ancestors);
+      case "JSXText":
+        return visitText(node, ancestors);
+      case "JSXAttribute":
+        return visitAttribute(node, ancestors);
+      case "Literal":
+        return visitString(node, ancestors);
     }
   });
   return found.sort((a, b) => a.start - b.start);

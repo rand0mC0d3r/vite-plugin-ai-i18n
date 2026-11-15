@@ -50,7 +50,7 @@ async function readLocales(localesDir: string, sourceLocale: string): Promise<Re
     if (!name.endsWith(".json") || name.endsWith(".sources.json")) continue;
     const locale = name.slice(0, -".json".length);
     if (locale === sourceLocale) continue;
-    locales[locale] = await readLocaleFile(path.join(localesDir, name), message => console.warn(message));
+    locales[locale] = await readLocaleFile(path.join(localesDir, name), (message) => console.warn(message));
   }
   return locales;
 }
@@ -66,22 +66,33 @@ function formatReport(report: StatsReport, verbose: boolean): string {
   const kinds = Object.entries(registry.byKind).sort(([a], [b]) => a.localeCompare(b));
   if (kinds.length) lines.push(`  by kind: ${kinds.map(([kind, count]) => `${kind} ${count}`).join(", ")}`);
   const components = Object.entries(registry.byComponent).sort(([a], [b]) => a.localeCompare(b));
-  if (components.length) lines.push(`  by component: ${components.map(([name, count]) => `${name} ${count}`).join(", ")}`);
+  if (components.length)
+    lines.push(`  by component: ${components.map(([name, count]) => `${name} ${count}`).join(", ")}`);
 
   lines.push("", "Coverage");
   if (report.locales.length === 0) {
     lines.push("  no locale files found.");
   } else {
-    const rows = [["locale", "translated", "missing", "outdated", "orphaned keys", "coverage"], ...report.locales.map(stats => [
-      stats.locale,
-      `${stats.translated}/${stats.total}`,
-      String(stats.missing.length),
-      String(stats.outdated.length),
-      String(stats.orphanedKeys.length),
-      percent(stats.coverage),
-    ])];
-    const widths = rows[0].map((_, column) => Math.max(...rows.map(row => row[column].length)));
-    for (const row of rows) lines.push("  " + row.map((cell, column) => cell.padEnd(widths[column])).join("  ").trimEnd());
+    const rows = [
+      ["locale", "translated", "missing", "outdated", "orphaned keys", "coverage"],
+      ...report.locales.map((stats) => [
+        stats.locale,
+        `${stats.translated}/${stats.total}`,
+        String(stats.missing.length),
+        String(stats.outdated.length),
+        String(stats.orphanedKeys.length),
+        percent(stats.coverage),
+      ]),
+    ];
+    const widths = rows[0].map((_, column) => Math.max(...rows.map((row) => row[column].length)));
+    for (const row of rows)
+      lines.push(
+        "  " +
+          row
+            .map((cell, column) => cell.padEnd(widths[column]))
+            .join("  ")
+            .trimEnd(),
+      );
     lines.push(`  average coverage: ${percent(report.averageCoverage ?? 1)}`);
     if (verbose) {
       for (const stats of report.locales) {
@@ -115,13 +126,13 @@ async function main(): Promise<void> {
     console.log(`autoi18n: no registry found at ${registryFile}; nothing to report.`);
     return;
   }
-  const registry = await loadRegistry(registryFile, message => console.warn(message));
+  const registry = await loadRegistry(registryFile, (message) => console.warn(message));
   const locales = await readLocales(path.join(path.dirname(registryFile), "locales"), args.sourceLocale);
   const report = computeStats(registry, locales);
   console.log(args.json ? JSON.stringify(report, null, 2) : formatReport(report, args.verbose));
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error(`autoi18n: ${(error as Error).message}`);
   process.exitCode = 1;
 });

@@ -18,9 +18,13 @@ export function createLocaleLoader(loaders: Record<string, LocaleLoader>, fallba
     if (cached) return cached;
     const loader = loaders[selected];
     if (!loader) return Promise.reject(new Error(`No catalogue loader for locale "${selected}"`));
-    const pending = loader().then(module => ("default" in module ? module.default : module) as Record<string, string>);
+    const pending = loader().then(
+      (module) => ("default" in module ? module.default : module) as Record<string, string>,
+    );
     cache.set(selected, pending);
-    pending.catch(() => { if (cache.get(selected) === pending) cache.delete(selected); });
+    pending.catch(() => {
+      if (cache.get(selected) === pending) cache.delete(selected);
+    });
     return pending;
   }
   loadLocale.prime = (locale: string, catalog: Record<string, string>): void => {

@@ -12,7 +12,7 @@ const ARGUMENT_TYPES = new Set([1, 2, 3, 4, 5, 6]);
 
 /** Escapes source text so ICU reads it literally: apostrophes are doubled and braces are quoted. */
 export function escapeIcu(text: string): string {
-  return text.replace(/['{}]/g, char => (char === "'" ? "''" : `'${char}'`));
+  return text.replace(/['{}]/g, (char) => (char === "'" ? "''" : `'${char}'`));
 }
 
 /** Turns a source expression such as `user.name` into an ICU argument name such as `user_name`. */

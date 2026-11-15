@@ -21,11 +21,11 @@ describe("argumentName", () => {
 
 describe("icuArgumentNames", () => {
   it("returns the distinct argument names, including those inside plural and select options", () => {
-    expect(icuArgumentNames("{n} files, {n, plural, one {# of {total}} other {# of {total}}}, {kind, select, a {x} other {y}}")).toEqual([
-      "n",
-      "total",
-      "kind"
-    ]);
+    expect(
+      icuArgumentNames(
+        "{n} files, {n, plural, one {# of {total}} other {# of {total}}}, {kind, select, a {x} other {y}}",
+      ),
+    ).toEqual(["n", "total", "kind"]);
   });
 
   it("returns undefined for text that is not valid ICU", () => {

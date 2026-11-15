@@ -31,7 +31,10 @@ export interface ExtractedMessage {
 /** A message with the stable ID that the registry assigned to it. */
 export type ResolvedMessage = ExtractedMessage & { id: string };
 /** One message remembered in the registry. Entries are kept across builds so stable IDs survive edits. */
-export type RegistryEntry = Pick<ExtractedMessage, "source" | "kind" | "tag" | "component" | "attribute" | "context" | "fingerprint"> & {
+export type RegistryEntry = Pick<
+  ExtractedMessage,
+  "source" | "kind" | "tag" | "component" | "attribute" | "context" | "fingerprint"
+> & {
   id: string;
   location: string;
   status: "active" | "orphaned";
@@ -39,11 +42,20 @@ export type RegistryEntry = Pick<ExtractedMessage, "source" | "kind" | "tag" | "
   lastSeen: string;
 };
 /** The persisted `registry.json`: all known messages keyed by ID. `version` allows a future format change. */
-export interface Registry { version: 1; entries: Record<string, RegistryEntry> }
+export interface Registry {
+  version: 1;
+  entries: Record<string, RegistryEntry>;
+}
 /** Maps message IDs to text. */
 export type Catalog = Record<string, string>;
 /** A message that needs a translation, as sent to a provider. */
-export interface TranslationRequest { id: string; source: string; context: string; kind: MessageKind; placeholders?: string[] }
+export interface TranslationRequest {
+  id: string;
+  source: string;
+  context: string;
+  kind: MessageKind;
+  placeholders?: string[];
+}
 /**
  * Translates a batch of messages into one target locale. Return a catalogue with a key for each message that was
  * translated. Missing keys are left untranslated. Throw a `PartialTranslationError` to keep the keys already done.

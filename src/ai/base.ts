@@ -31,7 +31,11 @@ export interface TranslateInput {
  * succeed; `retryAfterMs` carries the server's Retry-After hint when one was sent.
  */
 export class ProviderError extends Error {
-  constructor(message: string, readonly retryable: boolean, readonly retryAfterMs?: number) {
+  constructor(
+    message: string,
+    readonly retryable: boolean,
+    readonly retryAfterMs?: number,
+  ) {
     super(message);
   }
 }
@@ -46,7 +50,7 @@ function parseRetryAfter(header: string | null, now = Date.now()): number | unde
   return Math.min(Math.max(date - now, 0), MAX_RETRY_AFTER_MS);
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Builds the system instruction that tells the model the locale pair and to reply with a bare JSON ID-to-text object. */
 export function systemPrompt(input: TranslateInput): string {
@@ -55,14 +59,19 @@ export function systemPrompt(input: TranslateInput): string {
 
 /** Serializes messages as a JSON array of `{ id, text, context, kind }` for the user turn of the prompt. */
 export function userContent(messages: TranslationRequest[]): string {
-  return JSON.stringify(messages.map(m => ({ id: m.id, text: m.source, context: m.context, kind: m.kind })));
+  return JSON.stringify(messages.map((m) => ({ id: m.id, text: m.source, context: m.context, kind: m.kind })));
 }
 
 /** Builds a retryable-or-not error from a non-2xx response. The body is not included: provider error payloads can echo credentials or source text into logs. */
 export async function httpError(response: Response): Promise<Error> {
-  const retryable = response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
+  const retryable =
+    response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
   await response.body?.cancel().catch(() => undefined);
-  return new ProviderError(`Translation API failed (${response.status})`, retryable, parseRetryAfter(response.headers.get("retry-after")));
+  return new ProviderError(
+    `Translation API failed (${response.status})`,
+    retryable,
+    parseRetryAfter(response.headers.get("retry-after")),
+  );
 }
 
 /**
@@ -84,9 +93,12 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   async translate(input: TranslateInput): Promise<Catalog> {
     const batchSize = Math.max(1, this.options.batchSize ?? 40);
     const batches: TranslationRequest[][] = [];
-    for (let start = 0; start < input.messages.length; start += batchSize) batches.push(input.messages.slice(start, start + batchSize));
+    for (let start = 0; start < input.messages.length; start += batchSize)
+      batches.push(input.messages.slice(start, start + batchSize));
 
-    const settled = await Promise.allSettled(batches.map(batch => this.slots.run(() => this.translateBatch({ ...input, messages: batch }))));
+    const settled = await Promise.allSettled(
+      batches.map((batch) => this.slots.run(() => this.translateBatch({ ...input, messages: batch }))),
+    );
     const result: Catalog = {};
     const errors: unknown[] = [];
     let failed = 0;
@@ -102,7 +114,11 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
     });
     if (!errors.length) return result;
     if (!succeeded) throw errors[0];
-    throw new PartialTranslationError(`${failed} messages failed to translate: ${(errors[0] as Error).message}`, result, failed);
+    throw new PartialTranslationError(
+      `${failed} messages failed to translate: ${(errors[0] as Error).message}`,
+      result,
+      failed,
+    );
   }
 
   /**
@@ -135,7 +151,7 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
       method: "POST",
       signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
       headers: { ...headers, "content-type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     if (!response.ok) throw await httpError(response);
     return response.json();
@@ -151,7 +167,7 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
     body: unknown,
     parse: (data: unknown) => E | ArkErrors,
     text: (envelope: E) => string | undefined,
-    input: TranslateInput
+    input: TranslateInput,
   ): Promise<Catalog> {
     const envelope = parse(await this.post(url, headers, body));
     return this.toCatalog(envelope instanceof ArkErrors ? undefined : text(envelope), input.messages);
@@ -165,11 +181,15 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
     const text = content?.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
     if (!text) throw new ProviderError("Translation provider returned no content", true);
     let parsed: unknown;
-    try { parsed = JSON.parse(text); } catch { throw new ProviderError("Translation provider returned invalid JSON", true); }
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new ProviderError("Translation provider returned invalid JSON", true);
+    }
     const map = translationMapSchema(parsed);
     if (map instanceof ArkErrors) throw new ProviderError("Translation provider returned a non-object", true);
     // Keep only usable strings for the IDs that were requested; the caller decides what to do with the rest.
-    const requested = new Set(messages.map(m => m.id));
+    const requested = new Set(messages.map((m) => m.id));
     const result: Catalog = {};
     for (const [id, text] of Object.entries(map)) {
       if (requested.has(id) && typeof text === "string" && text.trim()) result[id] = text;

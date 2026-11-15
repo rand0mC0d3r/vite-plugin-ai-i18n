@@ -42,11 +42,10 @@ describe("io and catalog helpers", () => {
       const warn = vi.fn();
       expect(await readJsonFile(file, [], warn)).toEqual([]);
       expect(warn).toHaveBeenCalledWith(expect.stringMatching(/is not valid JSON .* moved to .*bad\.json\.corrupt-/));
-      const backups = (await readdir(dir)).filter(name => name.startsWith("bad.json.corrupt-"));
+      const backups = (await readdir(dir)).filter((name) => name.startsWith("bad.json.corrupt-"));
       expect(backups).toHaveLength(1);
       expect(await readFile(path.join(dir, backups[0]), "utf8")).toBe("{not json");
     });
-
   });
 
   describe("writeFileAtomic", () => {

@@ -4,24 +4,28 @@ import { type } from "arktype";
 
 /** Shape of an OpenAI-compatible chat completion response. It must contain at least one choice. */
 export const chatCompletionSchema = type({
-  choices: type({ message: { "content?": "string | null" } }).array().atLeastLength(1)
+  choices: type({ message: { "content?": "string | null" } })
+    .array()
+    .atLeastLength(1),
 });
 
 /** Shape of an Anthropic Messages API response. Only text blocks carry translations. */
 export const anthropicMessageSchema = type({
-  content: type({ type: "string", "text?": "string" }).array()
+  content: type({ type: "string", "text?": "string" }).array(),
 });
 
 /** Shape of a Gemini `generateContent` response. Each candidate's text parts hold the reply. */
 export const geminiResponseSchema = type({
-  candidates: type({ "content?": { "parts?": type({ "text?": "string" }).array() } }).array()
+  candidates: type({ "content?": { "parts?": type({ "text?": "string" }).array() } }).array(),
 });
 
 /** Shape of a DeepL `/v2/translate` response. Translations come back in request order. */
 export const deeplResponseSchema = type({ translations: type({ text: "string" }).array() });
 
 /** Shape of a Cloud Translation v2 response. Translations come back in request order. */
-export const googleTranslateResponseSchema = type({ data: { translations: type({ translatedText: "string" }).array() } });
+export const googleTranslateResponseSchema = type({
+  data: { translations: type({ translatedText: "string" }).array() },
+});
 
 // The model's reply must be a JSON object; individual values are checked per ID by the caller.
 /** Validates a model reply as an object keyed by message ID. */
@@ -43,7 +47,7 @@ export const registryEntrySchema = type({
   location: "string",
   status: "'active' | 'orphaned'",
   firstSeen: "string",
-  lastSeen: "string"
+  lastSeen: "string",
 }).onUndeclaredKey("delete");
 
 /** Validates the top level of `registry.json`. Entries are checked one at a time when they are loaded. */
@@ -54,7 +58,7 @@ const nonEmptyString = type("string >= 1");
 
 /** A simple BCP 47 tag such as `de`, `zh-Hant-TW` or `en-US-u-ca-buddhist`. Locales become file names, so nothing else is allowed. */
 export const LOCALE_TAG = /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/;
-const localeTag = nonEmptyString.narrow(value => LOCALE_TAG.test(value));
+const localeTag = nonEmptyString.narrow((value) => LOCALE_TAG.test(value));
 
 /**
  * Validates the plugin options. `validateOptions` in `index.ts` runs it at startup and reports every failure at once.
@@ -75,5 +79,5 @@ export const optionsSchema = type({
   "localeConcurrency?": "number >= 1 | undefined",
   "componentProps?": "Record<string, string[]> | undefined",
   "stringMarker?": nonEmptyString.or("undefined"),
-  "debug?": "boolean | undefined"
+  "debug?": "boolean | undefined",
 });

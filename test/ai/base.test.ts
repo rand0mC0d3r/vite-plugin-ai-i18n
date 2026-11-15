@@ -76,13 +76,15 @@ describe("BatchedProvider retries", () => {
 
   it("fails a batch whose reply is a bare number instead of an object", async () => {
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ choices: [{ message: { content: "42" } }] }), { status: 200 })
+      new Response(JSON.stringify({ choices: [{ message: { content: "42" } }] }), { status: 200 }),
     );
     await expect(provider({ maxRetries: 0 }).translate(input([request("a")]))).rejects.toThrow("non-object");
   });
 
   it("gives up on an empty model reply after the retry budget", async () => {
-    fetchMock.mockImplementation(async () => new Response(JSON.stringify({ choices: [{ message: { content: null } }] }), { status: 200 }));
+    fetchMock.mockImplementation(
+      async () => new Response(JSON.stringify({ choices: [{ message: { content: null } }] }), { status: 200 }),
+    );
     await expect(provider({ maxRetries: 1 }).translate(input([request("a")]))).rejects.toThrow("no content");
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });

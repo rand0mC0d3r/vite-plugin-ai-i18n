@@ -33,15 +33,24 @@ async function runCli(cwd: string, args: string[]): Promise<void> {
   vi.resetModules();
   try {
     await import("../../src/cli/stats.js");
-    await vi.waitFor(() => expect(process.exitCode === 1 || vi.mocked(console.log).mock.calls.length + vi.mocked(console.error).mock.calls.length > 0).toBe(true));
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await vi.waitFor(() =>
+      expect(
+        process.exitCode === 1 ||
+          vi.mocked(console.log).mock.calls.length + vi.mocked(console.error).mock.calls.length > 0,
+      ).toBe(true),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 20));
   } finally {
     process.argv = originalArgv;
     process.chdir(originalCwd);
   }
 }
 
-const logged = () => vi.mocked(console.log).mock.calls.map(call => String(call[0])).join("\n");
+const logged = () =>
+  vi
+    .mocked(console.log)
+    .mock.calls.map((call) => String(call[0]))
+    .join("\n");
 
 describe("stats CLI", () => {
   let root: string;
@@ -82,7 +91,10 @@ describe("stats CLI", () => {
     await writeFile(path.join(outDir, "registry.json"), JSON.stringify(registry));
     await writeFile(
       path.join(outDir, "locales", "de.json"),
-      JSON.stringify({ messages: { a: "Hallo", b: "Attr", stale: "Alt" }, sources: { a: "text a", b: "old b", stale: "x" } })
+      JSON.stringify({
+        messages: { a: "Hallo", b: "Attr", stale: "Alt" },
+        sources: { a: "text a", b: "old b", stale: "x" },
+      }),
     );
     await writeFile(path.join(outDir, "locales", "en.json"), JSON.stringify({ messages: {}, sources: {} }));
 
@@ -108,7 +120,7 @@ describe("stats CLI", () => {
     await writeFile(path.join(outDir, "registry.json"), JSON.stringify(registry));
     await writeFile(
       path.join(outDir, "locales", "fr.json"),
-      JSON.stringify({ messages: { a: "Bonjour", gone: "x" }, sources: { a: "changed", gone: "x" } })
+      JSON.stringify({ messages: { a: "Bonjour", gone: "x" }, sources: { a: "changed", gone: "x" } }),
     );
 
     await runCli(root, ["--verbose"]);
@@ -162,7 +174,10 @@ describe("stats CLI", () => {
     const custom = path.join(root, "i18n");
     await mkdir(path.join(custom, "locales"), { recursive: true });
     await writeFile(path.join(custom, "registry.json"), JSON.stringify({ version: 1, entries: { a: entry("a") } }));
-    await writeFile(path.join(custom, "locales", "de.json"), JSON.stringify({ messages: { a: "Hallo" }, sources: { a: "text a" } }));
+    await writeFile(
+      path.join(custom, "locales", "de.json"),
+      JSON.stringify({ messages: { a: "Hallo" }, sources: { a: "text a" } }),
+    );
     await writeFile(path.join(custom, "locales", "en-GB.json"), JSON.stringify({ messages: {}, sources: {} }));
 
     await runCli(root, ["--directory", "i18n", "--source-locale", "en-GB", "--json"]);
@@ -188,7 +203,7 @@ describe("stats CLI", () => {
     expect(process.exitCode).toBe(1);
   });
 
-  it.each([["--directory"], ["--source-locale"]])("reports an error when %s has no value", async flag => {
+  it.each([["--directory"], ["--source-locale"]])("reports an error when %s has no value", async (flag) => {
     await runCli(root, [flag]);
     expect(console.error).toHaveBeenCalledWith(`autoi18n: ${flag} needs a value`);
     expect(process.exitCode).toBe(1);

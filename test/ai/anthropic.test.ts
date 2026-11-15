@@ -10,7 +10,8 @@ const messageResponse = (text: string, status = 200) =>
 
 describe("AnthropicProvider", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  const provider = (extra = {}) => new AnthropicProvider({ apiKey: "sk-ant-test", model: "claude-test", retryDelayMs: 0, ...extra });
+  const provider = (extra = {}) =>
+    new AnthropicProvider({ apiKey: "sk-ant-test", model: "claude-test", retryDelayMs: 0, ...extra });
 
   beforeEach(() => {
     fetchMock = vi.fn();
@@ -44,21 +45,33 @@ describe("AnthropicProvider", () => {
   });
 
   it("joins text blocks and ignores other block types", async () => {
-    fetchMock.mockResolvedValue(new Response(JSON.stringify({
-      content: [{ type: "thinking", text: "ignored" }, { type: "text", text: "{\"a\":" }, { type: "text", text: "\"Speichern\"}" }]
-    })));
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          content: [
+            { type: "thinking", text: "ignored" },
+            { type: "text", text: '{"a":' },
+            { type: "text", text: '"Speichern"}' },
+          ],
+        }),
+      ),
+    );
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
   it("treats a text block without text as empty", async () => {
-    fetchMock.mockResolvedValue(new Response(JSON.stringify({
-      content: [{ type: "text" }, { type: "text", text: "{\"a\":\"Speichern\"}" }]
-    })));
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          content: [{ type: "text" }, { type: "text", text: '{"a":"Speichern"}' }],
+        }),
+      ),
+    );
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
   it("accepts JSON wrapped in a Markdown code fence", async () => {
-    fetchMock.mockResolvedValue(messageResponse("```json\n{\"a\": \"Speichern\"}\n```"));
+    fetchMock.mockResolvedValue(messageResponse('```json\n{"a": "Speichern"}\n```'));
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
@@ -87,7 +100,7 @@ describe("AnthropicProvider", () => {
       .mockResolvedValueOnce(new Response("denied", { status: 400 }));
     const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
       .translate(input([request("a"), request("b")]))
-      .catch(e => e);
+      .catch((e) => e);
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);

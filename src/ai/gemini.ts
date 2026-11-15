@@ -1,4 +1,10 @@
-import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
+import {
+  BatchedProvider,
+  systemPrompt,
+  userContent,
+  type BatchedProviderOptions,
+  type TranslateInput,
+} from "./base.js";
 import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { GEMINI_BASE_URL } from "../constants.js";
@@ -27,12 +33,12 @@ export class GeminiProvider extends BatchedProvider<GeminiOptions> {
         contents: [{ role: "user", parts: [{ text: userContent(input.messages) }] }],
         generationConfig: {
           responseMimeType: "application/json",
-          maxOutputTokens: this.options.maxOutputTokens ?? 8192
-        }
+          maxOutputTokens: this.options.maxOutputTokens ?? 8192,
+        },
       },
       geminiResponseSchema,
-      envelope => (envelope.candidates[0]?.content?.parts ?? []).map(part => part.text ?? "").join(""),
-      input
+      (envelope) => (envelope.candidates[0]?.content?.parts ?? []).map((part) => part.text ?? "").join(""),
+      input,
     );
   }
 }

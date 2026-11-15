@@ -25,14 +25,19 @@ export class GoogleTranslateProvider extends BatchedProvider<GoogleTranslateOpti
       this.options.baseURL ?? GOOGLE_TRANSLATE_BASE_URL,
       { "x-goog-api-key": this.options.apiKey },
       {
-        q: input.messages.map(m => protectText(m.source, WRAP_OPEN, WRAP_CLOSE)),
+        q: input.messages.map((m) => protectText(m.source, WRAP_OPEN, WRAP_CLOSE)),
         source: input.sourceLocale,
         target: input.targetLocale,
-        format: "html"
-      }
+        format: "html",
+      },
     );
     const parsed = googleTranslateResponseSchema(data);
     if (parsed instanceof ArkErrors) throw new ProviderError("Google Translate returned an unexpected response", true);
-    return alignedCatalog(input.messages, parsed.data.translations.map(t => t.translatedText), WRAP_OPEN, WRAP_CLOSE);
+    return alignedCatalog(
+      input.messages,
+      parsed.data.translations.map((t) => t.translatedText),
+      WRAP_OPEN,
+      WRAP_CLOSE,
+    );
   }
 }

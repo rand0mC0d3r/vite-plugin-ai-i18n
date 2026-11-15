@@ -1,4 +1,10 @@
-import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
+import {
+  BatchedProvider,
+  systemPrompt,
+  userContent,
+  type BatchedProviderOptions,
+  type TranslateInput,
+} from "./base.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { OPENAI_BASE_URL } from "../constants.js";
@@ -28,12 +34,12 @@ export class OpenAICompatibleProvider extends BatchedProvider<OpenAICompatibleOp
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt(input) },
-          { role: "user", content: userContent(input.messages) }
-        ]
+          { role: "user", content: userContent(input.messages) },
+        ],
       },
       chatCompletionSchema,
-      envelope => envelope.choices[0].message.content ?? undefined,
-      input
+      (envelope) => envelope.choices[0].message.content ?? undefined,
+      input,
     );
   }
 }

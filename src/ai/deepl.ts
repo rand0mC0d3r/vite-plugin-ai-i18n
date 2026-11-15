@@ -36,15 +36,20 @@ export class DeepLProvider extends BatchedProvider<DeepLOptions> {
       `${base}/v2/translate`,
       { authorization: `DeepL-Auth-Key ${this.options.apiKey}` },
       {
-        text: input.messages.map(m => protectText(m.source, WRAP_OPEN, WRAP_CLOSE)),
+        text: input.messages.map((m) => protectText(m.source, WRAP_OPEN, WRAP_CLOSE)),
         source_lang: input.sourceLocale.split(/[-_]/)[0].toUpperCase(),
         target_lang: targetLang(input.targetLocale),
         tag_handling: "xml",
-        ignore_tags: ["x"]
-      }
+        ignore_tags: ["x"],
+      },
     );
     const parsed = deeplResponseSchema(data);
     if (parsed instanceof ArkErrors) throw new ProviderError("DeepL returned an unexpected response", true);
-    return alignedCatalog(input.messages, parsed.translations.map(t => t.text), WRAP_OPEN, WRAP_CLOSE);
+    return alignedCatalog(
+      input.messages,
+      parsed.translations.map((t) => t.text),
+      WRAP_OPEN,
+      WRAP_CLOSE,
+    );
   }
 }

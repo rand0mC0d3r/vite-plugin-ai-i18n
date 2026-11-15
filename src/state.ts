@@ -5,10 +5,17 @@ import { loadRegistry, saveRegistry } from "./identity/registry.js";
 import type { Catalog, ExtractedMessage, ResolvedMessage, Registry } from "./types.js";
 
 /** Last extraction of one source file. The hash lets an unchanged file skip re-extraction. */
-export interface ExtractionCacheEntry { hash: string; messages: ExtractedMessage[] }
+export interface ExtractionCacheEntry {
+  hash: string;
+  messages: ExtractedMessage[];
+}
 
 /** A parsed file kept until its on-disk stamp changes. Cached values are shared, so callers must not mutate them. `written` marks a value this process saved, whose text is exactly what is on disk. */
-interface Cached<T> { stamp: string; value: T; written: boolean }
+interface Cached<T> {
+  stamp: string;
+  value: T;
+  written: boolean;
+}
 
 /** Changes whenever the file is replaced or edited; undefined when the file does not exist. */
 async function stampOf(file: string): Promise<string | undefined> {
@@ -53,7 +60,7 @@ class StampCache<T> {
 export function sameCatalog(a: Catalog | undefined, b: Catalog): boolean {
   if (!a) return false;
   const keys = Object.keys(b);
-  return keys.length === Object.keys(a).length && keys.every(key => a[key] === b[key]);
+  return keys.length === Object.keys(a).length && keys.every((key) => a[key] === b[key]);
 }
 
 function sameLocale(a: LocaleFile, b: LocaleFile): boolean {

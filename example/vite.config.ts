@@ -45,14 +45,18 @@ export default defineConfig(({ mode }) => {
           llamacpp: local(LocalService.LlamaCpp, env.LLAMACPP_MODEL, env.LLAMACPP_BASE_URL),
           vllm: local(LocalService.VLLM, env.VLLM_MODEL, env.VLLM_BASE_URL),
           localai: local(LocalService.LocalAI, env.LOCALAI_MODEL, env.LOCALAI_BASE_URL),
-          dockermodelrunner: local(LocalService.DockerModelRunner, env.DOCKERMODELRUNNER_MODEL, env.DOCKERMODELRUNNER_BASE_URL),
+          dockermodelrunner: local(
+            LocalService.DockerModelRunner,
+            env.DOCKERMODELRUNNER_MODEL,
+            env.DOCKERMODELRUNNER_BASE_URL,
+          ),
 
           // Dedicated machine-translation APIs. Each is enabled by its own credentials.
           deepl: machine(MachineService.DeepL, env.DEEPL_API_KEY),
-          google: machine(MachineService.Google, env.GOOGLE_TRANSLATE_API_KEY)
-        }
+          google: machine(MachineService.Google, env.GOOGLE_TRANSLATE_API_KEY),
+        },
       }),
-      react()
-    ]
+      react(),
+    ],
   };
 });

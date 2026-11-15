@@ -10,7 +10,11 @@ import { HostedService, LocalService, MachineService, hosted, local, machine } f
 const request: TranslationRequest = { id: "a", source: "Save", context: "", kind: "text" };
 const input = { sourceLocale: "en", targetLocale: "de", messages: [request] };
 const chatResponse = () =>
-  new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: JSON.stringify({ a: "Speichern" }) }, finish_reason: "stop" }] }));
+  new Response(
+    JSON.stringify({
+      choices: [{ message: { role: "assistant", content: JSON.stringify({ a: "Speichern" }) }, finish_reason: "stop" }],
+    }),
+  );
 
 describe("provider presets", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
@@ -36,7 +40,9 @@ describe("provider presets", () => {
 
     fetchMock.mockClear();
     await hosted(HostedService.Mistral, "key", "mistral-large-latest")!.translate(input);
-    expect(JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string).model).toBe("mistral-large-latest");
+    expect(JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string).model).toBe(
+      "mistral-large-latest",
+    );
   });
 
   it("uses the local runtime's default address, or the given override", async () => {

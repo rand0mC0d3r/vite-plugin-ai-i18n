@@ -25,7 +25,9 @@ describe("createRuntimeModule escaping", () => {
 
 describe("generated setLocale", () => {
   let dir: string;
-  beforeEach(async () => { dir = await mkdtemp(path.join(os.tmpdir(), "autoi18n-runtime-")); });
+  beforeEach(async () => {
+    dir = await mkdtemp(path.join(os.tmpdir(), "autoi18n-runtime-"));
+  });
   afterEach(async () => {
     vi.restoreAllMocks();
     await rm(dir, { recursive: true, force: true });

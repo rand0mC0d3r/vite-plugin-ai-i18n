@@ -7,13 +7,16 @@ import { loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.j
 import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "../constants.js";
 
 /** Drops keys for inactive registry ids from every locale file, in both `messages` and `sources`. */
-async function pruneLocaleFiles(localesDir: string, activeIds: Set<string>): Promise<{ file: string; removed: string[] }[]> {
+async function pruneLocaleFiles(
+  localesDir: string,
+  activeIds: Set<string>,
+): Promise<{ file: string; removed: string[] }[]> {
   if (!existsSync(localesDir)) return [];
   const results: { file: string; removed: string[] }[] = [];
   for (const name of await readdir(localesDir)) {
     if (!name.endsWith(".json")) continue;
     const file = path.join(localesDir, name);
-    const pruned = pruneLocaleFile(await readLocaleFile(file, message => console.warn(message)), activeIds);
+    const pruned = pruneLocaleFile(await readLocaleFile(file, (message) => console.warn(message)), activeIds);
     if (!pruned.removed.length) continue;
     await writeLocaleFile(file, pruned.file);
     results.push({ file, removed: pruned.removed });
@@ -66,22 +69,29 @@ async function main(): Promise<void> {
     console.log(`autoi18n: no registry found at ${registryFile}; nothing to prune.`);
     return;
   }
-  const registry = await loadRegistry(registryFile, message => console.warn(message));
+  const registry = await loadRegistry(registryFile, (message) => console.warn(message));
   const removed = pruneOrphans(registry, args.retentionMinutes);
   if (removed.length) await saveRegistry(registryFile, registry);
-  const activeIds = new Set(Object.values(registry.entries).filter(entry => entry.status === "active").map(entry => entry.id));
+  const activeIds = new Set(
+    Object.values(registry.entries)
+      .filter((entry) => entry.status === "active")
+      .map((entry) => entry.id),
+  );
   const catalogs = await pruneLocaleFiles(path.join(path.dirname(registryFile), "locales"), activeIds);
   if (args.debug) {
-    for (const entry of removed) debugLog(`removed ${entry.id} ${JSON.stringify(entry.source)} (last seen ${entry.lastSeen})`);
+    for (const entry of removed)
+      debugLog(`removed ${entry.id} ${JSON.stringify(entry.source)} (last seen ${entry.lastSeen})`);
     for (const { file, removed: ids } of catalogs) {
       for (const id of ids) debugLog(`removed ${id} from ${file}`);
     }
   }
-  console.log(`autoi18n: removed ${removed.length} registry entries orphaned for more than ${args.retentionMinutes} minutes.`);
+  console.log(
+    `autoi18n: removed ${removed.length} registry entries orphaned for more than ${args.retentionMinutes} minutes.`,
+  );
   if (catalogs.length) console.log(`autoi18n: removed stale keys from ${catalogs.length} locale files.`);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error(`autoi18n: ${(error as Error).message}`);
   process.exitCode = 1;
 });

@@ -2,7 +2,14 @@ import { mapWithConcurrency } from "./concurrency.js";
 import { emptyLocaleFile, type LocaleFile } from "./catalog.js";
 import { translateLocale, type LocaleTranslation } from "./translate.js";
 import { pruneOrphans, reconcile } from "./identity/registry.js";
-import type { Catalog, ExtractedMessage, Registry, RegistryEntry, ResolvedMessage, TranslationProvider } from "./types.js";
+import type {
+  Catalog,
+  ExtractedMessage,
+  Registry,
+  RegistryEntry,
+  ResolvedMessage,
+  TranslationProvider,
+} from "./types.js";
 
 /** Inputs for {@link buildCatalogs}. */
 export interface CatalogBuildInput {
@@ -51,21 +58,32 @@ export interface CatalogBuildResult {
  */
 export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBuildResult> {
   const registry = structuredClone(input.registry);
-  const { ambiguous, messages } = reconcile(registry, input.files.flatMap(f => f.messages));
+  const { ambiguous, messages } = reconcile(
+    registry,
+    input.files.flatMap((f) => f.messages),
+  );
   const pruned = pruneOrphans(registry, input.orphanRetentionMinutes);
 
   const sourceCatalog: Catalog = {};
   for (const m of messages) sourceCatalog[m.id] = m.source;
-  const requests = messages.map(m => ({ id: m.id, source: m.source, context: `${m.component} > ${m.context}`, kind: m.kind, placeholders: m.placeholders }));
-
-  const outcomes = await mapWithConcurrency(input.locales, input.localeConcurrency, locale => translateLocale({
-    provider: input.provider,
-    sourceLocale: input.sourceLocale,
-    locale,
-    requests,
-    previous: input.previous.get(locale) ?? emptyLocaleFile(),
-    debug: input.debug
+  const requests = messages.map((m) => ({
+    id: m.id,
+    source: m.source,
+    context: `${m.component} > ${m.context}`,
+    kind: m.kind,
+    placeholders: m.placeholders,
   }));
+
+  const outcomes = await mapWithConcurrency(input.locales, input.localeConcurrency, (locale) =>
+    translateLocale({
+      provider: input.provider,
+      sourceLocale: input.sourceLocale,
+      locale,
+      requests,
+      previous: input.previous.get(locale) ?? emptyLocaleFile(),
+      debug: input.debug,
+    }),
+  );
 
   const locales = new Map<string, LocaleTranslation>();
   const failures = new Map<string, unknown>();
@@ -82,6 +100,6 @@ export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBu
     messages,
     sourceFile: { messages: sourceCatalog, sources: {} },
     locales,
-    failures
+    failures,
   };
 }

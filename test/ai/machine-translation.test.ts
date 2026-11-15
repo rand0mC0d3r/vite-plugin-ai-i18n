@@ -18,7 +18,9 @@ describe("machine-translation adapters", () => {
   describe("DeepLProvider", () => {
     it("uses the Free host for :fx keys and keeps placeholders intact", async () => {
       fetchMock.mockResolvedValue(json({ translations: [{ text: "Gespeichert <x>{name}</x> & mehr" }] }));
-      const result = await new DeepLProvider({ apiKey: "key:fx", retryDelayMs: 0 }).translate(input([request("a", "Saved {name} & more")]));
+      const result = await new DeepLProvider({ apiKey: "key:fx", retryDelayMs: 0 }).translate(
+        input([request("a", "Saved {name} & more")]),
+      );
 
       expect(result).toEqual({ a: "Gespeichert {name} & mehr" });
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
@@ -39,8 +41,12 @@ describe("machine-translation adapters", () => {
 
   describe("GoogleTranslateProvider", () => {
     it("decodes the HTML entities Google returns and keeps placeholders", async () => {
-      fetchMock.mockResolvedValue(json({ data: { translations: [{ translatedText: '<span translate="no">{name}</span> l&#39;espace' }] } }));
-      const result = await new GoogleTranslateProvider({ apiKey: "key", retryDelayMs: 0 }).translate(input([request("a", "{name} space")], "fr"));
+      fetchMock.mockResolvedValue(
+        json({ data: { translations: [{ translatedText: '<span translate="no">{name}</span> l&#39;espace' }] } }),
+      );
+      const result = await new GoogleTranslateProvider({ apiKey: "key", retryDelayMs: 0 }).translate(
+        input([request("a", "{name} space")], "fr"),
+      );
       expect(result).toEqual({ a: "{name} l'espace" });
     });
   });

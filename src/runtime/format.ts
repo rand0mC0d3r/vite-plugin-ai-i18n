@@ -15,7 +15,7 @@ export function formatMessage(
   cache: Map<string, Formatter>,
   text: string,
   values: Record<string, unknown>,
-  locale: string
+  locale: string,
 ): unknown[] {
   try {
     const key = locale + "\u0000" + text;
@@ -24,7 +24,7 @@ export function formatMessage(
       formatter = new IntlMessageFormat(text, locale);
       cache.set(key, formatter);
     }
-    return formatter.formatToParts(values).map(part => part.value);
+    return formatter.formatToParts(values).map((part) => part.value);
   } catch (error) {
     console.warn("autoi18n: could not format " + JSON.stringify(text) + ".", error);
     return [text];
@@ -33,10 +33,12 @@ export function formatMessage(
 
 /** Builds the `virtual:autoi18n-format` module, which imports the formatting library from this plugin's install. */
 export function createFormatModule(): string {
-  return [
-    `import { IntlMessageFormat } from ${JSON.stringify(FORMAT_LIBRARY)};`,
-    `const formatMessage = ${formatMessage.toString()};`,
-    `const cache = new Map();`,
-    `export function format(text, values, locale) { return formatMessage(IntlMessageFormat, cache, text, values, locale); }`
-  ].join("\n") + "\n";
+  return (
+    [
+      `import { IntlMessageFormat } from ${JSON.stringify(FORMAT_LIBRARY)};`,
+      `const formatMessage = ${formatMessage.toString()};`,
+      `const cache = new Map();`,
+      `export function format(text, values, locale) { return formatMessage(IntlMessageFormat, cache, text, values, locale); }`,
+    ].join("\n") + "\n"
+  );
 }

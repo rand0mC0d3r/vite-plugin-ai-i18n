@@ -4,7 +4,7 @@ import { decodeJsxEntities } from "../../src/compiler/entities.js";
 import { parseSource } from "../../src/compiler/ast.js";
 
 const extract = (code: string, options = {}) => extractMessages(code, "App.tsx", options);
-const sources = (code: string, options = {}) => extract(code, options).map(message => message.source);
+const sources = (code: string, options = {}) => extract(code, options).map((message) => message.source);
 
 describe("parsing", () => {
   it("reports a syntax error with the file name", () => {
@@ -86,7 +86,7 @@ describe("plain text", () => {
 describe("translatable attributes", () => {
   it("extracts translatable intrinsic attributes and ignores other string attributes", () => {
     const messages = extract(`export const A = () => <input placeholder="Search" data-id="Hidden" />;`);
-    expect(messages.map(m => [m.attribute, m.source])).toEqual([["placeholder", "Search"]]);
+    expect(messages.map((m) => [m.attribute, m.source])).toEqual([["placeholder", "Search"]]);
   });
 
   it("ignores namespaced attribute names and expression values", () => {
@@ -104,10 +104,14 @@ describe("translatable attributes", () => {
   });
 
   it("does not extract attributes on member-expression elements such as Ui.Button", () => {
-    expect(sources(`export const A = () => <Ui.Button aria-label="Close" />;`, { componentProps: { "Ui.Button": ["aria-label"] } })).toEqual([]);
+    expect(
+      sources(`export const A = () => <Ui.Button aria-label="Close" />;`, {
+        componentProps: { "Ui.Button": ["aria-label"] },
+      }),
+    ).toEqual([]);
   });
 
-  it("skips attributes inside a translate=\"no\" subtree", () => {
+  it('skips attributes inside a translate="no" subtree', () => {
     expect(sources(`export const A = () => <div translate="no"><input title="Hidden" /></div>;`)).toEqual([]);
   });
 

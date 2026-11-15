@@ -4,7 +4,7 @@ import { icuArgumentNames } from "../icu.js";
 function sameNames(a: string[], b: string[]): boolean {
   const left = new Set(a);
   const right = new Set(b);
-  return left.size === right.size && [...left].every(name => right.has(name));
+  return left.size === right.size && [...left].every((name) => right.has(name));
 }
 
 /**

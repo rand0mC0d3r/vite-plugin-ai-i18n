@@ -6,11 +6,15 @@ const request = (id: string, source = "Save"): TranslationRequest => ({ id, sour
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 
 const generateResponse = (text: string, status = 200) =>
-  new Response(JSON.stringify({ candidates: [{ content: { role: "model", parts: [{ text }] }, finishReason: "STOP" }] }), { status });
+  new Response(
+    JSON.stringify({ candidates: [{ content: { role: "model", parts: [{ text }] }, finishReason: "STOP" }] }),
+    { status },
+  );
 
 describe("GeminiProvider", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  const provider = (extra = {}) => new GeminiProvider({ apiKey: "gemini-test-key", model: "gemini-test", retryDelayMs: 0, ...extra });
+  const provider = (extra = {}) =>
+    new GeminiProvider({ apiKey: "gemini-test-key", model: "gemini-test", retryDelayMs: 0, ...extra });
 
   beforeEach(() => {
     fetchMock = vi.fn();
@@ -42,7 +46,7 @@ describe("GeminiProvider", () => {
   });
 
   it("strips a Markdown code fence around the JSON", async () => {
-    fetchMock.mockResolvedValue(generateResponse("```json\n{\"a\":\"Speichern\"}\n```"));
+    fetchMock.mockResolvedValue(generateResponse('```json\n{"a":"Speichern"}\n```'));
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
@@ -66,9 +70,13 @@ describe("GeminiProvider", () => {
   });
 
   it("ignores parts that carry no text", async () => {
-    fetchMock.mockResolvedValue(new Response(JSON.stringify({
-      candidates: [{ content: { role: "model", parts: [{ text: "{\"a\":\"Speichern\"}" }, { inlineData: {} }] } }]
-    })));
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          candidates: [{ content: { role: "model", parts: [{ text: '{"a":"Speichern"}' }, { inlineData: {} }] } }],
+        }),
+      ),
+    );
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
@@ -78,9 +86,13 @@ describe("GeminiProvider", () => {
   });
 
   it("joins text across all parts of the first candidate", async () => {
-    fetchMock.mockResolvedValue(new Response(JSON.stringify({
-      candidates: [{ content: { role: "model", parts: [{ text: "{\"a\":" }, { text: "\"Speichern\"}" }] } }]
-    })));
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          candidates: [{ content: { role: "model", parts: [{ text: '{"a":' }, { text: '"Speichern"}' }] } }],
+        }),
+      ),
+    );
     expect(await provider().translate(input([request("a")]))).toEqual({ a: "Speichern" });
   });
 
@@ -100,7 +112,7 @@ describe("GeminiProvider", () => {
       .mockResolvedValueOnce(new Response("{}", { status: 400 }));
     const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
       .translate(input([request("a"), request("b")]))
-      .catch(e => e);
+      .catch((e) => e);
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);

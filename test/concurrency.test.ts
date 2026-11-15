@@ -9,7 +9,7 @@ describe("Semaphore", () => {
     const task = async () => {
       running++;
       peak = Math.max(peak, running);
-      await new Promise(resolve => setTimeout(resolve, 5));
+      await new Promise((resolve) => setTimeout(resolve, 5));
       running--;
       return running;
     };
@@ -19,7 +19,11 @@ describe("Semaphore", () => {
 
   it("releases its slot when a task fails", async () => {
     const semaphore = new Semaphore(1);
-    await expect(semaphore.run(async () => { throw new Error("boom"); })).rejects.toThrow("boom");
+    await expect(
+      semaphore.run(async () => {
+        throw new Error("boom");
+      }),
+    ).rejects.toThrow("boom");
     await expect(semaphore.run(async () => "ok")).resolves.toBe("ok");
   });
 });

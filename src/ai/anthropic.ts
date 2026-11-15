@@ -1,4 +1,10 @@
-import { BatchedProvider, systemPrompt, userContent, type BatchedProviderOptions, type TranslateInput } from "./base.js";
+import {
+  BatchedProvider,
+  systemPrompt,
+  userContent,
+  type BatchedProviderOptions,
+  type TranslateInput,
+} from "./base.js";
 import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { ANTHROPIC_BASE_URL, ANTHROPIC_VERSION } from "../constants.js";
@@ -25,11 +31,15 @@ export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
         model: this.options.model,
         max_tokens: this.options.maxTokens ?? 8192,
         system: systemPrompt(input),
-        messages: [{ role: "user", content: userContent(input.messages) }]
+        messages: [{ role: "user", content: userContent(input.messages) }],
       },
       anthropicMessageSchema,
-      envelope => envelope.content.filter(block => block.type === "text").map(block => block.text ?? "").join(""),
-      input
+      (envelope) =>
+        envelope.content
+          .filter((block) => block.type === "text")
+          .map((block) => block.text ?? "")
+          .join(""),
+      input,
     );
   }
 }

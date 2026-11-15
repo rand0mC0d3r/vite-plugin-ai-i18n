@@ -6,11 +6,14 @@ const request = (id: string, source = "Save"): TranslationRequest => ({ id, sour
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 
 const chatResponse = (content: string, status = 200) =>
-  new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content }, finish_reason: "stop" }] }), { status });
+  new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content }, finish_reason: "stop" }] }), {
+    status,
+  });
 
 describe("OpenAICompatibleProvider", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  const provider = (extra = {}) => new OpenAICompatibleProvider({ apiKey: "sk-test", model: "gpt-test", retryDelayMs: 0, ...extra });
+  const provider = (extra = {}) =>
+    new OpenAICompatibleProvider({ apiKey: "sk-test", model: "gpt-test", retryDelayMs: 0, ...extra });
 
   beforeEach(() => {
     fetchMock = vi.fn();
@@ -40,7 +43,9 @@ describe("OpenAICompatibleProvider", () => {
 
   it("sends no Authorization header when no apiKey is set (for example Ollama)", async () => {
     fetchMock.mockResolvedValue(chatResponse(JSON.stringify({ a: "Speichern" })));
-    await new OpenAICompatibleProvider({ model: "llama-test", baseURL: "http://localhost:11434/v1" }).translate(input([request("a")]));
+    await new OpenAICompatibleProvider({ model: "llama-test", baseURL: "http://localhost:11434/v1" }).translate(
+      input([request("a")]),
+    );
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("http://localhost:11434/v1/chat/completions");
@@ -88,7 +93,7 @@ describe("OpenAICompatibleProvider", () => {
       .mockResolvedValueOnce(new Response("denied", { status: 400 }));
     const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
       .translate(input([request("a"), request("b")]))
-      .catch(e => e);
+      .catch((e) => e);
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);

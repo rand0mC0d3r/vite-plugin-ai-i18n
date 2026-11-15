@@ -50,21 +50,23 @@ const countBy = (values: string[]): Record<string, number> => {
  */
 export function computeStats(registry: Registry, locales: Record<string, LocaleFile>): StatsReport {
   const entries = Object.values(registry.entries);
-  const active = entries.filter(entry => entry.status === "active");
-  const activeIds = new Set(active.map(entry => entry.id));
+  const active = entries.filter((entry) => entry.status === "active");
+  const activeIds = new Set(active.map((entry) => entry.id));
   const orphans = entries
-    .filter(entry => entry.status === "orphaned")
+    .filter((entry) => entry.status === "orphaned")
     .sort((a, b) => a.lastSeen.localeCompare(b.lastSeen) || a.id.localeCompare(b.id));
 
   const localeStats: LocaleStats[] = Object.keys(locales)
     .sort((a, b) => a.localeCompare(b))
-    .map(locale => {
+    .map((locale) => {
       const file = locales[locale];
-      const missing = active.filter(entry => !Object.hasOwn(file.messages, entry.id)).map(entry => entry.id);
+      const missing = active.filter((entry) => !Object.hasOwn(file.messages, entry.id)).map((entry) => entry.id);
       const outdated = active
-        .filter(entry => Object.hasOwn(file.messages, entry.id) && file.sources[entry.id] !== entry.source)
-        .map(entry => entry.id);
-      const orphanedKeys = [...new Set([...Object.keys(file.messages), ...Object.keys(file.sources)])].filter(id => !activeIds.has(id));
+        .filter((entry) => Object.hasOwn(file.messages, entry.id) && file.sources[entry.id] !== entry.source)
+        .map((entry) => entry.id);
+      const orphanedKeys = [...new Set([...Object.keys(file.messages), ...Object.keys(file.sources)])].filter(
+        (id) => !activeIds.has(id),
+      );
       const total = active.length;
       const translated = total - missing.length;
       return {
@@ -78,15 +80,16 @@ export function computeStats(registry: Registry, locales: Record<string, LocaleF
       };
     });
 
-  const averageCoverage = localeStats.length === 0 ? null : localeStats.reduce((sum, stats) => sum + stats.coverage, 0) / localeStats.length;
+  const averageCoverage =
+    localeStats.length === 0 ? null : localeStats.reduce((sum, stats) => sum + stats.coverage, 0) / localeStats.length;
 
   return {
     registry: {
       total: entries.length,
       active: active.length,
       orphaned: orphans.length,
-      byKind: countBy(active.map(entry => entry.kind)),
-      byComponent: countBy(active.map(entry => entry.component)),
+      byKind: countBy(active.map((entry) => entry.kind)),
+      byComponent: countBy(active.map((entry) => entry.component)),
       orphans,
     },
     locales: localeStats,

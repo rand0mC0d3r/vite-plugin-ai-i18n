@@ -43,16 +43,17 @@ export interface LocaleTranslation {
  */
 export async function translateLocale(input: LocaleTranslationInput): Promise<LocaleTranslation> {
   const { provider, sourceLocale, locale, requests, previous, debug } = input;
-  const active = new Set(requests.map(x => x.id));
+  const active = new Set(requests.map((x) => x.id));
   const { messages: previousMessages, sources: previousSources } = pruneLocaleFile(previous, active).file;
 
-  const missing = requests.filter(x => previousMessages[x.id] === undefined || previousSources[x.id] !== x.source);
+  const missing = requests.filter((x) => previousMessages[x.id] === undefined || previousSources[x.id] !== x.source);
   let translated: Catalog = {};
   let failed = 0;
   let failure: string | undefined;
   if (missing.length && provider) {
     if (debug) {
-      for (const m of missing) debugLog(`sent ${sourceLocale} -> ${locale} ${m.id}: ${JSON.stringify(m.source)} (context: ${m.context})`);
+      for (const m of missing)
+        debugLog(`sent ${sourceLocale} -> ${locale} ${m.id}: ${JSON.stringify(m.source)} (context: ${m.context})`);
     }
     try {
       translated = await provider.translate({ sourceLocale, targetLocale: locale, messages: missing });
@@ -65,7 +66,9 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
     if (debug) {
       for (const m of missing) {
         const text = translated[m.id];
-        debugLog(`received ${sourceLocale} -> ${locale} ${m.id}: ${typeof text === "string" ? JSON.stringify(text) : "(no translation)"}`);
+        debugLog(
+          `received ${sourceLocale} -> ${locale} ${m.id}: ${typeof text === "string" ? JSON.stringify(text) : "(no translation)"}`,
+        );
       }
     }
   }
@@ -78,10 +81,13 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
     delete sources[request.id];
     const text = translated[request.id];
     if (typeof text !== "string" || !text.trim()) continue;
-    if (request.kind === "mixed" && !isUsableTranslation(text, request.placeholders ?? [])) { rejected++; continue; }
+    if (request.kind === "mixed" && !isUsableTranslation(text, request.placeholders ?? [])) {
+      rejected++;
+      continue;
+    }
     messages[request.id] = text;
     sources[request.id] = request.source;
   }
-  const untranslated = requests.filter(x => messages[x.id] === undefined).length;
+  const untranslated = requests.filter((x) => messages[x.id] === undefined).length;
   return { file: { messages, sources }, untranslated, rejected, requested: missing.length, failed, failure };
 }

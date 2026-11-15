@@ -14,7 +14,7 @@ describe("formatMessage", () => {
     const node = { $$typeof: "react-element" };
     const parts = format("You have {count} documents, {doc} is ready", { count: 3, doc: node });
     expect(parts).toContain(node);
-    expect(parts.filter(part => typeof part === "string").join("")).toBe("You have 3 documents,  is ready");
+    expect(parts.filter((part) => typeof part === "string").join("")).toBe("You have 3 documents,  is ready");
   });
 
   it("supports plural and select arguments", () => {
@@ -79,7 +79,9 @@ describe("createLocaleLoader", () => {
   });
 
   it("returns module objects that have no default export as they are", async () => {
-    const load = createLocaleLoader({ en: async () => ({ hello: "Hello" }) as unknown as { default: Record<string, string> } });
+    const load = createLocaleLoader({
+      en: async () => ({ hello: "Hello" }) as unknown as { default: Record<string, string> },
+    });
     expect(await load("en")).toEqual({ hello: "Hello" });
   });
 
@@ -89,7 +91,8 @@ describe("createLocaleLoader", () => {
   });
 
   it("does not cache a failed load, so the next request tries again", async () => {
-    const loader = vi.fn()
+    const loader = vi
+      .fn()
       .mockRejectedValueOnce(new Error("network"))
       .mockResolvedValueOnce({ default: { a: "A" } });
     const load = createLocaleLoader({ en: loader });

@@ -11,7 +11,11 @@ const SOURCE = `export function App() { return <button title="Save the file">Sav
 const TWO_SAVES = `export function App() { return <div><button>Save</button><button>Save</button></div>; }\n`;
 const ONE_SAVE = `export function App() { return <div><button>Save</button></div>; }\n`;
 
-interface Ctx { info: ReturnType<typeof vi.fn>; warn: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> }
+interface Ctx {
+  info: ReturnType<typeof vi.fn>;
+  warn: ReturnType<typeof vi.fn>;
+  error: ReturnType<typeof vi.fn>;
+}
 
 interface FakeServer {
   watcher: { on: (event: string, handler: (file: string) => void) => void };
@@ -33,7 +37,9 @@ interface Hooks {
 const context = (): Ctx => ({
   info: vi.fn(),
   warn: vi.fn(),
-  error: vi.fn((message: string) => { throw new Error(message); })
+  error: vi.fn((message: string) => {
+    throw new Error(message);
+  }),
 });
 
 const fakeProvider = (): TranslationProvider & { calls: TranslationRequest[][] } => {
@@ -42,8 +48,8 @@ const fakeProvider = (): TranslationProvider & { calls: TranslationRequest[][] }
     calls,
     async translate({ messages }) {
       calls.push(messages);
-      return Object.fromEntries(messages.map(m => [m.id, `DE:${m.source}`]));
-    }
+      return Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`]));
+    },
   };
 };
 
@@ -181,7 +187,9 @@ describe("autoI18n plugin", () => {
   it("rejects a selected locale that is not in the configured list", () => {
     process.env.AUTOI18N_LOCALE = "xx";
     const plugin = autoI18n({ locales: ["en", "de"] }) as unknown as Hooks;
-    expect(() => plugin.configResolved({ root, command: "build", logger })).toThrow(/"xx" is not one of the configured locales/);
+    expect(() => plugin.configResolved({ root, command: "build", logger })).toThrow(
+      /"xx" is not one of the configured locales/,
+    );
   });
 
   it("fails the build when a locale needs translation but no provider is configured and failOnMissingProvider is set", async () => {
@@ -209,8 +217,13 @@ describe("autoI18n plugin", () => {
   });
 
   it("reports rejected translations that changed placeholders", async () => {
-    await writeFile(srcFile("Dialog.tsx"), `export function Dialog({ count }) { return <p>You have {count} documents</p>; }\n`);
-    const broken: TranslationProvider = { translate: async ({ messages }) => Object.fromEntries(messages.map(m => [m.id, "Viele Dokumente"])) };
+    await writeFile(
+      srcFile("Dialog.tsx"),
+      `export function Dialog({ count }) { return <p>You have {count} documents</p>; }\n`,
+    );
+    const broken: TranslationProvider = {
+      translate: async ({ messages }) => Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"])),
+    };
     const hooks = start({ locales: ["en", "de"], provider: broken });
     const ctx = context();
     await hooks.buildStart.call(ctx);
@@ -219,7 +232,11 @@ describe("autoI18n plugin", () => {
 
   it("throws the first locale failure and warns about the others, keeping the previous file", async () => {
     await writeFile(srcFile(), SOURCE);
-    const failing: TranslationProvider = { translate: async () => { throw new Error("boom"); } };
+    const failing: TranslationProvider = {
+      translate: async () => {
+        throw new Error("boom");
+      },
+    };
     const hooks = start({ locales: ["en", "de", "fr"], provider: failing });
     const ctx = context();
     await expect(hooks.buildStart.call(ctx)).rejects.toThrow("boom");
@@ -232,12 +249,14 @@ describe("autoI18n plugin", () => {
     const partial: TranslationProvider = {
       translate: async ({ messages }) => {
         throw new PartialTranslationError("1 messages failed to translate: busy", { [messages[0].id]: "Speichern" }, 1);
-      }
+      },
     };
     const hooks = start({ locales: ["en", "de"], provider: partial });
     const ctx = context();
     await hooks.buildStart.call(ctx);
-    expect(ctx.warn).toHaveBeenCalledWith(expect.stringMatching(/1 de translation batches failed \(1 messages failed to translate: busy\)/));
+    expect(ctx.warn).toHaveBeenCalledWith(
+      expect.stringMatching(/1 de translation batches failed \(1 messages failed to translate: busy\)/),
+    );
     const file = JSON.parse(await readFile(localeFile("de"), "utf8"));
     expect(Object.values(file.messages)).toContain("Speichern");
   });
@@ -256,21 +275,35 @@ describe("autoI18n plugin", () => {
 
     await writeFile(srcFile(), ONE_SAVE);
     const strict = context();
-    await expect(start({ locales: ["en", "de"], provider: fakeProvider(), onAmbiguous: "error" }).buildStart.call(strict))
-      .rejects.toThrow(/duplicated texts changed occurrence count/);
+    await expect(
+      start({ locales: ["en", "de"], provider: fakeProvider(), onAmbiguous: "error" }).buildStart.call(strict),
+    ).rejects.toThrow(/duplicated texts changed occurrence count/);
   });
 
   it("removes orphans past their retention period and logs the removals in debug mode", async () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
     await writeFile(srcFile(), `export function App() { return <div><p>Keep</p><p>Remove me</p></div>; }\n`);
-    await start({ locales: ["en", "de"], provider: fakeProvider(), orphanRetentionMinutes: 0 }).buildStart.call(context());
+    await start({ locales: ["en", "de"], provider: fakeProvider(), orphanRetentionMinutes: 0 }).buildStart.call(
+      context(),
+    );
 
     await writeFile(srcFile(), `export function App() { return <div><p>Keep</p></div>; }\n`);
     const ctx = context();
-    await start({ locales: ["en", "de"], provider: fakeProvider(), orphanRetentionMinutes: 0, debug: true }).buildStart.call(ctx);
+    await start({
+      locales: ["en", "de"],
+      provider: fakeProvider(),
+      orphanRetentionMinutes: 0,
+      debug: true,
+    }).buildStart.call(ctx);
     expect(ctx.info).toHaveBeenCalledWith("autoi18n: removed 1 registry entries no longer in the source.");
-    expect(log.mock.calls.map(call => String(call[0])).some(line => line.includes('removed') && line.includes('"Remove me"'))).toBe(true);
-    const registry: { entries: Record<string, { source: string }> } = JSON.parse(await readFile(path.join(root, ".autoi18n/registry.json"), "utf8"));
+    expect(
+      log.mock.calls
+        .map((call) => String(call[0]))
+        .some((line) => line.includes("removed") && line.includes('"Remove me"')),
+    ).toBe(true);
+    const registry: { entries: Record<string, { source: string }> } = JSON.parse(
+      await readFile(path.join(root, ".autoi18n/registry.json"), "utf8"),
+    );
     expect(Object.values(registry.entries).map((e: { source: string }) => e.source)).toEqual(["Keep"]);
   });
 
@@ -294,8 +327,12 @@ describe("autoI18n plugin", () => {
       const handlers: Record<string, (file: string) => void> = {};
       return {
         handlers,
-        watcher: { on: (event, handler) => { handlers[event] = handler; } },
-        ws: { send: vi.fn() }
+        watcher: {
+          on: (event, handler) => {
+            handlers[event] = handler;
+          },
+        },
+        ws: { send: vi.fn() },
       };
     }
 
@@ -308,7 +345,9 @@ describe("autoI18n plugin", () => {
 
       await writeFile(srcFile("New.tsx"), `export function New() { return <p>Hello</p>; }\n`);
       dev.handlers.add(srcFile("New.tsx"));
-      await vi.waitFor(() => expect(dev.ws.send).toHaveBeenCalledWith(expect.objectContaining({ type: "custom", event: "autoi18n:update" })));
+      await vi.waitFor(() =>
+        expect(dev.ws.send).toHaveBeenCalledWith(expect.objectContaining({ type: "custom", event: "autoi18n:update" })),
+      );
     });
 
     it("ignores added files that are not source candidates", async () => {
@@ -319,7 +358,7 @@ describe("autoI18n plugin", () => {
       hooks.configureServer(dev);
       dev.handlers.add(path.join(root, "src", "styles.css"));
       dev.handlers.add(path.join(root, "src", "App.test.tsx"));
-      await new Promise(resolve => setTimeout(resolve, 250));
+      await new Promise((resolve) => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
     });
 
@@ -331,7 +370,7 @@ describe("autoI18n plugin", () => {
       hooks.configureServer(dev);
 
       dev.handlers.unlink(path.join(root, "src", "unknown.tsx"));
-      await new Promise(resolve => setTimeout(resolve, 250));
+      await new Promise((resolve) => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
 
       await rm(srcFile());
@@ -347,7 +386,7 @@ describe("autoI18n plugin", () => {
       hooks.configureServer(dev);
       dev.handlers.add(path.join(root, "src", "New.tsx"));
       hooks.closeBundle();
-      await new Promise(resolve => setTimeout(resolve, 250));
+      await new Promise((resolve) => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
     });
 
@@ -370,9 +409,11 @@ describe("autoI18n plugin", () => {
       hooks.configureServer(dev);
       await writeFile(srcFile(), SOURCE.replace("Save the file", "Save the note"));
       await hooks.handleHotUpdate({ file: srcFile() });
-      expect(dev.ws.send).toHaveBeenCalledWith(expect.objectContaining({
-        data: { catalogs: expect.objectContaining({ de: expect.any(Object) }) }
-      }));
+      expect(dev.ws.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { catalogs: expect.objectContaining({ de: expect.any(Object) }) },
+        }),
+      );
     });
 
     it("logs an error instead of rejecting when a dev re-translation fails", async () => {
@@ -381,8 +422,8 @@ describe("autoI18n plugin", () => {
       const flaky: TranslationProvider = {
         translate: async ({ messages }) => {
           if (offline) throw new Error("offline");
-          return Object.fromEntries(messages.map(m => [m.id, `DE:${m.source}`]));
-        }
+          return Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`]));
+        },
       };
       const hooks = start({ locales: ["en", "de"], provider: flaky }, "serve");
       await hooks.buildStart.call(context());

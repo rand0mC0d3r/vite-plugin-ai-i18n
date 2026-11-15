@@ -29,18 +29,27 @@ type Target =
  * @returns The transformed code and its source map.
  * @throws SyntaxError if `code` cannot be parsed.
  */
-export function transformSource(code: string, filename: string, messages: ResolvedMessage[], locale: string, catalog: Catalog, runtime = false, sourceLocale = "en", parsed: ParsedSource = parseSource(code, filename)): { code: string; map: SourceMap } {
+export function transformSource(
+  code: string,
+  filename: string,
+  messages: ResolvedMessage[],
+  locale: string,
+  catalog: Catalog,
+  runtime = false,
+  sourceLocale = "en",
+  parsed: ParsedSource = parseSource(code, filename),
+): { code: string; map: SourceMap } {
   const { program } = parsed;
   const byKind = {
     mixed: new Map<number, ResolvedMessage>(),
     text: new Map<number, ResolvedMessage>(),
     attribute: new Map<number, ResolvedMessage>(),
-    string: new Map<number, ResolvedMessage>()
+    string: new Map<number, ResolvedMessage>(),
   };
   for (const message of messages) byKind[message.kind]?.set(message.start, message);
 
   // Every target starts inside its parent's range, so a subtree with no message start cannot contain a target.
-  const starts = messages.map(message => message.start).sort((a, b) => a - b);
+  const starts = messages.map((message) => message.start).sort((a, b) => a - b);
   const hasStartWithin = (from: number, to: number): boolean => {
     let low = 0;
     let high = starts.length;
@@ -53,7 +62,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
   };
 
   const targets: Target[] = [];
-  walk(program, node => {
+  walk(program, (node) => {
     if (!hasStartWithin(node.start, node.end)) return false;
     if (node.type === "JSXElement") {
       const message = byKind.mixed.get(node.start);
@@ -75,7 +84,8 @@ export function transformSource(code: string, filename: string, messages: Resolv
   let usesFormat = false;
   let usesLocale = false;
 
-  const textFor = (message: ResolvedMessage): string => locale === sourceLocale ? message.source : catalog[message.id] ?? message.source;
+  const textFor = (message: ResolvedMessage): string =>
+    locale === sourceLocale ? message.source : (catalog[message.id] ?? message.source);
 
   /** Expression for a message's text: a `t(id, source)` call at runtime, or the translated string literal in build mode. */
   const lookup = (message: ResolvedMessage): string => {
@@ -91,7 +101,9 @@ export function transformSource(code: string, filename: string, messages: Resolv
     const prefix = message.prefix ?? "";
     const suffix = message.suffix ?? "";
     if (!runtime) return JSON.stringify(`${prefix}${textFor(message)}${suffix}`);
-    return [prefix && JSON.stringify(prefix), lookup(message), suffix && JSON.stringify(suffix)].filter(Boolean).join(" + ");
+    return [prefix && JSON.stringify(prefix), lookup(message), suffix && JSON.stringify(suffix)]
+      .filter(Boolean)
+      .join(" + ");
   };
 
   // Targets are applied innermost first, so an outer edit only ever overwrites ranges that are already final.
@@ -101,7 +113,9 @@ export function transformSource(code: string, filename: string, messages: Resolv
       const node = target.node;
       if (!node.closingElement) continue;
       const names = message.placeholders ?? [];
-      const expressions = node.children.flatMap(child => child.type === "JSXExpressionContainer" ? [child.expression] : []);
+      const expressions = node.children.flatMap((child) =>
+        child.type === "JSXExpressionContainer" ? [child.expression] : [],
+      );
       const source = (index: number) => s.slice(expressions[index].start, expressions[index].end);
       const start = node.openingElement.end;
       const end = node.closingElement.start;
@@ -129,7 +143,7 @@ export function transformSource(code: string, filename: string, messages: Resolv
 
   const specifiers = [
     ...(usesRuntime ? [`t as ${RUNTIME_LOOKUP}`] : []),
-    ...(usesLocale ? [`getLocale as ${RUNTIME_LOCALE}`] : [])
+    ...(usesLocale ? [`getLocale as ${RUNTIME_LOCALE}`] : []),
   ];
   if (specifiers.length) s.prepend(`import { ${specifiers.join(", ")} } from "${RUNTIME_MODULE}";\n`);
   if (usesFormat) s.prepend(`import { format as ${RUNTIME_FORMAT} } from "${FORMAT_MODULE}";\n`);

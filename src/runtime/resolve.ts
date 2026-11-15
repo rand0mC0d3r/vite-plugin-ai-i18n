@@ -10,10 +10,10 @@
  */
 export function resolveLocale(preferred: string[], supported: string[], fallback = "en"): string {
   for (const candidate of preferred) {
-    const exact = supported.find(x => x.toLowerCase() === candidate.toLowerCase());
+    const exact = supported.find((x) => x.toLowerCase() === candidate.toLowerCase());
     if (exact) return exact;
     const base = candidate.split("-")[0].toLowerCase();
-    const language = supported.find(x => x.split("-")[0].toLowerCase() === base);
+    const language = supported.find((x) => x.split("-")[0].toLowerCase() === base);
     if (language) return language;
   }
   return fallback;
