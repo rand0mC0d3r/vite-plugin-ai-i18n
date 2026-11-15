@@ -253,6 +253,7 @@ function packageCommand(packFile, packageFile) {
   console.log(lines.join("\n"));
 }
 
+/* eslint-disable bun/no-side-effects-on-import -- script entry point: the switch dispatches the requested command */
 const [command, ...args] = process.argv.slice(2);
 
 switch (command) {

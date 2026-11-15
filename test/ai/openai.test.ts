@@ -1,9 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TranslationRequest } from "../../src/types.js";
+import { PartialTranslationError } from "../../src/errors.js";
 import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
+
+type ChatBody = {
+  model: string;
+  temperature: number;
+  response_format: unknown;
+  messages: { role: string; content: string }[];
+};
 
 const chatResponse = (content: string, status = 200) =>
   new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content }, finish_reason: "stop" }] }), {
@@ -31,7 +39,7 @@ describe("OpenAICompatibleProvider", () => {
     const headers = init.headers as Record<string, string>;
     expect(headers.Authorization).toBe("Bearer sk-test");
     expect(headers["x-api-key"]).toBeUndefined();
-    const body = JSON.parse(init.body as string);
+    const body = JSON.parse(init.body as string) as ChatBody;
     expect(body.model).toBe("gpt-test");
     expect(body.temperature).toBe(0);
     expect(body.response_format).toEqual({ type: "json_object" });
@@ -93,7 +101,7 @@ describe("OpenAICompatibleProvider", () => {
       .mockResolvedValueOnce(new Response("denied", { status: 400 }));
     const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
       .translate(input([request("a"), request("b")]))
-      .catch((e) => e);
+      .catch((e: PartialTranslationError) => e);
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);

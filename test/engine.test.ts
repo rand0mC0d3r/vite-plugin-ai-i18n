@@ -31,8 +31,8 @@ const baseInput = {
 describe("buildCatalogs", () => {
   it("builds the source catalogue and translates every requested locale", async () => {
     const provider: TranslationProvider = {
-      translate: vi.fn(async ({ targetLocale, messages }: Parameters<TranslationProvider["translate"]>[0]) =>
-        Object.fromEntries(messages.map((m) => [m.id, `${targetLocale}:${m.source}`])),
+      translate: vi.fn(({ targetLocale, messages }: Parameters<TranslationProvider["translate"]>[0]) =>
+        Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, `${targetLocale}:${m.source}`]))),
       ),
     };
     const result = await buildCatalogs({
@@ -58,10 +58,7 @@ describe("buildCatalogs", () => {
   it("keeps the previous file for a locale whose translation threw and reports the error", async () => {
     const error = new Error("quota exceeded");
     const provider: TranslationProvider = {
-      translate: vi.fn(async ({ targetLocale }) => {
-        if (targetLocale === "fr") throw error;
-        return {};
-      }),
+      translate: vi.fn(({ targetLocale }) => (targetLocale === "fr" ? Promise.reject(error) : Promise.resolve({}))),
     };
     const result = await buildCatalogs({
       ...baseInput,
@@ -75,7 +72,8 @@ describe("buildCatalogs", () => {
   });
 
   it("uses the previous locale file when one exists and does not translate messages already stored", async () => {
-    const provider: TranslationProvider = { translate: vi.fn(async () => ({})) };
+    const translate = vi.fn(() => Promise.resolve({}));
+    const provider: TranslationProvider = { translate };
     const first = await buildCatalogs({
       ...baseInput,
       files: [{ file: "App.tsx", messages: [message(1)] }],
@@ -92,7 +90,7 @@ describe("buildCatalogs", () => {
       provider,
       previous,
     });
-    expect(provider.translate).toHaveBeenCalledTimes(1);
+    expect(translate).toHaveBeenCalledTimes(1);
     expect(second.locales.get("de")?.file.messages).toEqual({ [id]: "Speichern" });
   });
 
@@ -128,9 +126,9 @@ describe("buildCatalogs", () => {
 
   it("keeps partial translations from a locale whose batches partly failed", async () => {
     const provider: TranslationProvider = {
-      translate: vi.fn(async ({ messages }) => {
-        throw new PartialTranslationError("1 messages failed", { [messages[0].id]: "Speichern" }, 1);
-      }),
+      translate: vi.fn(({ messages }: Parameters<TranslationProvider["translate"]>[0]) =>
+        Promise.reject(new PartialTranslationError("1 messages failed", { [messages[0].id]: "Speichern" }, 1)),
+      ),
     };
     const result = await buildCatalogs({
       ...baseInput,
@@ -161,9 +159,9 @@ describe("mapWithConcurrency", () => {
   });
 
   it("keeps going after a failure and reports it as rejected in place", async () => {
-    const results = await mapWithConcurrency(["a", "b", "c"], 1, async (item) => {
-      if (item === "b") throw new Error("nope");
-      return item.toUpperCase();
+    const results = await mapWithConcurrency(["a", "b", "c"], 1, (item) => {
+      if (item === "b") return Promise.reject(new Error("nope"));
+      return Promise.resolve(item.toUpperCase());
     });
     expect(results[0]).toEqual({ status: "fulfilled", value: "A" });
     expect(results[1]).toMatchObject({ status: "rejected" });
@@ -171,8 +169,8 @@ describe("mapWithConcurrency", () => {
   });
 
   it("returns an empty result for no items and treats a non-positive limit as one", async () => {
-    expect(await mapWithConcurrency([], 4, async () => 1)).toEqual([]);
-    const task = vi.fn(async (n: number) => n);
+    expect(await mapWithConcurrency([], 4, () => Promise.resolve(1))).toEqual([]);
+    const task = vi.fn((n: number) => Promise.resolve(n));
     expect(await mapWithConcurrency([1, 2], 0, task)).toEqual([
       { status: "fulfilled", value: 1 },
       { status: "fulfilled", value: 2 },

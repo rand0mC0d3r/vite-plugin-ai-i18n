@@ -92,7 +92,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
     }
     // Pair by component first, so a renamed or reordered component keeps its IDs; the rest pair by position.
     // Queues keep the sorted order of `previous`, so shifting from one yields the same first untaken match as a scan.
-    const pairs: Array<RegistryEntry | undefined> = new Array(current.length);
+    const pairs = new Array<RegistryEntry | undefined>(current.length);
     const taken = new Set<RegistryEntry>();
     const byComponent = new Map<string, RegistryEntry[]>();
     for (const entry of previous) {

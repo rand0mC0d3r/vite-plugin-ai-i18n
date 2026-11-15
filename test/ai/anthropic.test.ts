@@ -1,9 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TranslationRequest } from "../../src/types.js";
+import { PartialTranslationError } from "../../src/errors.js";
 import { AnthropicProvider } from "../../src/ai/anthropic.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
+
+type AnthropicBody = {
+  model: string;
+  max_tokens: number;
+  system: string;
+  messages: { role: string; content: string }[];
+};
 
 const messageResponse = (text: string, status = 200) =>
   new Response(JSON.stringify({ content: [{ type: "text", text }], stop_reason: "end_turn" }), { status });
@@ -30,7 +38,7 @@ describe("AnthropicProvider", () => {
     expect(headers["x-api-key"]).toBe("sk-ant-test");
     expect(headers["anthropic-version"]).toBe("2023-06-01");
     expect(headers.Authorization).toBeUndefined();
-    const body = JSON.parse(init.body as string);
+    const body = JSON.parse(init.body as string) as AnthropicBody;
     expect(body.model).toBe("claude-test");
     expect(body.max_tokens).toBe(1000);
     expect(body.system).toContain("from en to de");
@@ -100,7 +108,7 @@ describe("AnthropicProvider", () => {
       .mockResolvedValueOnce(new Response("denied", { status: 400 }));
     const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
       .translate(input([request("a"), request("b")]))
-      .catch((e) => e);
+      .catch((e: PartialTranslationError) => e);
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);

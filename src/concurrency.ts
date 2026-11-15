@@ -7,7 +7,7 @@ export async function mapWithConcurrency<T, R>(
   limit: number,
   task: (item: T) => Promise<R>,
 ): Promise<PromiseSettledResult<R>[]> {
-  const results: PromiseSettledResult<R>[] = new Array(items.length);
+  const results = new Array<PromiseSettledResult<R>>(items.length);
   let next = 0;
   const worker = async (): Promise<void> => {
     while (next < items.length) {

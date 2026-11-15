@@ -2,3 +2,27 @@
 printWidth = 120
 
 [lint]
+typeAware = true
+
+[lint.rules]
+# Correctness
+"@typescript-eslint/no-explicit-any" = "error"
+"@typescript-eslint/no-floating-promises" = "error"
+"@typescript-eslint/no-misused-promises" = "error"
+"eqeqeq" = "error"
+"no-var" = "error"
+"prefer-const" = "error"
+"no-eval" = "error"
+"no-implied-eval" = "error"
+
+# Plugin / Vite hooks: import-time side effects and cwd-dependent paths
+"bun/no-side-effects-on-import" = "error"
+"bun/no-env-at-module-scope" = "error"
+"bun/no-cwd-dependent-path" = "error"
+"bun/no-unportable-commands" = "error"
+
+# Tests
+"bun:test/expect-expect" = "error"
+"bun:test/no-focused-tests" = "error"
+"bun:test/no-disabled-tests" = "error"
+"bun:test/no-identical-title" = "error"

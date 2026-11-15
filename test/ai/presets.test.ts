@@ -20,7 +20,7 @@ describe("provider presets", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    fetchMock = vi.fn().mockImplementation(async () => chatResponse());
+    fetchMock = vi.fn().mockImplementation(() => Promise.resolve(chatResponse()));
     vi.stubGlobal("fetch", fetchMock);
   });
   afterEach(() => vi.unstubAllGlobals());
@@ -36,13 +36,13 @@ describe("provider presets", () => {
     await hosted(HostedService.Mistral, "key")!.translate(input);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.mistral.ai/v1/chat/completions");
-    expect(JSON.parse(init.body as string).model).toBe("mistral-small-latest");
+    expect((JSON.parse(init.body as string) as { model: string }).model).toBe("mistral-small-latest");
 
     fetchMock.mockClear();
     await hosted(HostedService.Mistral, "key", "mistral-large-latest")!.translate(input);
-    expect(JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string).model).toBe(
-      "mistral-large-latest",
-    );
+    expect(
+      (JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string) as { model: string }).model,
+    ).toBe("mistral-large-latest");
   });
 
   it("uses the local runtime's default address, or the given override", async () => {

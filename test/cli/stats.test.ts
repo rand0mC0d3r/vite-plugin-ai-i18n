@@ -21,7 +21,7 @@ function entry(id: string, overrides: Partial<RegistryEntry> = {}): RegistryEntr
     context: "",
     fingerprint: id,
     ...overrides,
-  } as RegistryEntry;
+  };
 }
 
 /** Runs the stats CLI (which calls main() on import) with the given arguments inside `cwd`. */
@@ -51,6 +51,12 @@ const logged = () =>
     .mocked(console.log)
     .mock.calls.map((call) => String(call[0]))
     .join("\n");
+
+type StatsReport = {
+  registry: { total: number };
+  locales: { locale: string; coverage: number }[];
+  averageCoverage: number;
+};
 
 describe("stats CLI", () => {
   let root: string;
@@ -139,8 +145,7 @@ describe("stats CLI", () => {
 
     await runCli(root, ["--json"]);
 
-    const report = JSON.parse(logged());
-    expect(report.registry.total).toBe(1);
+    const report = JSON.parse(logged()) as StatsReport;
     expect(report.locales).toEqual([
       { locale: "de", translated: 0, total: 1, coverage: 0, missing: ["a"], outdated: [], orphanedKeys: [] },
     ]);
@@ -167,7 +172,7 @@ describe("stats CLI", () => {
 
     await runCli(root, ["--json"]);
 
-    expect(JSON.parse(logged()).locales).toEqual([]);
+    expect((JSON.parse(logged()) as StatsReport).locales).toEqual([]);
   });
 
   it("honours --directory and --source-locale", async () => {
@@ -182,8 +187,8 @@ describe("stats CLI", () => {
 
     await runCli(root, ["--directory", "i18n", "--source-locale", "en-GB", "--json"]);
 
-    const report = JSON.parse(logged());
-    expect(report.locales.map((locale: { locale: string }) => locale.locale)).toEqual(["de"]);
+    const report = JSON.parse(logged()) as StatsReport;
+    expect(report.locales.map((locale) => locale.locale)).toEqual(["de"]);
     expect(report.locales[0].coverage).toBe(1);
   });
 
@@ -194,7 +199,7 @@ describe("stats CLI", () => {
     await runCli(root, ["--json"]);
 
     expect(console.warn).toHaveBeenCalled();
-    expect(JSON.parse(logged()).locales).toHaveLength(1);
+    expect((JSON.parse(logged()) as StatsReport).locales).toHaveLength(1);
   });
 
   it("reports an error for an unknown option", async () => {

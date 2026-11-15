@@ -70,9 +70,9 @@ export interface AutoI18nOptions {
 
 /** Sink for build-time messages. Vite's logger and the plugin context's `info`/`warn`/`error` both satisfy this shape. */
 interface Reporter {
-  info(message: string): void;
-  warn(message: string): void;
-  error(message: string): void;
+  info: (message: string) => void;
+  warn: (message: string) => void;
+  error: (message: string) => void;
 }
 type BuildResult = Awaited<ReturnType<typeof buildCatalogs>>;
 

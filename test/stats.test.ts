@@ -16,7 +16,7 @@ function entry(id: string, overrides: Partial<RegistryEntry> = {}): RegistryEntr
     context: "",
     fingerprint: id,
     ...overrides,
-  } as RegistryEntry;
+  };
 }
 
 describe("computeStats", () => {

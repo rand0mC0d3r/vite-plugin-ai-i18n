@@ -19,11 +19,7 @@ describe("Semaphore", () => {
 
   it("releases its slot when a task fails", async () => {
     const semaphore = new Semaphore(1);
-    await expect(
-      semaphore.run(async () => {
-        throw new Error("boom");
-      }),
-    ).rejects.toThrow("boom");
-    await expect(semaphore.run(async () => "ok")).resolves.toBe("ok");
+    await expect(semaphore.run(() => Promise.reject(new Error("boom")))).rejects.toThrow("boom");
+    await expect(semaphore.run(() => Promise.resolve("ok"))).resolves.toBe("ok");
   });
 });

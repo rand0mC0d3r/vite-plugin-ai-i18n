@@ -187,8 +187,8 @@ describe("runtime module", () => {
 describe("runtime loader", () => {
   it("falls back to the fallback locale and unwraps JSON default exports", async () => {
     const load = createLocaleLoader({
-      en: async () => ({ default: { a: "A" } }),
-      de: async () => ({ b: "B" }),
+      en: () => Promise.resolve({ default: { a: "A" } }),
+      de: () => Promise.resolve({ b: "B" }),
     });
     expect(await load("de")).toEqual({ b: "B" });
     expect(await load("fr")).toEqual({ a: "A" });
@@ -204,13 +204,14 @@ describe("OpenAICompatibleProvider", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("sends the API key as a bearer token and validates the response", async () => {
-    const fetchMock = vi.fn(
-      async (_url: string, _init?: RequestInit) =>
+    const fetchMock = vi.fn((_url: string, _init?: RequestInit) =>
+      Promise.resolve(
         new Response(
           JSON.stringify({
             choices: [{ message: { content: JSON.stringify({ msg_0: "Speichern" }) } }],
           }),
         ),
+      ),
     );
     vi.stubGlobal("fetch", fetchMock);
     const provider = new OpenAICompatibleProvider({ apiKey: "test-key", model: "m" });
@@ -237,13 +238,20 @@ describe("autoI18n build hook", () => {
     await rm(root, { recursive: true, force: true });
   });
 
+  // Shape of the generated locale file under .autoi18n/locales.
+  type LocaleFile = { messages: Record<string, string>; sources: Record<string, string> };
+
+  async function readLocale(file: string): Promise<LocaleFile> {
+    return JSON.parse(await readFile(path.join(root, file), "utf8")) as LocaleFile;
+  }
+
   function fakeProvider(): TranslationProvider & { calls: TranslationRequest[][] } {
     const calls: TranslationRequest[][] = [];
     return {
       calls,
-      async translate({ messages }) {
+      translate({ messages }) {
         calls.push(messages);
-        return Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`]));
+        return Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`])));
       },
     };
   }
@@ -270,7 +278,7 @@ describe("autoI18n build hook", () => {
 
     await runBuild(plugin);
     expect(provider.calls.flat().map((m) => m.source)).toEqual(["Save the file", "Save"]);
-    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")).messages;
+    const catalog = (await readLocale(".autoi18n/locales/de.json")).messages;
     expect(Object.values(catalog)).toEqual(["DE:Save the file", "DE:Save"]);
 
     // Second build with unchanged sources must not call the provider again.
@@ -285,7 +293,7 @@ describe("autoI18n build hook", () => {
 
     // Same ID with a source text that no longer matches the recorded source must be re-translated.
     const localePath = path.join(root, ".autoi18n/locales/de.json");
-    const localeFile = JSON.parse(await readFile(localePath, "utf8"));
+    const localeFile = await readLocale(".autoi18n/locales/de.json");
     const staleId = provider.calls[1][0].id;
     localeFile.sources[staleId] = "Previously translated text";
     await writeFile(localePath, JSON.stringify(localeFile));
@@ -300,20 +308,18 @@ describe("autoI18n build hook", () => {
       `export function App({ count }) { return <p>You have {count} documents</p>; }\n`,
     );
     const broken: TranslationProvider = {
-      async translate({ messages }) {
-        return Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"]));
-      },
+      translate: ({ messages }) => Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"]))),
     };
     await runBuild(autoI18n({ locales: ["en", "de"], provider: broken }));
-    const catalog = JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")).messages;
+    const catalog = (await readLocale(".autoi18n/locales/de.json")).messages;
     expect(catalog).toEqual({});
 
     const provider = fakeProvider();
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
     expect(provider.calls).toHaveLength(1);
-    expect(
-      Object.values(JSON.parse(await readFile(path.join(root, ".autoi18n/locales/de.json"), "utf8")).messages),
-    ).toEqual(["DE:You have {count} documents"]);
+    expect(Object.values((await readLocale(".autoi18n/locales/de.json")).messages)).toEqual([
+      "DE:You have {count} documents",
+    ]);
   });
 
   it("fails when translations are missing and no provider is configured", async () => {
@@ -361,13 +367,13 @@ describe("plugin hooks", () => {
     resolveId: (this: unknown, id: string, importer?: string) => unknown;
     load: (this: unknown, id: string) => unknown;
   };
-  const noopProvider: TranslationProvider = { translate: async () => ({}) };
+  const noopProvider: TranslationProvider = { translate: () => Promise.resolve({}) };
 
   it("resolves the format module and resolves its library from the plugin's own dependencies", async () => {
     const hooks = autoI18n({ locales: ["en", "de"], provider: noopProvider }) as unknown as Hooks;
     expect(hooks.resolveId.call({}, "virtual:autoi18n-format")).toBe("\0virtual:autoi18n-format");
 
-    const resolve = vi.fn(async () => ({ id: "/plugin/intl.js" }));
+    const resolve = vi.fn(() => Promise.resolve({ id: "/plugin/intl.js" }));
     await expect(hooks.resolveId.call({ resolve }, FORMAT_LIBRARY, "\0virtual:autoi18n-format")).resolves.toEqual({
       id: "/plugin/intl.js",
     });

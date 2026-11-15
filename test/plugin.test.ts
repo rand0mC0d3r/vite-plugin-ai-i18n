@@ -46,12 +46,19 @@ const fakeProvider = (): TranslationProvider & { calls: TranslationRequest[][] }
   const calls: TranslationRequest[][] = [];
   return {
     calls,
-    async translate({ messages }) {
+    translate({ messages }) {
       calls.push(messages);
-      return Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`]));
+      return Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`])));
     },
   };
 };
+
+// Shape of the generated locale file under .autoi18n/locales.
+type LocaleFile = { messages: Record<string, string>; sources: Record<string, string> };
+
+async function readJson<T>(file: string): Promise<T> {
+  return JSON.parse(await readFile(file, "utf8")) as T;
+}
 
 describe("autoI18n plugin", () => {
   let root: string;
@@ -209,7 +216,7 @@ describe("autoI18n plugin", () => {
 
   it("warns about untranslated messages when a provider is configured but returned nothing", async () => {
     await writeFile(srcFile(), SOURCE);
-    const silent: TranslationProvider = { translate: async () => ({}) };
+    const silent: TranslationProvider = { translate: () => Promise.resolve({}) };
     const hooks = start({ locales: ["en", "de"], provider: silent });
     const ctx = context();
     await hooks.buildStart.call(ctx);
@@ -222,7 +229,7 @@ describe("autoI18n plugin", () => {
       `export function Dialog({ count }) { return <p>You have {count} documents</p>; }\n`,
     );
     const broken: TranslationProvider = {
-      translate: async ({ messages }) => Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"])),
+      translate: ({ messages }) => Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"]))),
     };
     const hooks = start({ locales: ["en", "de"], provider: broken });
     const ctx = context();
@@ -233,9 +240,7 @@ describe("autoI18n plugin", () => {
   it("throws the first locale failure and warns about the others, keeping the previous file", async () => {
     await writeFile(srcFile(), SOURCE);
     const failing: TranslationProvider = {
-      translate: async () => {
-        throw new Error("boom");
-      },
+      translate: () => Promise.reject(new Error("boom")),
     };
     const hooks = start({ locales: ["en", "de", "fr"], provider: failing });
     const ctx = context();
@@ -247,9 +252,10 @@ describe("autoI18n plugin", () => {
   it("warns about failed batches but still writes the translations that succeeded", async () => {
     await writeFile(srcFile(), SOURCE);
     const partial: TranslationProvider = {
-      translate: async ({ messages }) => {
-        throw new PartialTranslationError("1 messages failed to translate: busy", { [messages[0].id]: "Speichern" }, 1);
-      },
+      translate: ({ messages }) =>
+        Promise.reject(
+          new PartialTranslationError("1 messages failed to translate: busy", { [messages[0].id]: "Speichern" }, 1),
+        ),
     };
     const hooks = start({ locales: ["en", "de"], provider: partial });
     const ctx = context();
@@ -257,7 +263,7 @@ describe("autoI18n plugin", () => {
     expect(ctx.warn).toHaveBeenCalledWith(
       expect.stringMatching(/1 de translation batches failed \(1 messages failed to translate: busy\)/),
     );
-    const file = JSON.parse(await readFile(localeFile("de"), "utf8"));
+    const file = await readJson<LocaleFile>(localeFile("de"));
     expect(Object.values(file.messages)).toContain("Speichern");
   });
 
@@ -301,10 +307,10 @@ describe("autoI18n plugin", () => {
         .map((call) => String(call[0]))
         .some((line) => line.includes("removed") && line.includes('"Remove me"')),
     ).toBe(true);
-    const registry: { entries: Record<string, { source: string }> } = JSON.parse(
-      await readFile(path.join(root, ".autoi18n/registry.json"), "utf8"),
+    const registry = await readJson<{ entries: Record<string, { source: string }> }>(
+      path.join(root, ".autoi18n/registry.json"),
     );
-    expect(Object.values(registry.entries).map((e: { source: string }) => e.source)).toEqual(["Keep"]);
+    expect(Object.values(registry.entries).map((e) => e.source)).toEqual(["Keep"]);
   });
 
   it("deletes the legacy <locale>.sources.json sidecar files", async () => {
@@ -318,7 +324,7 @@ describe("autoI18n plugin", () => {
   it("writes the source-locale catalogue alongside the translations", async () => {
     await writeFile(srcFile(), SOURCE);
     await start({ locales: ["en", "de"], provider: fakeProvider() }).buildStart.call(context());
-    const source = JSON.parse(await readFile(localeFile("en"), "utf8"));
+    const source = await readJson<LocaleFile>(localeFile("en"));
     expect(Object.values(source.messages)).toEqual(["Save the file", "Save"]);
   });
 
@@ -409,20 +415,19 @@ describe("autoI18n plugin", () => {
       hooks.configureServer(dev);
       await writeFile(srcFile(), SOURCE.replace("Save the file", "Save the note"));
       await hooks.handleHotUpdate({ file: srcFile() });
-      expect(dev.ws.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: { catalogs: expect.objectContaining({ de: expect.any(Object) }) },
-        }),
+      const payloads = dev.ws.send.mock.calls.map(
+        (call) => call[0] as { data?: { catalogs?: Record<string, unknown> } },
       );
+      expect(payloads.some((p) => typeof p.data?.catalogs?.de === "object")).toBe(true);
     });
 
     it("logs an error instead of rejecting when a dev re-translation fails", async () => {
       await writeFile(srcFile(), SOURCE);
       let offline = false;
       const flaky: TranslationProvider = {
-        translate: async ({ messages }) => {
-          if (offline) throw new Error("offline");
-          return Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`]));
+        translate: ({ messages }) => {
+          if (offline) return Promise.reject(new Error("offline"));
+          return Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, `DE:${m.source}`])));
         },
       };
       const hooks = start({ locales: ["en", "de"], provider: flaky }, "serve");

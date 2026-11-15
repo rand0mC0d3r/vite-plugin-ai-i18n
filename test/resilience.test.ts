@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -11,6 +11,9 @@ import { OpenAICompatibleProvider } from "../src/ai/openai.js";
 import type { ExtractedMessage, Registry, TranslationRequest } from "../src/types.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
+
+// Request body sent by OpenAICompatibleProvider; only the fields these tests read.
+type ChatRequest = { messages: { content: string }[] };
 
 const jsonResponse = (content: unknown, status = 200) =>
   new Response(
@@ -32,20 +35,21 @@ describe("extractMessages scope", () => {
 });
 
 describe("OpenAICompatibleProvider", () => {
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: Mock<typeof fetch>;
   const provider = (extra = {}) => new OpenAICompatibleProvider({ apiKey: "k", model: "m", retryDelayMs: 0, ...extra });
   const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 
   beforeEach(() => {
-    fetchMock = vi.fn();
+    fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", fetchMock);
   });
   afterEach(() => vi.unstubAllGlobals());
 
   it("splits requests into batches of batchSize", async () => {
-    fetchMock.mockImplementation(async (_url: string, init: { body: string }) => {
-      const sent = JSON.parse(JSON.parse(init.body).messages[1].content) as { id: string; text: string }[];
-      return jsonResponse(Object.fromEntries(sent.map((m) => [m.id, `DE:${m.text}`])));
+    fetchMock.mockImplementation((_url, init) => {
+      const body = JSON.parse(typeof init?.body === "string" ? init.body : "") as ChatRequest;
+      const sent = JSON.parse(body.messages[1].content) as { id: string; text: string }[];
+      return Promise.resolve(jsonResponse(Object.fromEntries(sent.map((m) => [m.id, `DE:${m.text}`]))));
     });
     const result = await provider({ batchSize: 2 }).translate(input([request("a"), request("b"), request("c")]));
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -99,7 +103,7 @@ describe("OpenAICompatibleProvider", () => {
   });
 
   it("gives up after maxRetries", async () => {
-    fetchMock.mockImplementation(async () => new Response("down", { status: 503 }));
+    fetchMock.mockImplementation(() => Promise.resolve(new Response("down", { status: 503 })));
     await expect(provider({ maxRetries: 1 }).translate(input([request("a")]))).rejects.toThrow(/503/);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -260,7 +264,7 @@ describe("locale configuration", () => {
     const plugin = autoI18n({
       locales: ["en", "de"],
       locale: "fr",
-      provider: { translate: async () => ({}) },
+      provider: { translate: () => Promise.resolve({}) },
     }) as unknown as {
       configResolved: (c: { root: string; command: string }) => void;
     };

@@ -5,7 +5,7 @@ import { createLocaleLoader } from "../../src/runtime/loader.js";
 import { resolveLocale } from "../../src/runtime/resolve.js";
 
 const format = (text: string, values: Record<string, unknown>, locale = "en") =>
-  formatMessage(IntlMessageFormat, new Map(), text, values, locale);
+  formatMessage(IntlMessageFormat, new Map<string, IntlMessageFormat>(), text, values, locale);
 
 describe("formatMessage", () => {
   afterEach(() => vi.restoreAllMocks());
@@ -24,7 +24,7 @@ describe("formatMessage", () => {
   });
 
   it("gives the same result when a cached formatter is reused", () => {
-    const cache = new Map();
+    const cache = new Map<string, IntlMessageFormat>();
     const text = "{n, plural, one {# file} other {# files}}";
     expect(formatMessage(IntlMessageFormat, cache, text, { n: 3 }, "en").join("")).toBe("3 files");
     expect(formatMessage(IntlMessageFormat, cache, text, { n: 1 }, "en").join("")).toBe("1 file");
@@ -71,7 +71,7 @@ describe("resolveLocale", () => {
 
 describe("createLocaleLoader", () => {
   it("loads a catalogue once and serves later requests from the cache", async () => {
-    const loader = vi.fn(async () => ({ default: { a: "A" } }));
+    const loader = vi.fn(() => Promise.resolve({ default: { a: "A" } }));
     const load = createLocaleLoader({ en: loader });
     expect(await load("en")).toEqual({ a: "A" });
     expect(await load("en")).toEqual({ a: "A" });
@@ -80,13 +80,13 @@ describe("createLocaleLoader", () => {
 
   it("returns module objects that have no default export as they are", async () => {
     const load = createLocaleLoader({
-      en: async () => ({ hello: "Hello" }) as unknown as { default: Record<string, string> },
+      en: () => Promise.resolve({ hello: "Hello" }),
     });
     expect(await load("en")).toEqual({ hello: "Hello" });
   });
 
   it("rejects when neither the locale nor the fallback has a loader", async () => {
-    const load = createLocaleLoader({ de: async () => ({ default: {} }) }, "en");
+    const load = createLocaleLoader({ de: () => Promise.resolve({ default: {} }) }, "en");
     await expect(load("en")).rejects.toThrow('No catalogue loader for locale "en"');
   });
 
@@ -102,7 +102,7 @@ describe("createLocaleLoader", () => {
   });
 
   it("serves a primed catalogue without calling the loader", async () => {
-    const loader = vi.fn(async () => ({ default: { a: "old" } }));
+    const loader = vi.fn(() => Promise.resolve({ default: { a: "old" } }));
     const load = createLocaleLoader({ de: loader });
     load.prime("de", { a: "new" });
     expect(await load("de")).toEqual({ a: "new" });

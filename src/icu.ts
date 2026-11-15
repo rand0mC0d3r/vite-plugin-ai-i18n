@@ -24,7 +24,7 @@ export function argumentName(expression: string): string {
 export function icuArgumentNames(text: string): string[] | undefined {
   let ast: IcuElement[];
   try {
-    ast = new IntlMessageFormat(text, "en").getAst() as IcuElement[];
+    ast = new IntlMessageFormat(text, "en").getAst();
   } catch {
     return undefined;
   }

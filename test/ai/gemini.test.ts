@@ -1,9 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TranslationRequest } from "../../src/types.js";
+import { PartialTranslationError } from "../../src/errors.js";
 import { GeminiProvider } from "../../src/ai/gemini.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
+
+type GeminiBody = {
+  systemInstruction: { parts: { text: string }[] };
+  contents: { role: string; parts: { text: string }[] }[];
+  generationConfig: unknown;
+};
 
 const generateResponse = (text: string, status = 200) =>
   new Response(
@@ -32,7 +39,7 @@ describe("GeminiProvider", () => {
     const headers = init.headers as Record<string, string>;
     expect(headers["x-goog-api-key"]).toBe("gemini-test-key");
     expect(headers.Authorization).toBeUndefined();
-    const body = JSON.parse(init.body as string);
+    const body = JSON.parse(init.body as string) as GeminiBody;
     expect(body.systemInstruction.parts[0].text).toContain("from en to de");
     expect(body.contents[0].role).toBe("user");
     expect(JSON.parse(body.contents[0].parts[0].text)).toEqual([{ id: "a", text: "Save", context: "", kind: "text" }]);
@@ -112,7 +119,7 @@ describe("GeminiProvider", () => {
       .mockResolvedValueOnce(new Response("{}", { status: 400 }));
     const error = await provider({ batchSize: 1, concurrency: 1, maxRetries: 0 })
       .translate(input([request("a"), request("b")]))
-      .catch((e) => e);
+      .catch((e: PartialTranslationError) => e);
     expect(error.name).toBe("PartialTranslationError");
     expect(error.partial).toEqual({ a: "A" });
     expect(error.failed).toBe(1);

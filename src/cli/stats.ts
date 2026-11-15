@@ -132,6 +132,7 @@ async function main(): Promise<void> {
   console.log(args.json ? JSON.stringify(report, null, 2) : formatReport(report, args.verbose));
 }
 
+// eslint-disable-next-line bun/no-side-effects-on-import -- CLI entry point, runs when the bin is executed
 main().catch((error) => {
   console.error(`autoi18n: ${(error as Error).message}`);
   process.exitCode = 1;

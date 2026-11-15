@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 import type { TranslationRequest } from "../../src/types.js";
 
@@ -10,11 +10,11 @@ const rateLimited = (retryAfter?: string) =>
   new Response("slow down", { status: 429, headers: retryAfter === undefined ? {} : { "retry-after": retryAfter } });
 
 describe("BatchedProvider retries", () => {
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: Mock<typeof fetch>;
   const provider = (extra = {}) => new OpenAICompatibleProvider({ apiKey: "k", model: "m", retryDelayMs: 0, ...extra });
 
   beforeEach(() => {
-    fetchMock = vi.fn();
+    fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", fetchMock);
   });
   afterEach(() => {
@@ -82,8 +82,8 @@ describe("BatchedProvider retries", () => {
   });
 
   it("gives up on an empty model reply after the retry budget", async () => {
-    fetchMock.mockImplementation(
-      async () => new Response(JSON.stringify({ choices: [{ message: { content: null } }] }), { status: 200 }),
+    fetchMock.mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({ choices: [{ message: { content: null } }] }), { status: 200 })),
     );
     await expect(provider({ maxRetries: 1 }).translate(input([request("a")]))).rejects.toThrow("no content");
     expect(fetchMock).toHaveBeenCalledTimes(2);

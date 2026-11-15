@@ -21,7 +21,7 @@ function entry(id: string, status: RegistryEntry["status"], lastSeen: string): R
     lastSeen,
     context: "",
     fingerprint: id,
-  } as RegistryEntry;
+  };
 }
 
 /** Runs the CLI module (which calls main() on import) with the given arguments inside `cwd`. */
@@ -93,7 +93,10 @@ describe("prune CLI", () => {
     const saved = JSON.parse(await readFile(path.join(outDir, "registry.json"), "utf8")) as Registry;
     expect(Object.keys(saved.entries).sort()).toEqual(["keep", "recent"]);
 
-    const locale = JSON.parse(await readFile(path.join(outDir, "locales", "de.json"), "utf8"));
+    const locale = JSON.parse(await readFile(path.join(outDir, "locales", "de.json"), "utf8")) as {
+      messages: unknown;
+      sources: unknown;
+    };
     expect(locale.messages).toEqual({ keep: "A" });
     expect(locale.sources).toEqual({ keep: "A-src" });
 

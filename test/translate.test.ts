@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import { translateLocale } from "../src/translate.js";
 import { PartialTranslationError } from "../src/errors.js";
 import { emptyLocaleFile } from "../src/catalog.js";
@@ -13,8 +13,10 @@ const mixed = (id: string, source: string, placeholders: string[]): TranslationR
   placeholders,
 });
 
-const provider = (result: Record<string, string>): TranslationProvider & { translate: ReturnType<typeof vi.fn> } => ({
-  translate: vi.fn(async () => result),
+type Translate = TranslationProvider["translate"];
+
+const provider = (result: Record<string, string>): { translate: Mock<Translate> } => ({
+  translate: vi.fn<Translate>(() => Promise.resolve(result)),
 });
 
 const base = { sourceLocale: "en", locale: "de" };
@@ -127,9 +129,7 @@ describe("translateLocale", () => {
   it("keeps the partial translations and reports failed batches when the provider throws PartialTranslationError", async () => {
     const error = new PartialTranslationError("1 messages failed to translate: busy", { a: "Speichern" }, 1);
     const p: TranslationProvider = {
-      translate: vi.fn(async () => {
-        throw error;
-      }),
+      translate: vi.fn(() => Promise.reject(error)),
     };
     const result = await translateLocale({
       ...base,
@@ -143,9 +143,7 @@ describe("translateLocale", () => {
 
   it("rethrows errors that are not partial failures", async () => {
     const p: TranslationProvider = {
-      translate: vi.fn(async () => {
-        throw new Error("offline");
-      }),
+      translate: vi.fn(() => Promise.reject(new Error("offline"))),
     };
     await expect(
       translateLocale({ ...base, provider: p, requests: [text("a")], previous: emptyLocaleFile() }),

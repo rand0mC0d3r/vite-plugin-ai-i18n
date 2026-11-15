@@ -72,10 +72,10 @@ export function transformSource(
       if (message) targets.push({ kind: "text", node, message });
     } else if (node.type === "JSXAttribute" && node.value?.type === "Literal") {
       const message = byKind.attribute.get(node.value.start);
-      if (message) targets.push({ kind: "attribute", node: node.value as StringLiteral, message });
+      if (message) targets.push({ kind: "attribute", node: node.value, message });
     } else if (node.type === "Literal" && typeof node.value === "string") {
       const message = byKind.string.get(node.start);
-      if (message) targets.push({ kind: "string", node: node as StringLiteral, message });
+      if (message) targets.push({ kind: "string", node, message });
     }
   });
 

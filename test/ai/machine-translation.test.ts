@@ -7,6 +7,8 @@ const request = (id: string, source: string): TranslationRequest => ({ id, sourc
 const input = (messages: TranslationRequest[], targetLocale = "de") => ({ sourceLocale: "en", targetLocale, messages });
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
 
+type DeepLBody = { text: string[]; target_lang: string };
+
 describe("machine-translation adapters", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
   beforeEach(() => {
@@ -26,7 +28,7 @@ describe("machine-translation adapters", () => {
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
       expect(url).toBe("https://api-free.deepl.com/v2/translate");
       expect((init.headers as Record<string, string>).authorization).toBe("DeepL-Auth-Key key:fx");
-      const body = JSON.parse(init.body as string);
+      const body = JSON.parse(init.body as string) as DeepLBody;
       expect(body.text).toEqual(["Saved <x>{name}</x> &amp; more"]);
       expect(body).toMatchObject({ source_lang: "EN", target_lang: "DE", tag_handling: "xml", ignore_tags: ["x"] });
     });
@@ -34,7 +36,8 @@ describe("machine-translation adapters", () => {
     it("maps plain English and Portuguese to regional DeepL targets", async () => {
       fetchMock.mockResolvedValue(json({ translations: [{ text: "x" }] }));
       await new DeepLProvider({ apiKey: "key", retryDelayMs: 0 }).translate(input([request("a", "Save")], "en"));
-      expect(JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string).target_lang).toBe("EN-US");
+      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect((JSON.parse(init.body as string) as DeepLBody).target_lang).toBe("EN-US");
       expect(fetchMock.mock.calls[0][0]).toBe("https://api.deepl.com/v2/translate");
     });
   });

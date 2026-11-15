@@ -24,7 +24,8 @@ function App() {
   );
 }
 
-setLocale(resolveSupported(navigator.languages)).then(() => {
+// eslint-disable-next-line bun/no-side-effects-on-import -- app entry point; mounting on import is intended
+void setLocale(resolveSupported(navigator.languages)).then(() => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />

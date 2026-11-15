@@ -91,6 +91,7 @@ async function main(): Promise<void> {
   if (catalogs.length) console.log(`autoi18n: removed stale keys from ${catalogs.length} locale files.`);
 }
 
+// eslint-disable-next-line bun/no-side-effects-on-import -- CLI entry point, runs when the bin is executed
 main().catch((error) => {
   console.error(`autoi18n: ${(error as Error).message}`);
   process.exitCode = 1;

@@ -67,6 +67,8 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.0",
     "react": "^19.3.1",
