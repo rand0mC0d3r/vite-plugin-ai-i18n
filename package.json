@@ -39,6 +39,7 @@
   },
   "scripts": {
     "build": "tsdown",
+    "check": "bun -e \"import { runChecks } from './scripts/check.ts'; process.exitCode = runChecks();\"",
     "analyze": "ANALYZE=1 tsdown",
     "prepublishOnly": "bun run build",
     "prune": "bun run build && node dist/cli/prune.js --directory example/.autoi18n --retention-minutes 0",

@@ -11,7 +11,6 @@ import {
 /** Default API endpoint for the Gemini generateContent API. */
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
-
 /** Options for the Gemini `generateContent` API. */
 export interface GeminiOptions extends BatchedProviderOptions {
   apiKey: string;

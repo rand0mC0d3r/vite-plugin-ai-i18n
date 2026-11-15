@@ -1,5 +1,14 @@
 # Copilot instructions
 
+## Checks
+
+Always run `bun run check` before finishing any change, and keep it at 0 errors with all tests green.
+
+- `bun run check` runs typecheck, format, lint and the test suite with coverage (`scripts/check.mjs`).
+- Fix every failure it reports, including formatting and lint errors, before you report the work as done. Do not disable rules, add ignore comments, or skip tests to get past them.
+- If a failure is in code you did not change, still fix it, because the goal is 0 errors.
+- Report the result of the check in your summary to the user.
+
 ## Test coverage
 
 Keep statements, branches, functions and lines coverage of `src/**` at or above 95%, and keep it up to date.

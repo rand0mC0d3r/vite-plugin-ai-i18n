@@ -11,7 +11,6 @@ import {
 /** Default API endpoint for OpenAI-compatible chat completions. */
 const OPENAI_BASE_URL = "https://api.openai.com/v1";
 
-
 /** Options for an OpenAI or OpenAI-compatible chat completions endpoint. */
 export interface OpenAICompatibleOptions extends BatchedProviderOptions {
   /** Sent as a bearer token. Omit it for servers that need no key, such as a local Ollama. */
