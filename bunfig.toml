@@ -6,46 +6,44 @@ plugins = ["unused-imports", "import"]
 typeAware = true
 
 [lint.rules]
-# Correctness
+"@typescript-eslint/consistent-type-imports" = "error"
 "@typescript-eslint/no-explicit-any" = "error"
 "@typescript-eslint/no-floating-promises" = "error"
 "@typescript-eslint/no-misused-promises" = "error"
-"eqeqeq" = "error"
-"no-var" = "error"
-"prefer-const" = "error"
-"no-eval" = "error"
-"no-implied-eval" = "error"
+"@typescript-eslint/no-non-null-assertion" = "error"
+"@typescript-eslint/no-unnecessary-condition" = "error"
+"@typescript-eslint/no-unnecessary-type-assertion" = "error"
+"@typescript-eslint/strict-boolean-expressions" = "error"
 
-# Plugin / Vite hooks: import-time side effects and cwd-dependent paths
-"bun/no-side-effects-on-import" = "error"
-"bun/no-env-at-module-scope" = "error"
+"bun:test/expect-expect" = "error"
+"bun:test/no-disabled-tests" = "error"
+"bun:test/no-focused-tests" = "error"
+"bun:test/no-identical-title" = "error"
 "bun/no-cwd-dependent-path" = "error"
+"bun/no-env-at-module-scope" = "error"
+"bun/no-side-effects-on-import" = "error"
 "bun/no-unportable-commands" = "error"
 
-# Tests
-"bun:test/expect-expect" = "error"
-"bun:test/no-focused-tests" = "error"
-"bun:test/no-disabled-tests" = "error"
-"bun:test/no-identical-title" = "error"
+"eqeqeq" = "error"
 
+"import/no-cycle" = "error"
+"import/no-duplicates" = "error"
+"import/no-extraneous-dependencies" = "error"
+"import/no-unresolved" = "error"
 
-"@typescript-eslint/consistent-type-imports" = "error"
-"@typescript-eslint/no-non-null-assertion" = "warn"
-"@typescript-eslint/no-unnecessary-type-assertion" = "error"
-"@typescript-eslint/strict-boolean-expressions" = "warn"
-"@typescript-eslint/no-unnecessary-condition" = "error"
-
+"no-constant-condition" = "error"
 "no-debugger" = "error"
 "no-duplicate-imports" = "error"
-"no-unreachable" = "error"
-"no-constant-condition" = "error"
-"no-self-compare" = "error"
-"no-throw-literal" = "error"
-
-"unused-imports/no-unused-imports" = "error"
-"import/no-duplicates" = "error"
-"import/no-cycle" = "warn"
-
-"no-script-url" = "error"
+"no-empty" = "error"
+"no-eval" = "error"
+"no-implied-eval" = "error"
 "no-new-func" = "error"
 "no-prototype-builtins" = "error"
+"no-script-url" = "error"
+"no-self-compare" = "error"
+"no-throw-literal" = "error"
+"no-unreachable" = "error"
+"no-var" = "error"
+
+"prefer-const" = "error"
+"unused-imports/no-unused-imports" = "error"
