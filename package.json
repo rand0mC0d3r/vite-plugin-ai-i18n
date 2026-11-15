@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-ai-auto-i18n",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "Implicit, build-time AI localization for JSX applications",
   "keywords": [
     "ai",
