@@ -1,4 +1,4 @@
-# 🌍 vite-plugin-autoi18n
+# 🌍 vite-plugin-ai-auto-i18n
 
 **Build-time localization for JSX.** Write English directly. The compiler extracts user-facing copy, gives each message a stable ID, and can translate it with an AI or machine-translation provider.
 
@@ -258,7 +258,7 @@ If a locale has no translation for an ID, the source text is shown. Nothing brea
 
 ### 🔥 Dev server
 
-Saving a file re-indexes the project and pushes only the catalogues that changed to the browser, so the page updates without a reload.
+Saving a file re-reads only that file, reuses the cached extraction for the rest of the project, and pushes only the catalogues that changed to the browser, so the page updates without a reload.
 
 ```mermaid
 sequenceDiagram
@@ -270,13 +270,13 @@ sequenceDiagram
 
     Dev->>Vite: Saves src/Doc.tsx
     Vite->>Plugin: File changed (debounced)
-    Plugin->>Plugin: Re-index, reuse cached extractions
+    Plugin->>Plugin: Re-read saved file, reuse cached extractions
     Plugin->>Plugin: Identify, translate new or changed messages
     Plugin-->>Browser: autoi18n:update (changed locales only)
     Browser->>Browser: Re-render with new text
 ```
 
-Locales that did not change are not sent. Files added or removed are indexed too.
+Locales that did not change are not sent. Adding or removing a file runs a full project scan instead, debounced by 150 ms.
 
 ## 📦 Installation
 
@@ -794,7 +794,7 @@ interface TranslationRequest {
 - **Missing provider.** With `failOnMissingProvider: true`, the build fails when a locale is missing translations and no provider is configured, instead of silently shipping English.
 - **Ambiguous matches.** Duplicate identical strings whose count changed are logged as warnings. Set `onAmbiguous: "error"` to fail the build instead. When a message is paired by fingerprint, the component name breaks ties between identical strings, so reordering or renaming components keeps existing IDs.
 - **Privacy in logs.** Provider errors report only the HTTP status (for example `Translation API failed (500)`). The response body is discarded so provider output is not written to logs.
-- **Incremental writes.** In dev, saving an indexed source file re-reads only that file and reuses cached extractions for the rest of the project. Catalogue and registry files are written only when their content actually changes.
+- **Incremental writes.** In dev, saving an indexed source file re-reads only that file and reuses cached extractions for the rest of the project. Adding or removing a file runs a full scan. Catalogue and registry files are written only when their content actually changes.
 - **Safe files.** Writes are atomic, so an interrupted build does not leave a truncated file. Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` with a warning, and the plugin continues with an empty state.
 
 ## 🧹 Maintenance
@@ -918,7 +918,7 @@ This is a beta release. Review these before shipping to production:
    - Argument names are sanitized to letters, digits and `_` (`doc.name` becomes `doc_name`). Translations stored under the old `{doc.name}` names fall back to the source until retranslated.
    - Sentences with complex expressions (calls, JSX, computed access) stay entirely in the source language.
 3. **Duplicate identical strings.** Occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`, not resolved automatically.
-4. **Dev-server re-indexing.** After saved, added or removed source files, the dev server re-indexes the whole project (debounced by 150 ms) rather than only the changed module. This is simple and correct, but may be slow in very large projects.
+4. **Full scan on add or remove.** Saving a file re-reads only that file. Adding or removing a source file triggers a full project scan (debounced by 150 ms), which may be slow in very large projects.
 5. **What gets extracted.**
    - JSX text, and these attributes on intrinsic (lowercase) elements: `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription`, `aria-valuetext`.
    - String literals outside JSX, only when marked with `stringMarker` (`/* i18n */` by default).
