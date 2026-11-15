@@ -1,9 +1,19 @@
 import MagicString, { type SourceMap } from "magic-string";
 
-import { FORMAT_MODULE, RUNTIME_FORMAT, RUNTIME_LOCALE, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
 import type { Catalog, ResolvedMessage } from "../types.js";
 import { type JSXElement, type JSXText, type ParsedSource, parseSource, type StringLiteral, walk } from "./ast.js";
 import { isUsableTranslation } from "./placeholders.js";
+
+/** Virtual module id that exposes the runtime `setLocale()` and catalogues. */
+export const RUNTIME_MODULE = "virtual:autoi18n";
+/** Virtual module id that exposes `format()`, which renders ICU MessageFormat text with values. */
+export const FORMAT_MODULE = "virtual:autoi18n-format";
+/** Global name of the translation lookup function injected into transformed code. */
+const RUNTIME_LOOKUP = "__autoI18nT";
+/** Global name of the message-format helper injected into transformed code. */
+const RUNTIME_FORMAT = "__autoI18nFormat";
+/** Global name of the current-locale getter injected into transformed code. */
+const RUNTIME_LOCALE = "__autoI18nLocale";
 
 /** An AST node that a resolved message should replace, tagged with how its replacement is written. */
 type Target =

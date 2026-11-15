@@ -1,10 +1,12 @@
 import { ArkErrors } from "arktype";
 
 import { Semaphore } from "../concurrency.js";
-import { MAX_RETRY_AFTER_MS } from "../constants.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
+
+/** Upper bound on how long a `Retry-After` header can delay a retry. */
+const MAX_RETRY_AFTER_MS = 60_000;
 
 /** Tuning options shared by every HTTP provider that sends messages in batches. */
 export interface BatchedProviderOptions {

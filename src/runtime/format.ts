@@ -1,4 +1,5 @@
-import { FORMAT_LIBRARY } from "../constants.js";
+/** Package that implements ICU MessageFormat at runtime. It is resolved from this plugin, not the app. */
+export const FORMAT_LIBRARY = "intl-messageformat";
 
 /** The subset of IntlMessageFormat that the formatter uses. */
 interface Formatter {

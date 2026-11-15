@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { RUNTIME_MODULE } from "../src/constants.js";
+import { RUNTIME_MODULE } from "../src/compiler/transform.js";
 import autoI18n, { type AutoI18nOptions, OpenAICompatibleProvider, PartialTranslationError } from "../src/index.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 

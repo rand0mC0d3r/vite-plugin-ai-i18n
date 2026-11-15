@@ -1,4 +1,3 @@
-import { OPENAI_BASE_URL } from "../constants.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import {
@@ -8,6 +7,10 @@ import {
   type TranslateInput,
   userContent,
 } from "./base.js";
+
+/** Default API endpoint for OpenAI-compatible chat completions. */
+const OPENAI_BASE_URL = "https://api.openai.com/v1";
+
 
 /** Options for an OpenAI or OpenAI-compatible chat completions endpoint. */
 export interface OpenAICompatibleOptions extends BatchedProviderOptions {

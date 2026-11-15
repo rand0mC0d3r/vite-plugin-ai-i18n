@@ -1,10 +1,14 @@
 import { ArkErrors } from "arktype";
 
-import { DEEPL_BASE_URL, DEEPL_FREE_BASE_URL } from "../constants.js";
 import { deeplResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { BatchedProvider, type BatchedProviderOptions, ProviderError, type TranslateInput } from "./base.js";
 import { alignedCatalog, protectText } from "./machine.js";
+
+/** DeepL Pro API root. */
+const DEEPL_BASE_URL = "https://api.deepl.com";
+/** DeepL Free API root, used for keys ending in `:fx`. */
+const DEEPL_FREE_BASE_URL = "https://api-free.deepl.com";
 
 /** Options for the DeepL `/v2/translate` API. */
 export interface DeepLOptions extends BatchedProviderOptions {

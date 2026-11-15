@@ -2,10 +2,14 @@ import { randomUUID } from "node:crypto";
 
 import { ArkErrors } from "arktype";
 
-import { MINUTE_MS } from "../constants.js";
 import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
 import { registryEntrySchema, registryFileSchema } from "../schemas.js";
 import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
+
+/** Milliseconds in one minute. Converts `orphanRetentionMinutes` to a timestamp offset. */
+const MINUTE_MS = 60 * 1000;
+/** 30 days. */
+export const DEFAULT_ORPHAN_RETENTION_MINUTES = 30 * 24 * 60;
 
 /** A registry with no entries, used when no usable file exists yet. */
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });

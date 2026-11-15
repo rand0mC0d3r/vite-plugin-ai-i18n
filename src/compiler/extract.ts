@@ -1,12 +1,3 @@
-import {
-  CHILDREN_PROP,
-  COMPONENT_TAG,
-  DEFAULT_STRING_MARKER,
-  IGNORE_ATTR,
-  IGNORE_VALUE,
-  IGNORED_TAGS,
-  TRANSLATABLE_ATTRS,
-} from "../constants.js";
 import { argumentName, escapeIcu } from "../icu.js";
 import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
@@ -24,6 +15,31 @@ import {
   walk,
 } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
+
+/** Matches a tag or component name that starts with an uppercase letter, i.e. a React component. */
+const COMPONENT_TAG = /^[A-Z]/;
+/** Tags whose text is never translated. */
+const IGNORED_TAGS = new Set(["script", "style", "code", "pre"]);
+// Pseudo-prop in `componentProps` that opts a capitalised component's literal children into translation.
+const CHILDREN_PROP = "children";
+// Attributes whose string values are user-facing copy. Others (href, type, variant, src, ...) are code or configuration.
+const TRANSLATABLE_ATTRS = new Set([
+  "alt",
+  "title",
+  "placeholder",
+  "label",
+  "summary",
+  "aria-label",
+  "aria-description",
+  "aria-placeholder",
+  "aria-roledescription",
+  "aria-valuetext",
+]);
+// A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
+const DEFAULT_STRING_MARKER = "i18n";
+// `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
+const IGNORE_ATTR = "translate";
+const IGNORE_VALUE = "no";
 
 /** Options that tune which JSX and string literals are extracted. */
 export interface ExtractOptions {

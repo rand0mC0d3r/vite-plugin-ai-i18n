@@ -1,10 +1,12 @@
 import { ArkErrors } from "arktype";
 
-import { GOOGLE_TRANSLATE_BASE_URL } from "../constants.js";
 import { googleTranslateResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import { BatchedProvider, type BatchedProviderOptions, ProviderError, type TranslateInput } from "./base.js";
 import { alignedCatalog, protectText } from "./machine.js";
+
+/** Cloud Translation v2 endpoint root (the Basic edition). */
+const GOOGLE_TRANSLATE_BASE_URL = "https://translation.googleapis.com/language/translate/v2";
 
 /** Options for the Cloud Translation v2 (Basic) API. */
 export interface GoogleTranslateOptions extends BatchedProviderOptions {

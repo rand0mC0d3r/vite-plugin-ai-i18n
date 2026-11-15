@@ -1,4 +1,3 @@
-import { ANTHROPIC_BASE_URL, ANTHROPIC_VERSION } from "../constants.js";
 import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import {
@@ -8,6 +7,11 @@ import {
   type TranslateInput,
   userContent,
 } from "./base.js";
+
+/** Default API endpoint for the Anthropic Messages API. */
+const ANTHROPIC_BASE_URL = "https://api.anthropic.com/v1";
+/** Anthropic API version sent in the `anthropic-version` header. */
+const ANTHROPIC_VERSION = "2023-06-01";
 
 /** Options for the Anthropic Messages API. */
 export interface AnthropicOptions extends BatchedProviderOptions {

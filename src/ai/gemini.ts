@@ -1,4 +1,3 @@
-import { GEMINI_BASE_URL } from "../constants.js";
 import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
 import {
@@ -8,6 +7,10 @@ import {
   type TranslateInput,
   userContent,
 } from "./base.js";
+
+/** Default API endpoint for the Gemini generateContent API. */
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+
 
 /** Options for the Gemini `generateContent` API. */
 export interface GeminiOptions extends BatchedProviderOptions {
