@@ -414,6 +414,26 @@ export function LocaleSwitcher() {
 }
 ```
 
+### Locale groups in practice
+
+Groups from the `locales` export replace long lists of codes. Spread them into `locales`, and add any extra codes next to them:
+
+```ts
+// vite.config.ts
+import autoI18n, { locales } from "vite-plugin-ai-auto-i18n";
+
+// A European product: all EU languages plus the major non-EU ones
+autoI18n({ locales: [...locales.EUROPE] });
+
+// A global app: Asia and the Americas (AMERICAS already includes English)
+autoI18n({ locales: [...locales.ASIA, ...locales.AMERICAS] });
+
+// A Nordic site that also ships Estonian
+autoI18n({ locales: [...locales.NORDIC, "et"] });
+```
+
+The `locales` export from `virtual:autoi18n` (runtime delivery) is a different thing: it lists the codes this build ships, so it reflects whichever array you passed to the plugin.
+
 ### Keeping copy untranslated
 
 ```tsx
