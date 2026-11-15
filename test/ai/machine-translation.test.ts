@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TranslationRequest } from "../../src/types.js";
+
 import { DeepLProvider } from "../../src/ai/deepl.js";
 import { GoogleTranslateProvider } from "../../src/ai/google.js";
+import type { TranslationRequest } from "../../src/types.js";
 
 const request = (id: string, source: string): TranslationRequest => ({ id, source, context: "", kind: "text" });
 const input = (messages: TranslationRequest[], targetLocale = "de") => ({ sourceLocale: "en", targetLocale, messages });

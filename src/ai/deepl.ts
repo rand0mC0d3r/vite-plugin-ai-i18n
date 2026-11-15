@@ -1,9 +1,10 @@
 import { ArkErrors } from "arktype";
-import { BatchedProvider, ProviderError, type BatchedProviderOptions, type TranslateInput } from "./base.js";
-import { alignedCatalog, protectText } from "./machine.js";
+
+import { DEEPL_BASE_URL, DEEPL_FREE_BASE_URL } from "../constants.js";
 import { deeplResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
-import { DEEPL_BASE_URL, DEEPL_FREE_BASE_URL } from "../constants.js";
+import { BatchedProvider, type BatchedProviderOptions, ProviderError, type TranslateInput } from "./base.js";
+import { alignedCatalog, protectText } from "./machine.js";
 
 /** Options for the DeepL `/v2/translate` API. */
 export interface DeepLOptions extends BatchedProviderOptions {
@@ -26,8 +27,8 @@ function targetLang(locale: string): string {
 }
 
 /**
- * Translates batches through DeepL. Placeholders are wrapped in `<x>` tags and `tag_handling: "xml"` with
- * `ignore_tags: ["x"]` keeps them intact. Each entry in the reply lines up with the request order.
+ * Translates batches through DeepL. Placeholders are wrapped in `<x>` tags and `tag_handling: "xml"` with `ignore_tags:
+ * ["x"]` keeps them intact. Each entry in the reply lines up with the request order.
  */
 export class DeepLProvider extends BatchedProvider<DeepLOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {

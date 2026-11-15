@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { argumentName, escapeIcu, icuArgumentNames } from "../src/icu.js";
 
 describe("escapeIcu", () => {

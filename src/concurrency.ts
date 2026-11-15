@@ -1,6 +1,6 @@
 /**
- * Runs `task` for every item with at most `limit` tasks in flight. Unlike Promise.all, one failure does not
- * stop the others, so callers can keep the successful results and decide what to do with the failures.
+ * Runs `task` for every item with at most `limit` tasks in flight. Unlike Promise.all, one failure does not stop the
+ * others, so callers can keep the successful results and decide what to do with the failures.
  */
 export async function mapWithConcurrency<T, R>(
   items: readonly T[],
@@ -24,8 +24,8 @@ export async function mapWithConcurrency<T, R>(
 }
 
 /**
- * Caps how many tasks run at once across every caller that shares the instance. Slots are handed directly to
- * the next waiter on release, so a waiter cannot be overtaken by a newcomer.
+ * Caps how many tasks run at once across every caller that shares the instance. Slots are handed directly to the next
+ * waiter on release, so a waiter cannot be overtaken by a newcomer.
  */
 export class Semaphore {
   private available: number;

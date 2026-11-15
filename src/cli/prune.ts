@@ -1,10 +1,11 @@
 import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
-import { debugLog } from "../debug.js";
+
 import { pruneLocaleFile, readLocaleFile, writeLocaleFile } from "../catalog.js";
-import { loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "../constants.js";
+import { debugLog } from "../debug.js";
+import { loadRegistry, pruneOrphans, saveRegistry } from "../identity/registry.js";
 
 /** Drops keys for inactive registry ids from every locale file, in both `messages` and `sources`. */
 async function pruneLocaleFiles(
@@ -59,8 +60,9 @@ function parseArgs(argv: string[]): PruneArgs {
 }
 
 /**
- * Entry point for the prune CLI (`node dist/cli/prune.js`). Removes orphaned registry entries past the retention window, then drops their keys
- * from every locale file. Does nothing if no registry exists yet. Failures set `process.exitCode` to 1.
+ * Entry point for the prune CLI (`node dist/cli/prune.js`). Removes orphaned registry entries past the retention
+ * window, then drops their keys from every locale file. Does nothing if no registry exists yet. Failures set
+ * `process.exitCode` to 1.
  */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));

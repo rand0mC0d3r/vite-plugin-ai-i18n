@@ -1,5 +1,5 @@
-import { defineConfig } from "tsdown";
 import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from "tsdown";
 
 function analyzerPlugins() {
   return process.env.ANALYZE !== undefined && process.env.ANALYZE !== ""

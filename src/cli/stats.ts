@@ -1,7 +1,8 @@
 import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
-import { readLocaleFile, type LocaleFile } from "../catalog.js";
+
+import { type LocaleFile, readLocaleFile } from "../catalog.js";
 import { loadRegistry } from "../identity/registry.js";
 import { computeStats, type StatsReport } from "../stats.js";
 

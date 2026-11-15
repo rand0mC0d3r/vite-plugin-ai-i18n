@@ -8,9 +8,9 @@ interface NamedProvider {
 }
 
 /**
- * Tries providers in order. Messages a provider did not translate (a failed request, or a partial result) are sent
- * to the next provider. Throws only when nothing could be translated, or a PartialTranslationError when some messages
- * are still missing after every provider has been tried.
+ * Tries providers in order. Messages a provider did not translate (a failed request, or a partial result) are sent to
+ * the next provider. Throws only when nothing could be translated, or a PartialTranslationError when some messages are
+ * still missing after every provider has been tried.
  *
  * @param providers Providers in the order they should be tried.
  * @param onFallback Called with a human-readable message each time a provider hands work to the next one.

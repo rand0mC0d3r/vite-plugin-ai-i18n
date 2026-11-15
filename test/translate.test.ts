@@ -1,7 +1,8 @@
-import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
-import { translateLocale } from "../src/translate.js";
-import { PartialTranslationError } from "../src/errors.js";
+import { afterEach, describe, expect, it, type Mock, vi } from "vitest";
+
 import { emptyLocaleFile } from "../src/catalog.js";
+import { PartialTranslationError } from "../src/errors.js";
+import { translateLocale } from "../src/translate.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const text = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });

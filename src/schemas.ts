@@ -56,7 +56,10 @@ export const registryFileSchema = type({ version: "1", entries: "Record<string, 
 /** A string that is not empty, used for option values where `""` would be a mistake. */
 const nonEmptyString = type("string >= 1");
 
-/** A simple BCP 47 tag such as `de`, `zh-Hant-TW` or `en-US-u-ca-buddhist`. Locales become file names, so nothing else is allowed. */
+/**
+ * A simple BCP 47 tag such as `de`, `zh-Hant-TW` or `en-US-u-ca-buddhist`. Locales become file names, so nothing else
+ * is allowed.
+ */
 export const LOCALE_TAG = /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/;
 const localeTag = nonEmptyString.narrow((value) => LOCALE_TAG.test(value));
 

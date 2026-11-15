@@ -1,5 +1,16 @@
 [fmt]
 printWidth = 120
+tabWidth = 2
+useTabs = false
+semi = true
+singleQuote = false
+trailingComma = "all"
+
+# Built-in enhancements
+sortImports = true
+sortPackageJson = true
+jsdoc = true
+
 
 [lint]
 plugins = ["unused-imports", "import"]
@@ -15,6 +26,7 @@ typeAware = true
 "@typescript-eslint/no-unnecessary-type-assertion" = "error"
 "@typescript-eslint/strict-boolean-expressions" = "error"
 
+"bun/format" = "error"
 "bun:test/expect-expect" = "error"
 "bun:test/no-disabled-tests" = "error"
 "bun:test/no-focused-tests" = "error"

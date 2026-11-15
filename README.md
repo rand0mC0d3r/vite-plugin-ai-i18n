@@ -305,8 +305,8 @@ For Claude, use `ANTHROPIC_API_KEY` instead (see [AnthropicProvider options](#an
 Add the plugin to `vite.config.ts`. `loadEnv` reads `.env.local` for the config file:
 
 ```ts
-import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
 import autoI18n, { AnthropicProvider, OpenAICompatibleProvider } from "vite-plugin-ai-auto-i18n";
 
 export default defineConfig(({ mode }) => {
@@ -393,7 +393,7 @@ Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<times
 - `delivery: "runtime"`: one bundle for all locales. Text is wrapped in `t(id, source)` calls and catalogues are fetched on demand. Import the API from the virtual module:
 
 ```ts
-import { locales, resolveSupported, setLocale, getLocale, subscribe, t } from "virtual:autoi18n";
+import { getLocale, locales, resolveSupported, setLocale, subscribe, t } from "virtual:autoi18n";
 
 setLocale(resolveSupported(navigator.languages)); // call before first render
 ```
@@ -580,12 +580,12 @@ Instead of writing the `env.X ? new Provider(...) : undefined` pattern for each 
 
 ```ts
 import autoI18n, {
-  HostedService,
-  LocalService,
-  MachineService,
   hosted,
+  HostedService,
   local,
+  LocalService,
   machine,
+  MachineService,
 } from "vite-plugin-ai-auto-i18n";
 
 autoI18n({

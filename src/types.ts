@@ -1,6 +1,7 @@
 /**
- * What a message was extracted from: `text` for JSX text, `attribute` for a translatable attribute, `mixed` for JSX text
- * containing expressions (which become `{name}` placeholders), and `string` for a string literal marked for translation.
+ * What a message was extracted from: `text` for JSX text, `attribute` for a translatable attribute, `mixed` for JSX
+ * text containing expressions (which become `{name}` placeholders), and `string` for a string literal marked for
+ * translation.
  */
 export type MessageKind = "text" | "attribute" | "mixed" | "string";
 /** A translatable string found in a source file, before it has an ID. */
@@ -25,7 +26,10 @@ export interface ExtractedMessage {
   attribute?: string;
   /** Position within the component, such as the enclosing element. Shown to translators as `Component > context`. */
   context: string;
-  /** Hash of the source and its location fields (kind, tag, component, attribute, context), used to match registry entries. */
+  /**
+   * Hash of the source and its location fields (kind, tag, component, attribute, context), used to match registry
+   * entries.
+   */
   fingerprint: string;
 }
 /** A message with the stable ID that the registry assigned to it. */
@@ -97,6 +101,7 @@ export interface NamedProviders {
 }
 /**
  * A single provider, or named providers. In the named form, `primary` picks the provider tried first; the rest are
- * fallbacks in declaration order. Entries set to `undefined` are skipped, so unconfigured providers can stay in the map.
+ * fallbacks in declaration order. Entries set to `undefined` are skipped, so unconfigured providers can stay in the
+ * map.
  */
 export type ProviderConfig = TranslationProvider | NamedProviders;

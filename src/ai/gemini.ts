@@ -1,13 +1,13 @@
-import {
-  BatchedProvider,
-  systemPrompt,
-  userContent,
-  type BatchedProviderOptions,
-  type TranslateInput,
-} from "./base.js";
+import { GEMINI_BASE_URL } from "../constants.js";
 import { geminiResponseSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
-import { GEMINI_BASE_URL } from "../constants.js";
+import {
+  BatchedProvider,
+  type BatchedProviderOptions,
+  systemPrompt,
+  type TranslateInput,
+  userContent,
+} from "./base.js";
 
 /** Options for the Gemini `generateContent` API. */
 export interface GeminiOptions extends BatchedProviderOptions {

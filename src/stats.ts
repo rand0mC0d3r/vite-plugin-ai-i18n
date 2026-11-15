@@ -45,8 +45,8 @@ const countBy = (values: string[]): Record<string, number> => {
 };
 
 /**
- * Computes translation statistics from the registry and the locale files. `locales` maps a locale name to its
- * parsed file and must not include the source locale, because the source locale is not translated.
+ * Computes translation statistics from the registry and the locale files. `locales` maps a locale name to its parsed
+ * file and must not include the source locale, because the source locale is not translated.
  */
 export function computeStats(registry: Registry, locales: Record<string, LocaleFile>): StatsReport {
   const entries = Object.values(registry.entries);

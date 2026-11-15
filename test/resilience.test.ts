@@ -1,13 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import autoI18n from "../src/index.js";
-import { extractMessages } from "../src/compiler/extract.js";
-import { readJsonFile } from "../src/io.js";
-import { loadRegistry, pruneOrphans, reconcile } from "../src/identity/registry.js";
-import { readLocaleFile } from "../src/catalog.js";
+
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+
 import { OpenAICompatibleProvider } from "../src/ai/openai.js";
+import { readLocaleFile } from "../src/catalog.js";
+import { extractMessages } from "../src/compiler/extract.js";
+import { loadRegistry, pruneOrphans, reconcile } from "../src/identity/registry.js";
+import autoI18n from "../src/index.js";
+import { readJsonFile } from "../src/io.js";
 import type { ExtractedMessage, Registry, TranslationRequest } from "../src/types.js";
 
 const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });

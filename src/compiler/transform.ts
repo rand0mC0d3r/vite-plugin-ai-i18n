@@ -1,8 +1,9 @@
 import MagicString, { type SourceMap } from "magic-string";
+
+import { FORMAT_MODULE, RUNTIME_FORMAT, RUNTIME_LOCALE, RUNTIME_LOOKUP, RUNTIME_MODULE } from "../constants.js";
 import type { Catalog, ResolvedMessage } from "../types.js";
-import { parseSource, walk, type JSXElement, type JSXText, type ParsedSource, type StringLiteral } from "./ast.js";
+import { type JSXElement, type JSXText, type ParsedSource, parseSource, type StringLiteral, walk } from "./ast.js";
 import { isUsableTranslation } from "./placeholders.js";
-import { FORMAT_MODULE, RUNTIME_LOCALE, RUNTIME_LOOKUP, RUNTIME_FORMAT, RUNTIME_MODULE } from "../constants.js";
 
 /** An AST node that a resolved message should replace, tagged with how its replacement is written. */
 type Target =
@@ -12,12 +13,11 @@ type Target =
   | { kind: "string"; node: StringLiteral; message: ResolvedMessage };
 
 /**
- * Build mode bakes the catalogue for `locale` into the code. Runtime mode emits
- * `t(id, source)` calls that resolve against the catalogues loaded by RUNTIME_MODULE.
- * Messages written in `sourceLocale` are emitted as-is.
+ * Build mode bakes the catalogue for `locale` into the code. Runtime mode emits `t(id, source)` calls that resolve
+ * against the catalogues loaded by RUNTIME_MODULE. Messages written in `sourceLocale` are emitted as-is.
  *
- * Replacements are applied in place with MagicString, so the returned source map points back to the original file.
- * When any runtime helper is used, the matching import from RUNTIME_MODULE is prepended.
+ * Replacements are applied in place with MagicString, so the returned source map points back to the original file. When
+ * any runtime helper is used, the matching import from RUNTIME_MODULE is prepended.
  *
  * @param code Source text of the module to transform.
  * @param filename Used for parsing and as the source name in the source map.

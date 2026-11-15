@@ -1,10 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { existsSync } from "node:fs";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import autoI18n, { OpenAICompatibleProvider, PartialTranslationError, type AutoI18nOptions } from "../src/index.js";
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { RUNTIME_MODULE } from "../src/constants.js";
+import autoI18n, { type AutoI18nOptions, OpenAICompatibleProvider, PartialTranslationError } from "../src/index.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;

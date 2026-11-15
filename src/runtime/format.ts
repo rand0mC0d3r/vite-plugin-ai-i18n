@@ -7,8 +7,8 @@ interface Formatter {
 
 /**
  * Renders an ICU MessageFormat text. Values are kept as they are, so React nodes stay separate parts of the result.
- * Text that cannot be formatted is returned unchanged. Serialised into the format module via toString(), so it must
- * not reference anything outside its body.
+ * Text that cannot be formatted is returned unchanged. Serialised into the format module via toString(), so it must not
+ * reference anything outside its body.
  */
 export function formatMessage(
   IntlMessageFormat: new (text: string, locale: string) => Formatter,

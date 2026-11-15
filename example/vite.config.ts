@@ -1,7 +1,9 @@
-import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
+
+import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
-import autoI18n, { HostedService, LocalService, MachineService, hosted, local, machine } from "../src/index";
+
+import autoI18n, { hosted, HostedService, local, LocalService, machine, MachineService } from "../src/index";
 
 export default defineConfig(({ mode }) => {
   // Reads provider keys from the repo-root .env.local (git-ignored) as well as the process environment.

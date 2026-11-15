@@ -1,4 +1,4 @@
-import { parseSync, type ESTree } from "rolldown/utils";
+import { type ESTree, parseSync } from "rolldown/utils";
 
 export type Node = ESTree.Node;
 export type StringLiteral = ESTree.StringLiteral;
@@ -67,8 +67,8 @@ export function isStringLiteral(node: unknown): node is StringLiteral {
 }
 
 /**
- * Mirrors Babel's `leadingComments` check: walks back from `start` over whitespace and comments and reports
- * whether a block comment with `value` sits directly before it.
+ * Mirrors Babel's `leadingComments` check: walks back from `start` over whitespace and comments and reports whether a
+ * block comment with `value` sits directly before it.
  */
 export function hasLeadingBlockComment(
   code: string,

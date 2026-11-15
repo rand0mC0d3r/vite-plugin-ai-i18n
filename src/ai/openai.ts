@@ -1,20 +1,23 @@
-import {
-  BatchedProvider,
-  systemPrompt,
-  userContent,
-  type BatchedProviderOptions,
-  type TranslateInput,
-} from "./base.js";
+import { OPENAI_BASE_URL } from "../constants.js";
 import { chatCompletionSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
-import { OPENAI_BASE_URL } from "../constants.js";
+import {
+  BatchedProvider,
+  type BatchedProviderOptions,
+  systemPrompt,
+  type TranslateInput,
+  userContent,
+} from "./base.js";
 
 /** Options for an OpenAI or OpenAI-compatible chat completions endpoint. */
 export interface OpenAICompatibleOptions extends BatchedProviderOptions {
   /** Sent as a bearer token. Omit it for servers that need no key, such as a local Ollama. */
   apiKey?: string;
   model: string;
-  /** API root. Defaults to OpenAI. Point it at any compatible service, for example `http://localhost:11434/v1` for Ollama. */
+  /**
+   * API root. Defaults to OpenAI. Point it at any compatible service, for example `http://localhost:11434/v1` for
+   * Ollama.
+   */
   baseURL?: string;
 }
 

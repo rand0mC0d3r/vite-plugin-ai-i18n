@@ -135,8 +135,8 @@ export function hosted<S extends HostedService>(
 }
 
 /**
- * Creates a provider for a local runtime. It is enabled by `model`, the model you have loaded, since local servers
- * need no key. `baseURL` overrides the server address.
+ * Creates a provider for a local runtime. It is enabled by `model`, the model you have loaded, since local servers need
+ * no key. `baseURL` overrides the server address.
  */
 export function local(
   service: LocalService,

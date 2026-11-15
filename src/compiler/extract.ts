@@ -2,19 +2,17 @@ import {
   CHILDREN_PROP,
   COMPONENT_TAG,
   DEFAULT_STRING_MARKER,
-  IGNORED_TAGS,
   IGNORE_ATTR,
   IGNORE_VALUE,
+  IGNORED_TAGS,
   TRANSLATABLE_ATTRS,
 } from "../constants.js";
-import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import { argumentName, escapeIcu } from "../icu.js";
+import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import {
   hasLeadingBlockComment,
   isStringLiteral,
-  parseSource,
-  walk,
   type JSXAttribute,
   type JSXElement,
   type JSXExpressionContainer,
@@ -22,6 +20,8 @@ import {
   type JSXText,
   type Node,
   type ParsedSource,
+  parseSource,
+  walk,
 } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
 
@@ -67,7 +67,10 @@ function hasIgnoreMarker(opening: JSXOpeningElement): boolean {
   );
 }
 
-/** Only intrinsic elements (lowercase DOM tags) carry copy by default; capitalised components need `children` in `componentProps`. */
+/**
+ * Only intrinsic elements (lowercase DOM tags) carry copy by default; capitalised components need `children` in
+ * `componentProps`.
+ */
 function isExtractableTag(name: JSXOpeningElement["name"]): name is JSXIdentifierNode {
   return name.type === "JSXIdentifier" && !COMPONENT_TAG.test(name.name) && !IGNORED_TAGS.has(name.name);
 }
@@ -142,8 +145,8 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
 
 /**
  * Finds translatable copy in a module: mixed-content JSX elements, plain JSX text, translatable JSX attributes, and
- * string literals marked with a leading `/* i18n *\/` comment. Elements marked `translate="no"` are skipped with
- * their whole subtree.
+ * string literals marked with a leading `/* i18n *\/` comment. Elements marked `translate="no"` are skipped with their
+ * whole subtree.
  *
  * @param code Source text of the module.
  * @param filename Used for parsing and recorded on each message.
@@ -176,7 +179,10 @@ export function extractMessages(
     return isExtractableTag(name) || (COMPONENT_TAG.test(tag) && componentPropsFor(tag).includes(CHILDREN_PROP));
   };
 
-  /** `ancestors` runs from the root to the parent of the node being inspected, so the enclosing function's parent is one step back. */
+  /**
+   * `ancestors` runs from the root to the parent of the node being inspected, so the enclosing function's parent is one
+   * step back.
+   */
   function componentName(ancestors: Node[]): string {
     let index = ancestors.length - 1;
     while (index >= 0 && !isFunction(ancestors[index], ancestors[index - 1])) index--;
@@ -255,7 +261,10 @@ export function extractMessages(
     );
   }
 
-  /** Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to `visitElement`. */
+  /**
+   * Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to
+   * `visitElement`.
+   */
   function visitText(node: JSXText, ancestors: Node[]): void {
     if (isMarkedUntranslated([...ancestors, node])) return;
     const raw = textOf(node);

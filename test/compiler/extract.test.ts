@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { extractMessages } from "../../src/compiler/extract.js";
-import { decodeJsxEntities } from "../../src/compiler/entities.js";
+
 import { parseSource } from "../../src/compiler/ast.js";
+import { decodeJsxEntities } from "../../src/compiler/entities.js";
+import { extractMessages } from "../../src/compiler/extract.js";
 
 const extract = (code: string, options = {}) => extractMessages(code, "App.tsx", options);
 const sources = (code: string, options = {}) => extract(code, options).map((message) => message.source);

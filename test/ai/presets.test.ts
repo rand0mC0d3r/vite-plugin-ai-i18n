@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TranslationRequest } from "../../src/types.js";
+
 import { AnthropicProvider } from "../../src/ai/anthropic.js";
 import { DeepLProvider } from "../../src/ai/deepl.js";
 import { GeminiProvider } from "../../src/ai/gemini.js";
 import { GoogleTranslateProvider } from "../../src/ai/google.js";
 import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
-import { HostedService, LocalService, MachineService, hosted, local, machine } from "../../src/ai/presets.js";
+import { hosted, HostedService, local, LocalService, machine, MachineService } from "../../src/ai/presets.js";
+import type { TranslationRequest } from "../../src/types.js";
 
 const request: TranslationRequest = { id: "a", source: "Save", context: "", kind: "text" };
 const input = { sourceLocale: "en", targetLocale: "de", messages: [request] };

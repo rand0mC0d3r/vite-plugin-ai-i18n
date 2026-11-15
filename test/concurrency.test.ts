@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { Semaphore } from "../src/concurrency.js";
 
 describe("Semaphore", () => {

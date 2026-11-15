@@ -1,4 +1,5 @@
-import { describe, expect, it, vi, type Mock } from "vitest";
+import { describe, expect, it, type Mock, vi } from "vitest";
+
 import { FallbackProvider, resolveProvider } from "../src/ai/fallback.js";
 import { PartialTranslationError } from "../src/errors.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../src/types.js";

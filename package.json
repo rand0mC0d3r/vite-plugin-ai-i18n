@@ -1,31 +1,30 @@
 {
   "name": "vite-plugin-ai-auto-i18n",
   "version": "0.9.5",
-  "type": "module",
   "description": "Implicit, build-time AI localization for JSX applications",
-  "license": "ISC",
-  "engines": {
-    "node": ">=26.0.0"
-  },
-  "packageManager": "bun@1.4.4-canary.20261114.1",
   "keywords": [
-    "vite",
-    "vite-plugin",
+    "ai",
     "i18n",
-    "localization",
-    "translation",
-    "react",
     "jsx",
-    "ai"
+    "localization",
+    "react",
+    "translation",
+    "vite",
+    "vite-plugin"
   ],
   "homepage": "https://github.com/rand0mC0d3r/vite-plugin-ai-i18n#readme",
+  "bugs": {
+    "url": "https://github.com/rand0mC0d3r/vite-plugin-ai-i18n/issues"
+  },
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rand0mC0d3r/vite-plugin-ai-i18n.git"
   },
-  "bugs": {
-    "url": "https://github.com/rand0mC0d3r/vite-plugin-ai-i18n/issues"
-  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -38,9 +37,6 @@
       "import": "./dist/runtime/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsdown",
     "analyze": "ANALYZE=1 tsdown",
@@ -55,10 +51,6 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage --coverage.include='src/**' --coverage.reporter=text --coverage.reporter=json-summary",
     "typecheck": "tsc --noEmit"
-  },
-  "peerDependencies": {
-    "rolldown": "^1.2.18",
-    "vite": "^8.0.0"
   },
   "dependencies": {
     "arktype": "^2.2.9",
@@ -81,5 +73,13 @@
     "typescript": "^7.1.0-beta",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"
-  }
+  },
+  "peerDependencies": {
+    "rolldown": "^1.2.18",
+    "vite": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "packageManager": "bun@1.4.4-canary.20261114.1"
 }

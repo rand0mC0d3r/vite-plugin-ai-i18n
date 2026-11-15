@@ -1,12 +1,14 @@
-import { ArkErrors } from "arktype";
 import path from "node:path";
+
+import { ArkErrors } from "arktype";
+
 import { readJsonFile, toJson, writeFileIfChanged } from "./io.js";
 import { LOCALE_TAG, localeFileSchema } from "./schemas.js";
 import type { Catalog } from "./types.js";
 
 /**
- * One locale's file on disk (`locales/<locale>.json`). `messages` is what the runtime and build read,
- * and `sources` records the source text each translation was made from, so a changed source is re-translated.
+ * One locale's file on disk (`locales/<locale>.json`). `messages` is what the runtime and build read, and `sources`
+ * records the source text each translation was made from, so a changed source is re-translated.
  */
 export interface LocaleFile {
   messages: Catalog;
@@ -33,8 +35,8 @@ const stringValues = (record: Record<string, unknown>, warn?: (message: string) 
 };
 
 /**
- * A file without the `messages`/`sources` wrapper (the pre-merge format) is treated as empty and rebuilt.
- * Non-string values inside a valid wrapper are dropped, so they are translated again.
+ * A file without the `messages`/`sources` wrapper (the pre-merge format) is treated as empty and rebuilt. Non-string
+ * values inside a valid wrapper are dropped, so they are translated again.
  */
 export async function readLocaleFile(file: string, warn?: (message: string) => void): Promise<LocaleFile> {
   const parsed = await readJsonFile<unknown>(file, null, warn);

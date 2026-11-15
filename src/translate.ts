@@ -1,5 +1,5 @@
+import { type LocaleFile, pruneLocaleFile } from "./catalog.js";
 import { isUsableTranslation } from "./compiler/placeholders.js";
-import { pruneLocaleFile, type LocaleFile } from "./catalog.js";
 import { debugLog } from "./debug.js";
 import { PartialTranslationError } from "./errors.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "./types.js";
@@ -37,9 +37,9 @@ export interface LocaleTranslation {
 }
 
 /**
- * Brings one locale up to date. Messages are re-requested when they are new or when their source text changed
- * under the same ID. Unusable translations are dropped so they are requested again later, and keys for messages
- * that are no longer active are removed. A partially failed request keeps the translations that did succeed.
+ * Brings one locale up to date. Messages are re-requested when they are new or when their source text changed under the
+ * same ID. Unusable translations are dropped so they are requested again later, and keys for messages that are no
+ * longer active are removed. A partially failed request keeps the translations that did succeed.
  */
 export async function translateLocale(input: LocaleTranslationInput): Promise<LocaleTranslation> {
   const { provider, sourceLocale, locale, requests, previous, debug } = input;

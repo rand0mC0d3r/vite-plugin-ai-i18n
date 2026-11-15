@@ -1,16 +1,18 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
-import { extractMessages } from "../src/compiler/extract.js";
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { parseSource } from "../src/compiler/ast.js";
+import { extractMessages } from "../src/compiler/extract.js";
 import { transformSource } from "../src/compiler/transform.js";
+import { FORMAT_LIBRARY } from "../src/constants.js";
 import { createFingerprint } from "../src/identity/fingerprint.js";
+import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
 import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
 import { createRuntimeModule } from "../src/runtime/virtual.js";
 import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
-import { FORMAT_LIBRARY } from "../src/constants.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
 

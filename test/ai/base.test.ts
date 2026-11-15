@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+
 import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 import type { TranslationRequest } from "../../src/types.js";
 

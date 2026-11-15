@@ -1,13 +1,13 @@
-import {
-  BatchedProvider,
-  systemPrompt,
-  userContent,
-  type BatchedProviderOptions,
-  type TranslateInput,
-} from "./base.js";
+import { ANTHROPIC_BASE_URL, ANTHROPIC_VERSION } from "../constants.js";
 import { anthropicMessageSchema } from "../schemas.js";
 import type { Catalog } from "../types.js";
-import { ANTHROPIC_BASE_URL, ANTHROPIC_VERSION } from "../constants.js";
+import {
+  BatchedProvider,
+  type BatchedProviderOptions,
+  systemPrompt,
+  type TranslateInput,
+  userContent,
+} from "./base.js";
 
 /** Options for the Anthropic Messages API. */
 export interface AnthropicOptions extends BatchedProviderOptions {
@@ -19,9 +19,7 @@ export interface AnthropicOptions extends BatchedProviderOptions {
   maxTokens?: number;
 }
 
-/**
- * Translates batches through the Anthropic Messages API. The reply's text blocks are joined before parsing.
- */
+/** Translates batches through the Anthropic Messages API. The reply's text blocks are joined before parsing. */
 export class AnthropicProvider extends BatchedProvider<AnthropicOptions> {
   protected async request(input: TranslateInput): Promise<Catalog> {
     return this.complete(

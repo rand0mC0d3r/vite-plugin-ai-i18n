@@ -1,9 +1,10 @@
 import { ArkErrors } from "arktype";
+
 import { Semaphore } from "../concurrency.js";
+import { MAX_RETRY_AFTER_MS } from "../constants.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
-import { MAX_RETRY_AFTER_MS } from "../constants.js";
 
 /** Tuning options shared by every HTTP provider that sends messages in batches. */
 export interface BatchedProviderOptions {
@@ -13,7 +14,10 @@ export interface BatchedProviderOptions {
   timeoutMs?: number;
   /** Extra attempts for network errors, timeouts, 408/409/429/5xx and malformed responses. Default 2. */
   maxRetries?: number;
-  /** Base delay before a retry; doubles on each attempt and is jittered. A Retry-After header overrides it (max 60 s). Default 500. */
+  /**
+   * Base delay before a retry; doubles on each attempt and is jittered. A Retry-After header overrides it (max 60 s).
+   * Default 500.
+   */
   retryDelayMs?: number;
   /** Batches sent in parallel across all locales of one provider instance. Default 4. */
   concurrency?: number;
@@ -27,8 +31,8 @@ export interface TranslateInput {
 }
 
 /**
- * Error raised for failures in a provider's response. `retryable` tells the batch retry loop whether another attempt may
- * succeed; `retryAfterMs` carries the server's Retry-After hint when one was sent.
+ * Error raised for failures in a provider's response. `retryable` tells the batch retry loop whether another attempt
+ * may succeed; `retryAfterMs` carries the server's Retry-After hint when one was sent.
  */
 export class ProviderError extends Error {
   constructor(
@@ -62,7 +66,10 @@ export function userContent(messages: TranslationRequest[]): string {
   return JSON.stringify(messages.map((m) => ({ id: m.id, text: m.source, context: m.context, kind: m.kind })));
 }
 
-/** Builds a retryable-or-not error from a non-2xx response. The body is not included: provider error payloads can echo credentials or source text into logs. */
+/**
+ * Builds a retryable-or-not error from a non-2xx response. The body is not included: provider error payloads can echo
+ * credentials or source text into logs.
+ */
 export async function httpError(response: Response): Promise<Error> {
   const retryable =
     response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
@@ -75,8 +82,8 @@ export async function httpError(response: Response): Promise<Error> {
 }
 
 /**
- * Shared batching, concurrency and retry logic for HTTP translation providers.
- * Subclasses implement one request per batch and return the translations it produced.
+ * Shared batching, concurrency and retry logic for HTTP translation providers. Subclasses implement one request per
+ * batch and return the translations it produced.
  */
 export abstract class BatchedProvider<O extends BatchedProviderOptions> implements TranslationProvider {
   // One limiter per provider instance, so concurrent locales share the request budget instead of multiplying it.
@@ -87,8 +94,8 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   }
 
   /**
-   * Translates in parallel batches. If every batch fails, the first error is thrown. If only some fail,
-   * a PartialTranslationError carries the translations that succeeded.
+   * Translates in parallel batches. If every batch fails, the first error is thrown. If only some fail, a
+   * PartialTranslationError carries the translations that succeeded.
    */
   async translate(input: TranslateInput): Promise<Catalog> {
     const batchSize = Math.max(1, this.options.batchSize ?? 40);
@@ -122,8 +129,8 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   }
 
   /**
-   * Runs one batch, retrying retryable failures with exponential backoff (`retryDelayMs * 2^attempt`, jittered)
-   * up to `maxRetries` extra attempts. Non-retryable errors are rethrown immediately.
+   * Runs one batch, retrying retryable failures with exponential backoff (`retryDelayMs * 2^attempt`, jittered) up to
+   * `maxRetries` extra attempts. Non-retryable errors are rethrown immediately.
    */
   private async translateBatch(input: TranslateInput): Promise<Catalog> {
     const maxRetries = this.options.maxRetries ?? 2;
@@ -145,7 +152,10 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   /** Sends one batch to the provider and returns the translations it produced for the requested IDs. */
   protected abstract request(input: TranslateInput): Promise<Catalog>;
 
-  /** POSTs a JSON body with the given headers and returns the parsed JSON reply. Non-2xx replies throw a classified error. */
+  /**
+   * POSTs a JSON body with the given headers and returns the parsed JSON reply. Non-2xx replies throw a classified
+   * error.
+   */
   protected async post(url: string, headers: Record<string, string>, body: unknown): Promise<unknown> {
     const response = await fetch(url, {
       method: "POST",
@@ -174,8 +184,8 @@ export abstract class BatchedProvider<O extends BatchedProviderOptions> implemen
   }
 
   /**
-   * Parses the model's text reply, which must be a JSON object mapping IDs to strings. A surrounding Markdown code fence
-   * is stripped first, because models sometimes add one even when told not to.
+   * Parses the model's text reply, which must be a JSON object mapping IDs to strings. A surrounding Markdown code
+   * fence is stripped first, because models sometimes add one even when told not to.
    */
   protected toCatalog(content: string | undefined, messages: TranslationRequest[]): Catalog {
     const text = content?.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");

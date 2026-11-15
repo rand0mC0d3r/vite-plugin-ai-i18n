@@ -1,8 +1,9 @@
 import { stat } from "node:fs/promises";
-import { readLocaleFile, writeLocaleFile, type LocaleFile } from "./catalog.js";
+
+import { type LocaleFile, readLocaleFile, writeLocaleFile } from "./catalog.js";
 import type { ParsedSource } from "./compiler/ast.js";
 import { loadRegistry, saveRegistry } from "./identity/registry.js";
-import type { Catalog, ExtractedMessage, ResolvedMessage, Registry } from "./types.js";
+import type { Catalog, ExtractedMessage, Registry, ResolvedMessage } from "./types.js";
 
 /** Last extraction of one source file. The hash lets an unchanged file skip re-extraction. */
 export interface ExtractionCacheEntry {
@@ -10,7 +11,10 @@ export interface ExtractionCacheEntry {
   messages: ExtractedMessage[];
 }
 
-/** A parsed file kept until its on-disk stamp changes. Cached values are shared, so callers must not mutate them. `written` marks a value this process saved, whose text is exactly what is on disk. */
+/**
+ * A parsed file kept until its on-disk stamp changes. Cached values are shared, so callers must not mutate them.
+ * `written` marks a value this process saved, whose text is exactly what is on disk.
+ */
 interface Cached<T> {
   stamp: string;
   value: T;
@@ -41,7 +45,10 @@ class StampCache<T> {
     return value;
   }
 
-  /** True when this process last saved an equal value and the file has not changed since, so saving again would change nothing. */
+  /**
+   * True when this process last saved an equal value and the file has not changed since, so saving again would change
+   * nothing.
+   */
   async holds(file: string, value: T, same: (a: T, b: T) => boolean): Promise<boolean> {
     const cached = this.entries.get(file);
     if (cached?.written !== true || !same(cached.value, value)) return false;
@@ -68,9 +75,9 @@ function sameLocale(a: LocaleFile, b: LocaleFile): boolean {
 }
 
 /**
- * Everything the plugin remembers between syncs: the source index, the compiled catalogues and the
- * caches for files read from disk. Files are cached by their stamp, so a locale or registry file edited
- * outside the plugin is read again on the next sync.
+ * Everything the plugin remembers between syncs: the source index, the compiled catalogues and the caches for files
+ * read from disk. Files are cached by their stamp, so a locale or registry file edited outside the plugin is read again
+ * on the next sync.
  */
 export class IndexState {
   extractions = new Map<string, ExtractionCacheEntry>();

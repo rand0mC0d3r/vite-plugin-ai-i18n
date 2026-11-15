@@ -1,16 +1,18 @@
-import { ArkErrors } from "arktype";
 import { randomUUID } from "node:crypto";
-import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
+
+import { ArkErrors } from "arktype";
+
+import { MINUTE_MS } from "../constants.js";
 import { readJsonFile, toJson, writeFileIfChanged } from "../io.js";
 import { registryEntrySchema, registryFileSchema } from "../schemas.js";
-import { MINUTE_MS } from "../constants.js";
+import type { ExtractedMessage, Registry, RegistryEntry, ResolvedMessage } from "../types.js";
 
 /** A registry with no entries, used when no usable file exists yet. */
 const emptyRegistry = (): Registry => ({ version: 1, entries: {} });
 
 /**
- * Loads the registry. Invalid entries are dropped individually so the IDs of the valid ones stay stable;
- * a file with the wrong top-level shape is replaced by an empty registry.
+ * Loads the registry. Invalid entries are dropped individually so the IDs of the valid ones stay stable; a file with
+ * the wrong top-level shape is replaced by an empty registry.
  */
 export async function loadRegistry(file: string, warn?: (message: string) => void): Promise<Registry> {
   const parsed = await readJsonFile<unknown>(file, null, warn);
@@ -54,8 +56,8 @@ export interface ReconcileResult {
  * Assigns a stable ID to every extracted message by matching it against the registry.
  *
  * Messages are grouped by fingerprint. Within a group, old and new occurrences are paired first by component name, then
- * by position. Unmatched messages get a fresh `msg_` ID. Stored entries that match nothing become `orphaned`, and matched
- * entries are reactivated and have their source, component and location refreshed.
+ * by position. Unmatched messages get a fresh `msg_` ID. Stored entries that match nothing become `orphaned`, and
+ * matched entries are reactivated and have their source, component and location refreshed.
  *
  * @param registry Current registry. It is mutated in place.
  * @param messages Messages extracted from the current source.
@@ -153,9 +155,8 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
 }
 
 /**
- * Deletes orphaned entries that have not been seen in the source for longer than `retentionMinutes`.
- * `lastSeen` is only updated while an entry is active, so for orphans it marks when they disappeared.
- * Returns the removed entries.
+ * Deletes orphaned entries that have not been seen in the source for longer than `retentionMinutes`. `lastSeen` is only
+ * updated while an entry is active, so for orphans it marks when they disappeared. Returns the removed entries.
  */
 export function pruneOrphans(registry: Registry, retentionMinutes: number, now = Date.now()): RegistryEntry[] {
   const cutoff = now - retentionMinutes * MINUTE_MS;

@@ -1,7 +1,7 @@
-import { mapWithConcurrency } from "./concurrency.js";
 import { emptyLocaleFile, type LocaleFile } from "./catalog.js";
-import { translateLocale, type LocaleTranslation } from "./translate.js";
+import { mapWithConcurrency } from "./concurrency.js";
 import { pruneOrphans, reconcile } from "./identity/registry.js";
+import { type LocaleTranslation, translateLocale } from "./translate.js";
 import type {
   Catalog,
   ExtractedMessage,
@@ -52,8 +52,8 @@ export interface CatalogBuildResult {
 }
 
 /**
- * Pure build step: reconciles IDs with the registry, prunes orphans and translates the missing or stale messages
- * for each locale. It does no file IO and does not mutate its input, so the same inputs always produce the same catalogues
+ * Pure build step: reconciles IDs with the registry, prunes orphans and translates the missing or stale messages for
+ * each locale. It does no file IO and does not mutate its input, so the same inputs always produce the same catalogues
  * (apart from the IDs of newly seen messages, which are random).
  */
 export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBuildResult> {

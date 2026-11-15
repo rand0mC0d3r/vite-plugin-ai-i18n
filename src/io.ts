@@ -10,8 +10,8 @@ export const toJson = (value: unknown): string => JSON.stringify(value, null, 2)
 export const hashContent = (text: string): string => createHash("sha256").update(text).digest("hex");
 
 /**
- * Reads a JSON file. A missing file yields the fallback silently. A corrupt file is moved aside
- * (so its contents are not lost when it is overwritten) and the fallback is returned with a warning.
+ * Reads a JSON file. A missing file yields the fallback silently. A corrupt file is moved aside (so its contents are
+ * not lost when it is overwritten) and the fallback is returned with a warning.
  */
 export async function readJsonFile<T>(file: string, fallback: T, warn?: Warn): Promise<T> {
   let text: string;

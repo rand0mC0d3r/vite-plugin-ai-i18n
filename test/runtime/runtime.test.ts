@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
 import { IntlMessageFormat } from "intl-messageformat";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { createFormatModule, formatMessage } from "../../src/runtime/format.js";
 import { createLocaleLoader } from "../../src/runtime/loader.js";
 import { resolveLocale } from "../../src/runtime/resolve.js";

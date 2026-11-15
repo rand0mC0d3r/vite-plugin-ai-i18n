@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { computeStats } from "../src/stats.js";
 import type { Registry, RegistryEntry } from "../src/types.js";
 
