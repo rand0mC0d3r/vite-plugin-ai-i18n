@@ -50,6 +50,8 @@
 
 ## 📍 Overview
 
+![AI Auto i18n](images/overview.png)
+
 ```mermaid
 flowchart LR
     src["Your JSX and /* i18n */ strings"] --> p1["1. Extract"]
@@ -297,8 +299,6 @@ Equivalent commands: `bun add -D`, `pnpm add -D`, or `yarn add -D`, with the sam
 - For React, also keep `@vitejs/plugin-react` in your Vite config.
 
 ### 2️⃣ Add your API key
-
-![AI Providers used by the plugin](images/ai.png)
 
 Put the key in `.env.local` and keep that file out of git:
 
@@ -622,6 +622,8 @@ autoI18n({ locales: ["en", ...locales.ASIA] });
 </details>
 
 ## 🔌 Providers
+
+![AI Providers used by the plugin](images/ai.png)
 
 ### Choosing a provider
 
