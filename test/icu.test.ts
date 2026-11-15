@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { argumentName, escapeIcu, icuArgumentNames } from "../src/icu.js";
+import { argumentName, escapeIcu, icuArgumentNames, isUsableTranslation } from "../src/icu.js";
+
+describe("isUsableTranslation", () => {
+  it("rejects blank, unparseable and argument-changing translations", () => {
+    expect(isUsableTranslation("   ", ["n"])).toBe(false);
+    expect(isUsableTranslation("{n", ["n"])).toBe(false);
+    expect(isUsableTranslation("{total} files", ["n"])).toBe(false);
+  });
+
+  it("accepts a translation that repeats or reorders the source arguments", () => {
+    expect(isUsableTranslation("{b} {a} {a}", ["a", "b"])).toBe(true);
+  });
+});
 
 describe("escapeIcu", () => {
   it("doubles apostrophes and quotes braces so the text is read literally", () => {

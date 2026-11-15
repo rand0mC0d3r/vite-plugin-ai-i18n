@@ -32,6 +32,17 @@ describe("computeStats", () => {
     },
   };
 
+  it("breaks ties between orphans with the same last-seen time by ID", () => {
+    const tied: Registry = {
+      version: 1,
+      entries: {
+        z: entry("z", { status: "orphaned", lastSeen: "2020-01-01T00:00:00.000Z" }),
+        m: entry("m", { status: "orphaned", lastSeen: "2020-01-01T00:00:00.000Z" }),
+      },
+    };
+    expect(computeStats(tied, {}).registry.orphans.map((orphan) => orphan.id)).toEqual(["m", "z"]);
+  });
+
   it("counts registry entries by status, kind and component, and lists orphans oldest first", () => {
     const report = computeStats(registry, {});
     expect(report.registry.total).toBe(5);

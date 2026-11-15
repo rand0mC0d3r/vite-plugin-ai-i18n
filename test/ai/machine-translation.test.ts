@@ -41,6 +41,27 @@ describe("machine-translation adapters", () => {
       expect((JSON.parse(init.body as string) as DeepLBody).target_lang).toBe("EN-US");
       expect(fetchMock.mock.calls[0][0]).toBe("https://api.deepl.com/v2/translate");
     });
+
+    it("keeps explicit regional targets and maps plain Portuguese to PT-BR", async () => {
+      const provider = new DeepLProvider({ apiKey: "key", retryDelayMs: 0 });
+      const targetOf = async (locale: string) => {
+        fetchMock.mockResolvedValueOnce(json({ translations: [{ text: "x" }] }));
+        await provider.translate(input([request("a", "Save")], locale));
+        const [, init] = fetchMock.mock.calls.at(-1) as [string, RequestInit];
+        return (JSON.parse(init.body as string) as DeepLBody).target_lang;
+      };
+      expect(await targetOf("en-gb")).toBe("EN-GB");
+      expect(await targetOf("pt")).toBe("PT-BR");
+      expect(await targetOf("pt_pt")).toBe("PT-PT");
+    });
+
+    it("treats a reply without translations as a retryable provider error", async () => {
+      fetchMock.mockResolvedValue(json({ unexpected: true }));
+      const provider = new DeepLProvider({ apiKey: "key", retryDelayMs: 0, maxRetries: 0 });
+      await expect(provider.translate(input([request("a", "Save")]))).rejects.toThrow(
+        "DeepL returned an unexpected response",
+      );
+    });
   });
 
   describe("GoogleTranslateProvider", () => {
@@ -52,6 +73,14 @@ describe("machine-translation adapters", () => {
         input([request("a", "{name} space")], "fr"),
       );
       expect(result).toEqual({ a: "{name} l'espace" });
+    });
+
+    it("treats a reply without translations as a retryable provider error", async () => {
+      fetchMock.mockResolvedValue(json({ unexpected: true }));
+      const provider = new GoogleTranslateProvider({ apiKey: "key", retryDelayMs: 0, maxRetries: 0 });
+      await expect(provider.translate(input([request("a", "Save")]))).rejects.toThrow(
+        "Google Translate returned an unexpected response",
+      );
     });
   });
 });

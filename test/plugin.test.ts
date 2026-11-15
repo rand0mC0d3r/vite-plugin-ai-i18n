@@ -6,7 +6,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RUNTIME_MODULE } from "../src/compiler/transform.js";
-import autoI18n, { type AutoI18nOptions, OpenAICompatibleProvider, PartialTranslationError } from "../src/index.js";
+import autoI18n, { type AutoI18nOptions, PartialTranslationError } from "../src/index.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
@@ -442,12 +442,5 @@ describe("autoI18n plugin", () => {
       expect(logger.error).toHaveBeenCalledWith(expect.stringMatching(/re-translation failed: offline/));
       expect(dev.ws.send).not.toHaveBeenCalled();
     });
-  });
-});
-
-describe("public exports", () => {
-  it("exposes the OpenAI-compatible provider and the partial-failure error", () => {
-    expect(typeof OpenAICompatibleProvider).toBe("function");
-    expect(new PartialTranslationError("x", {}, 0).name).toBe("PartialTranslationError");
   });
 });

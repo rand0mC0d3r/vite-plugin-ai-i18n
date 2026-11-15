@@ -4,10 +4,15 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { emptyLocaleFile, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/io/catalog.js";
+import { emptyLocaleFile, localeFilePath, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/io/catalog.js";
 import { readJsonFile, writeFileAtomic } from "../src/io/files.js";
 
 describe("io and catalog helpers", () => {
+  it("builds a locale file path and rejects an invalid locale tag", () => {
+    expect(localeFilePath("out", "de-CH")).toBe(path.join("out", "de-CH.json"));
+    expect(() => localeFilePath("out", "not a locale")).toThrow("is not a valid locale tag");
+  });
+
   let dir: string;
 
   beforeEach(async () => {

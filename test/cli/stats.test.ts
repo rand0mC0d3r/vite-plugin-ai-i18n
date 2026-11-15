@@ -80,6 +80,33 @@ describe("stats CLI", () => {
     await rm(root, { recursive: true, force: true });
   });
 
+  it("reports an empty registry and no locale files in text form", async () => {
+    await writeFile(path.join(outDir, "registry.json"), JSON.stringify({ version: 1, entries: {} }));
+
+    await runCli(root, []);
+
+    const output = logged();
+    expect(output).toContain("entries: 0 (0 active, 0 orphaned)");
+    expect(output).not.toContain("by kind:");
+    expect(output).not.toContain("by component:");
+    expect(output).toContain("no locale files found.");
+    expect(output).toContain("Orphans\n  none.");
+  });
+
+  it("prints the report as JSON with --json", async () => {
+    await writeFile(path.join(outDir, "registry.json"), JSON.stringify({ version: 1, entries: { a: entry("a") } }));
+    await writeFile(
+      path.join(outDir, "locales", "de.json"),
+      JSON.stringify({ messages: { a: "Hallo" }, sources: { a: "text a" } }),
+    );
+
+    await runCli(root, ["--json"]);
+
+    const report = JSON.parse(logged()) as StatsReport;
+    expect(report.registry.total).toBe(1);
+    expect(report.locales).toEqual([expect.objectContaining({ locale: "de", coverage: 1 })]);
+  });
+
   it("reports that there is nothing to report when no registry exists", async () => {
     await runCli(root, []);
     expect(console.log).toHaveBeenCalledWith(expect.stringMatching(/no registry found .*nothing to report/));
