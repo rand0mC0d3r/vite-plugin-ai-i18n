@@ -495,7 +495,7 @@ The example config enables each of these only when its credentials are set.
 
 ### Choosing a provider
 
-Every service below is either native (`AnthropicProvider`, `GeminiProvider`) or speaks the OpenAI Chat Completions protocol, so it is used through `OpenAICompatibleProvider` with a different `baseURL`. The library does not read any environment variables itself; the key names below are what the example config uses.
+Every service below is either a native API (Anthropic, Gemini) or speaks the OpenAI Chat Completions protocol, so it is used through `OpenAICompatibleProvider` with a different `baseURL`. The library does not read any environment variables itself; the key names below are what the example config uses.
 
 | Service | Class | Key variable | Base URL | Example default model |
 |---|---|---|---|---|
@@ -534,6 +534,32 @@ Notes:
 new OpenAICompatibleProvider({ apiKey: env.GROQ_API_KEY!, baseURL: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" });
 new OpenAICompatibleProvider({ baseURL: "http://localhost:11434/v1", model: "qwen2.5:7b" }); // Ollama, no key
 ```
+
+### Helpers for named provider maps
+
+Instead of writing the `env.X ? new Provider(...) : undefined` pattern for each service, use the helpers exported from the package. Each returns `undefined` when its credentials are missing, so the entry is skipped. They take values, not environment names, so the library still reads no environment variables. The endpoints and default models come from the table above.
+
+| Helper | Enum | Enabled by | Returns |
+|---|---|---|---|
+| `hosted(HostedService.X, apiKey, model?)` | `HostedService` (Anthropic and Gemini included) | `apiKey` | `AnthropicProvider`, `GeminiProvider`, or `OpenAICompatibleProvider` |
+| `local(LocalService.X, model, baseURL?)` | `LocalService` | `model` (you have loaded it) | `OpenAICompatibleProvider` |
+| `machine(MachineService.X, apiKey)` | `MachineService` (`DeepL`, `Google`) | `apiKey` | `DeepLProvider` or `GoogleTranslateProvider` |
+
+```ts
+import autoI18n, { HostedService, LocalService, MachineService, hosted, local, machine } from "vite-plugin-ai-auto-i18n";
+
+autoI18n({
+  provider: {
+    primary: env.PRIMARY_PROVIDER || undefined,
+    mistral: hosted(HostedService.Mistral, env.MISTRAL_API_KEY, env.MISTRAL_MODEL),
+    ollama: local(LocalService.Ollama, env.OLLAMA_MODEL, env.OLLAMA_BASE_URL),
+    anthropic: hosted(HostedService.Anthropic, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL),
+    deepl: machine(MachineService.DeepL, env.DEEPL_API_KEY)
+  }
+});
+```
+
+The `model` and `baseURL` arguments override the defaults. Passing `undefined` keeps the default.
 
 ### Multiple providers and fallback
 

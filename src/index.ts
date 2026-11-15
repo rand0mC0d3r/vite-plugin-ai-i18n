@@ -366,5 +366,6 @@ export { DeepLProvider } from "./ai/deepl.js";
 export type { DeepLOptions } from "./ai/deepl.js";
 export { GoogleTranslateProvider } from "./ai/google.js";
 export type { GoogleTranslateOptions } from "./ai/google.js";
+export { HostedService, LocalService, MachineService, hosted, local, machine } from "./ai/presets.js";
 export * from "./locales.js";
 export type * from "./types.js";
