@@ -7,7 +7,7 @@ import type { Catalog, TranslationProvider, TranslationRequest } from "./types.j
 /** Inputs for {@link translateLocale}, which brings a single target locale up to date. */
 export interface LocaleTranslationInput {
   /** Without a provider, missing messages are left untranslated and reported as such. */
-  provider?: TranslationProvider;
+  provider?: TranslationProvider | undefined;
   /** Language the source strings are written in. */
   sourceLocale: string;
   /** Target locale to translate into. */
@@ -33,7 +33,7 @@ export interface LocaleTranslation {
   /** Messages whose batch failed at the provider this run. They are requested again on the next build. */
   failed: number;
   /** The provider's error message for the failed batches, if any. */
-  failure?: string;
+  failure?: string | undefined;
 }
 
 /**

@@ -38,7 +38,7 @@ describe("OpenAICompatibleProvider", () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.openai.com/v1/chat/completions");
     const headers = init.headers as Record<string, string>;
-    expect(headers.Authorization).toBe("Bearer sk-test");
+    expect(headers["Authorization"]).toBe("Bearer sk-test");
     expect(headers["x-api-key"]).toBeUndefined();
     const body = JSON.parse(init.body as string) as ChatBody;
     expect(body.model).toBe("gpt-test");
@@ -58,7 +58,7 @@ describe("OpenAICompatibleProvider", () => {
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("http://localhost:11434/v1/chat/completions");
-    expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
+    expect((init.headers as Record<string, string>)["Authorization"]).toBeUndefined();
   });
 
   it("uses a custom baseURL", async () => {

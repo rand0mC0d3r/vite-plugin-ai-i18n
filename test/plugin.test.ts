@@ -65,19 +65,19 @@ async function readJson<T>(file: string): Promise<T> {
 describe("autoI18n plugin", () => {
   let root: string;
   let logger: { info: ReturnType<typeof vi.fn>; warn: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
-  const savedLocaleEnv = process.env.AUTOI18N_LOCALE;
+  const savedLocaleEnv = process.env["AUTOI18N_LOCALE"];
 
   beforeEach(async () => {
     root = await mkdtemp(path.join(os.tmpdir(), "autoi18n-plugin-"));
     await mkdir(path.join(root, "src"), { recursive: true });
     logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
-    delete process.env.AUTOI18N_LOCALE;
+    delete process.env["AUTOI18N_LOCALE"];
   });
 
   afterEach(async () => {
     vi.restoreAllMocks();
-    if (savedLocaleEnv === undefined) delete process.env.AUTOI18N_LOCALE;
-    else process.env.AUTOI18N_LOCALE = savedLocaleEnv;
+    if (savedLocaleEnv === undefined) delete process.env["AUTOI18N_LOCALE"];
+    else process.env["AUTOI18N_LOCALE"] = savedLocaleEnv;
     await rm(root, { recursive: true, force: true });
   });
 
@@ -186,7 +186,7 @@ describe("autoI18n plugin", () => {
 
   it("honours the AUTOI18N_LOCALE environment variable as the selected locale", async () => {
     await writeFile(srcFile(), SOURCE);
-    process.env.AUTOI18N_LOCALE = "de";
+    process.env["AUTOI18N_LOCALE"] = "de";
     const hooks = start({ locales: ["en", "de", "fr"], provider: fakeProvider() });
     await hooks.buildStart.call(context());
     expect(existsSync(localeFile("de"))).toBe(true);
@@ -194,7 +194,7 @@ describe("autoI18n plugin", () => {
   });
 
   it("rejects a selected locale that is not in the configured list", () => {
-    process.env.AUTOI18N_LOCALE = "xx";
+    process.env["AUTOI18N_LOCALE"] = "xx";
     const plugin = autoI18n({ locales: ["en", "de"] }) as unknown as Hooks;
     expect(() => plugin.configResolved({ root, command: "build", logger })).toThrow(
       /"xx" is not one of the configured locales/,
@@ -352,7 +352,7 @@ describe("autoI18n plugin", () => {
       hooks.configureServer(dev);
 
       await writeFile(srcFile("New.tsx"), `export function New() { return <p>Hello</p>; }\n`);
-      dev.handlers.add(srcFile("New.tsx"));
+      dev.handlers["add"](srcFile("New.tsx"));
       await vi.waitFor(() =>
         expect(dev.ws.send).toHaveBeenCalledWith(expect.objectContaining({ type: "custom", event: "autoi18n:update" })),
       );
@@ -364,8 +364,8 @@ describe("autoI18n plugin", () => {
       await hooks.buildStart.call(context());
       const dev = server();
       hooks.configureServer(dev);
-      dev.handlers.add(path.join(root, "src", "styles.css"));
-      dev.handlers.add(path.join(root, "src", "App.test.tsx"));
+      dev.handlers["add"](path.join(root, "src", "styles.css"));
+      dev.handlers["add"](path.join(root, "src", "App.test.tsx"));
       await new Promise((resolve) => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
     });
@@ -377,12 +377,12 @@ describe("autoI18n plugin", () => {
       const dev = server();
       hooks.configureServer(dev);
 
-      dev.handlers.unlink(path.join(root, "src", "unknown.tsx"));
+      dev.handlers["unlink"](path.join(root, "src", "unknown.tsx"));
       await new Promise((resolve) => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
 
       await rm(srcFile());
-      dev.handlers.unlink(srcFile());
+      dev.handlers["unlink"](srcFile());
       await vi.waitFor(() => expect(dev.ws.send).toHaveBeenCalledTimes(1));
     });
 
@@ -392,7 +392,7 @@ describe("autoI18n plugin", () => {
       await hooks.buildStart.call(context());
       const dev = server();
       hooks.configureServer(dev);
-      dev.handlers.add(path.join(root, "src", "New.tsx"));
+      dev.handlers["add"](path.join(root, "src", "New.tsx"));
       hooks.closeBundle();
       await new Promise((resolve) => setTimeout(resolve, 250));
       expect(dev.ws.send).not.toHaveBeenCalled();
@@ -420,7 +420,7 @@ describe("autoI18n plugin", () => {
       const payloads = dev.ws.send.mock.calls.map(
         (call) => call[0] as { data?: { catalogs?: Record<string, unknown> } },
       );
-      expect(payloads.some((p) => typeof p.data?.catalogs?.de === "object")).toBe(true);
+      expect(payloads.some((p) => typeof p.data?.catalogs?.["de"] === "object")).toBe(true);
     });
 
     it("logs an error instead of rejecting when a dev re-translation fails", async () => {

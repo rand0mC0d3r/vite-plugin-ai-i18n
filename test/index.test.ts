@@ -224,7 +224,7 @@ describe("OpenAICompatibleProvider", () => {
     });
     expect(result).toEqual({ msg_0: "Speichern" });
     const init = fetchMock.mock.calls[0]?.[1];
-    expect((init?.headers as Record<string, string>).Authorization).toBe("Bearer test-key");
+    expect((init?.headers as Record<string, string>)["Authorization"]).toBe("Bearer test-key");
   });
 });
 

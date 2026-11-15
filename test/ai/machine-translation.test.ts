@@ -28,7 +28,7 @@ describe("machine-translation adapters", () => {
       expect(result).toEqual({ a: "Gespeichert {name} & mehr" });
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
       expect(url).toBe("https://api-free.deepl.com/v2/translate");
-      expect((init.headers as Record<string, string>).authorization).toBe("DeepL-Auth-Key key:fx");
+      expect((init.headers as Record<string, string>)["authorization"]).toBe("DeepL-Auth-Key key:fx");
       const body = JSON.parse(init.body as string) as DeepLBody;
       expect(body.text).toEqual(["Saved <x>{name}</x> &amp; more"]);
       expect(body).toMatchObject({ source_lang: "EN", target_lang: "DE", tag_handling: "xml", ignore_tags: ["x"] });

@@ -31,9 +31,9 @@ export interface ExtractOptions {
    * Attributes of custom components whose string values are UI copy, keyed by component name. The pseudo-prop
    * `children` also makes the component's text children translatable, for example `{ Button: ["children"] }`.
    */
-  componentProps?: Record<string, readonly string[]>;
+  componentProps?: Record<string, readonly string[]> | undefined;
   /** Block-comment text that marks a string literal for translation. Default `i18n`. */
-  stringMarker?: string;
+  stringMarker?: string | undefined;
 }
 
 /** A plain JSX identifier used as an element name or attribute name. */
@@ -110,9 +110,9 @@ function nearestElement(ancestors: Node[]): { index: number; element: JSXElement
 /** True when the node or any ancestor element is marked with translate="no". `chain` runs from the root to the node. */
 function isMarkedUntranslated(chain: Node[]): boolean {
   return chain.some((node) => {
-    const opening =
-      node.type === "JSXOpeningElement" ? node : node.type === "JSXElement" ? node.openingElement : undefined;
-    return opening !== undefined && hasIgnoreMarker(opening);
+    if (node.type === "JSXOpeningElement") return hasIgnoreMarker(node);
+    if (node.type === "JSXElement") return hasIgnoreMarker(node.openingElement);
+    return false;
   });
 }
 
@@ -354,6 +354,8 @@ export function extractMessages(
         return visitAttribute(node, ancestors);
       case "Literal":
         return visitString(node, ancestors);
+      default:
+        return undefined;
     }
   });
   return found.sort((a, b) => a.start - b.start);

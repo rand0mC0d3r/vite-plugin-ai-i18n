@@ -38,7 +38,7 @@ describe("AnthropicProvider", () => {
     const headers = init.headers as Record<string, string>;
     expect(headers["x-api-key"]).toBe("sk-ant-test");
     expect(headers["anthropic-version"]).toBe("2023-06-01");
-    expect(headers.Authorization).toBeUndefined();
+    expect(headers["Authorization"]).toBeUndefined();
     const body = JSON.parse(init.body as string) as AnthropicBody;
     expect(body.model).toBe("claude-test");
     expect(body.max_tokens).toBe(1000);

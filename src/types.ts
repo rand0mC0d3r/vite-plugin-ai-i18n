@@ -23,7 +23,7 @@ export interface ExtractedMessage {
   tag: string;
   /** Enclosing component name. Used with `fingerprint` to match a message to its registry entry. */
   component: string;
-  attribute?: string;
+  attribute?: string | undefined;
   /** Position within the component, such as the enclosing element. Shown to translators as `Component > context`. */
   context: string;
   /**
@@ -58,7 +58,7 @@ export interface TranslationRequest {
   source: string;
   context: string;
   kind: MessageKind;
-  placeholders?: string[];
+  placeholders?: string[] | undefined;
 }
 /**
  * Translates a batch of messages into one target locale. Return a catalogue with a key for each message that was
@@ -72,31 +72,31 @@ export interface TranslationProvider {
  * accepted through the index signature.
  */
 export interface NamedProviders {
-  primary?: string;
-  anthropic?: TranslationProvider;
-  gemini?: TranslationProvider;
-  openai?: TranslationProvider;
-  mistral?: TranslationProvider;
-  groq?: TranslationProvider;
-  deepseek?: TranslationProvider;
-  openrouter?: TranslationProvider;
-  xai?: TranslationProvider;
-  cerebras?: TranslationProvider;
-  perplexity?: TranslationProvider;
-  together?: TranslationProvider;
-  fireworks?: TranslationProvider;
-  huggingface?: TranslationProvider;
-  deepinfra?: TranslationProvider;
-  sambanova?: TranslationProvider;
-  moonshot?: TranslationProvider;
-  ollama?: TranslationProvider;
-  lmstudio?: TranslationProvider;
-  llamacpp?: TranslationProvider;
-  vllm?: TranslationProvider;
-  localai?: TranslationProvider;
-  dockermodelrunner?: TranslationProvider;
-  deepl?: TranslationProvider;
-  google?: TranslationProvider;
+  primary?: string | undefined;
+  anthropic?: TranslationProvider | undefined;
+  gemini?: TranslationProvider | undefined;
+  openai?: TranslationProvider | undefined;
+  mistral?: TranslationProvider | undefined;
+  groq?: TranslationProvider | undefined;
+  deepseek?: TranslationProvider | undefined;
+  openrouter?: TranslationProvider | undefined;
+  xai?: TranslationProvider | undefined;
+  cerebras?: TranslationProvider | undefined;
+  perplexity?: TranslationProvider | undefined;
+  together?: TranslationProvider | undefined;
+  fireworks?: TranslationProvider | undefined;
+  huggingface?: TranslationProvider | undefined;
+  deepinfra?: TranslationProvider | undefined;
+  sambanova?: TranslationProvider | undefined;
+  moonshot?: TranslationProvider | undefined;
+  ollama?: TranslationProvider | undefined;
+  lmstudio?: TranslationProvider | undefined;
+  llamacpp?: TranslationProvider | undefined;
+  vllm?: TranslationProvider | undefined;
+  localai?: TranslationProvider | undefined;
+  dockermodelrunner?: TranslationProvider | undefined;
+  deepl?: TranslationProvider | undefined;
+  google?: TranslationProvider | undefined;
   [name: string]: TranslationProvider | string | undefined;
 }
 /**

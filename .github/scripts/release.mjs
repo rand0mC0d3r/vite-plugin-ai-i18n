@@ -164,7 +164,9 @@ function formatBytes(bytes) {
 
 function locationOf(path) {
   const parts = path.split("/");
-  return parts.length > 2 ? `${parts[0]}/${parts[1]}/` : parts.length === 2 ? `${parts[0]}/` : "./";
+  if (parts.length > 2) return `${parts[0]}/${parts[1]}/`;
+  if (parts.length === 2) return `${parts[0]}/`;
+  return "./";
 }
 
 function typeOf(path) {

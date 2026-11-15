@@ -123,7 +123,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
   let server: ViteDevServer | undefined;
   let queue: Promise<void> = Promise.resolve();
   let watchTimer: ReturnType<typeof setTimeout> | undefined;
-  const explicitLocale = (): string | undefined => options.locale ?? process.env.AUTOI18N_LOCALE;
+  const explicitLocale = (): string | undefined => options.locale ?? process.env["AUTOI18N_LOCALE"];
   const selectedLocale = (): string => explicitLocale() ?? sourceLocale;
   const localesDir = (): string => path.resolve(config.root, directory, "locales");
   const include = options.include ?? DEFAULT_INCLUDE;
@@ -340,10 +340,12 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
       // The app does not install the formatting library, so it is resolved from this plugin's dependencies.
       if (importer === `\0${FORMAT_MODULE}` && id === FORMAT_LIBRARY)
         return this.resolve(id, fileURLToPath(import.meta.url), { skipSelf: true });
+      return undefined;
     },
     load(id) {
       if (id === `\0${RUNTIME_MODULE}`) return createRuntimeModule(state.catalogFiles, sourceLocale);
       if (id === `\0${FORMAT_MODULE}`) return createFormatModule();
+      return undefined;
     },
     configureServer(devServer) {
       server = devServer;
@@ -397,8 +399,9 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
     async handleHotUpdate({ file }) {
       // Catalogue writes must not trigger a reload; the new data is pushed over the custom event instead.
       if (file.startsWith(localesDir() + path.sep)) return [];
-      if (!state.fileMessages.has(file)) return;
+      if (!state.fileMessages.has(file)) return undefined;
       await retranslate(file);
+      return undefined;
     },
   };
 }

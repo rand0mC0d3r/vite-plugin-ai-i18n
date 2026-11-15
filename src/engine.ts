@@ -28,7 +28,7 @@ export interface CatalogBuildInput {
   /** The current contents of each locale file, keyed by locale. Missing locales start empty. */
   previous: Map<string, LocaleFile>;
   /** Without a provider, missing translations are not requested and stay untranslated. */
-  provider?: TranslationProvider;
+  provider?: TranslationProvider | undefined;
   /** Logs every message sent to and received from the provider. */
   debug: boolean;
 }

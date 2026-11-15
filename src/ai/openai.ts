@@ -18,7 +18,7 @@ export interface OpenAICompatibleOptions extends BatchedProviderOptions {
    * API root. Defaults to OpenAI. Point it at any compatible service, for example `http://localhost:11434/v1` for
    * Ollama.
    */
-  baseURL?: string;
+  baseURL?: string | undefined;
 }
 
 /**

@@ -8,6 +8,14 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "dist",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
     "types": ["node"]
   },
   "include": ["src", "test"]

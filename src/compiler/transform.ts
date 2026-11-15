@@ -77,6 +77,7 @@ export function transformSource(
       const message = byKind.string.get(node.start);
       if (message) targets.push({ kind: "string", node, message });
     }
+    return true;
   });
 
   const s = new MagicString(code);

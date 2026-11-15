@@ -36,6 +36,7 @@ typeAware = true
 "bun/no-side-effects-on-import" = "error"
 "bun/no-unportable-commands" = "error"
 
+"default-case" = "error"
 "eqeqeq" = "error"
 
 "import/no-cycle" = "error"
@@ -49,6 +50,7 @@ typeAware = true
 "no-empty" = "error"
 "no-eval" = "error"
 "no-implied-eval" = "error"
+"no-nested-ternary" = "error"
 "no-new-func" = "error"
 "no-prototype-builtins" = "error"
 "no-script-url" = "error"

@@ -39,7 +39,7 @@ describe("GeminiProvider", () => {
     expect(url).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-test:generateContent");
     const headers = init.headers as Record<string, string>;
     expect(headers["x-goog-api-key"]).toBe("gemini-test-key");
-    expect(headers.Authorization).toBeUndefined();
+    expect(headers["Authorization"]).toBeUndefined();
     const body = JSON.parse(init.body as string) as GeminiBody;
     expect(body.systemInstruction.parts[0].text).toContain("from en to de");
     expect(body.contents[0].role).toBe("user");
