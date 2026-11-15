@@ -23,9 +23,7 @@ jobs:
         with:
           node-version: 26
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.4.0
+      - run: npm install -g bun@1.4.4-canary.20261114.1
 
       - run: bun install --frozen-lockfile
 
@@ -70,9 +68,7 @@ jobs:
         with:
           node-version: 26
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.4.0
+      - run: npm install -g bun@1.4.4-canary.20261114.1
 
       - name: Compute next version from conventional commits
         id: version
@@ -112,9 +108,7 @@ jobs:
           node-version: 26
           registry-url: https://registry.npmjs.org
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.4.0
+      - run: npm install -g bun@1.4.4-canary.20261114.1
 
       - run: bun install --frozen-lockfile
 
