@@ -1,6 +1,6 @@
 import { ArkErrors } from "arktype";
 import path from "node:path";
-import { readJsonFile, toJson, writeFileAtomic, writeFileIfChanged } from "./io.js";
+import { readJsonFile, toJson, writeFileIfChanged } from "./io.js";
 import { LOCALE_TAG, localeFileSchema } from "./schemas.js";
 import type { Catalog } from "./types.js";
 

@@ -18,6 +18,12 @@ function withIds(messages: ExtractedMessage[]): ResolvedMessage[] {
   return messages.map((m, i) => ({ ...m, id: `msg_${i}` }));
 }
 
+type Button = {
+  declaration: {
+    body: { body: { argument: { openingElement: { attributes: { name: { name: string }; value: { expression: { value: string } } }[] } } }[] };
+  };
+};
+
 describe("transformSource", () => {
   const messages = withIds(extractMessages(SOURCE, "App.tsx"));
   const catalog = { msg_0: "Datei speichern", msg_1: "Speichern" };
@@ -25,7 +31,7 @@ describe("transformSource", () => {
   it("keeps a translated attribute value containing quotes inside its own attribute in build mode", () => {
     const payload = `x" onClick={alert(1)} a="b`;
     const { code } = transformSource(SOURCE, "App.tsx", messages, "de", { msg_0: payload });
-    const button = (parseSource(code, "App.tsx").program as any).body[0];
+    const button = (parseSource(code, "App.tsx").program as unknown as { body: Button[] }).body[0];
     const attributes = button.declaration.body.body[0].argument.openingElement.attributes;
     expect(attributes).toHaveLength(1);
     expect(attributes[0].name.name).toBe("title");

@@ -8,7 +8,7 @@ import { buildCatalogs } from "./engine.js";
 import { extractMessages } from "./compiler/extract.js";
 import { parseSource, type ParsedSource } from "./compiler/ast.js";
 import { transformSource } from "./compiler/transform.js";
-import { localeFilePath, writeLocaleFile, type LocaleFile } from "./catalog.js";
+import { localeFilePath, type LocaleFile } from "./catalog.js";
 import { DEFAULT_EXCLUDE, DEFAULT_INCLUDE, DEFAULT_ORPHAN_RETENTION_MINUTES, FORMAT_LIBRARY, FORMAT_MODULE, RUNTIME_MODULE, UPDATE_EVENT, WATCH_DEBOUNCE_MS } from "./constants.js";
 import { hashContent } from "./io.js";
 import { createFormatModule } from "./runtime/format.js";
