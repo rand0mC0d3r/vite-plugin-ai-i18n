@@ -22,7 +22,8 @@
     "url": "git+https://github.com/rand0mC0d3r/vite-plugin-ai-i18n.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "llms.txt"
   ],
   "type": "module",
   "main": "./dist/index.js",

@@ -1,0 +1,208 @@
+# vite-plugin-ai-auto-i18n
+
+> Build-time i18n for React + Vite apps. Write English JSX. The plugin extracts user-facing strings, gives each one a stable opaque ID, translates new or changed strings with an AI or machine-translation provider, and emits localized output: one bundle per locale (`delivery: "build"`) or one bundle with on-demand catalogues and a runtime `setLocale()` (`delivery: "runtime"`).
+
+npm package: `vite-plugin-ai-auto-i18n`. Requires Vite 7+ (peer dependency) and Node.js 26+. Beta: pin the exact version.
+
+## Instructions for an AI agent
+
+When asked to add translations to a project that uses this plugin, follow these steps in order.
+
+1. Install the dev dependency with the project's package manager:
+   - `npm install -D vite-plugin-ai-auto-i18n`, `pnpm add -D ...`, `yarn add -D ...`, or `bun add -D ...`.
+   - Or run `node install-autoi18n.mjs` (copy `scripts/install-autoi18n.mjs` into the project root first). It installs, git-ignores `.env.local`, and creates a template `.env.local`.
+2. Keep API keys out of git. Put them in `.env.local` and make sure `.gitignore` lists it (the install script adds it). Never write a key into `vite.config.ts` or any tracked file.
+3. Add `autoI18n({...})` to `vite.config.ts` in the `plugins` array, **before** `react()` from `@vitejs/plugin-react`. The React plugin rewrites JSX first in dev, which hides the text the plugin needs to see.
+4. Write ordinary JSX. Text nodes and the attributes listed under [What is extracted](#what-is-extracted) are translated automatically. Do not wrap them in a function call.
+5. Only strings outside JSX need a marker comment: `/* i18n */ "Save"` (the default `stringMarker`).
+6. Run `npx vite build` (or `bun run build`). This creates `.autoi18n/` with `registry.json` and `locales/<locale>.json`. Commit `.autoi18n/` so later builds reuse existing translations and do not re-request them.
+7. Check progress with `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/stats.js --directory .autoi18n`.
+
+Do not hand-edit `.autoi18n/registry.json`. Do not write runtime `t()` calls yourself; the compiler generates them.
+
+## Minimal configuration
+
+```ts
+// vite.config.ts
+import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
+import autoI18n, { hosted, HostedService } from "vite-plugin-ai-auto-i18n";
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), ""); // reads .env.local
+  return {
+    plugins: [
+      autoI18n({
+        locales: ["en", "de", "fr"],
+        sourceLocale: "en",
+        provider: { openai: hosted(HostedService.OpenAI, env.OPENAI_API_KEY) },
+      }),
+      react(), // autoI18n must come first
+    ],
+  };
+});
+```
+
+`locales` is required. The source locale is never translated, so including it is harmless.
+
+## Delivery modes
+
+| Mode                  | Output                                                 | Locale chosen                                                      |
+| --------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
+| `"build"` (default)   | One compiled bundle per locale                         | At build time: `locale` option or `AUTOI18N_LOCALE` env variable   |
+| `"runtime"`           | One bundle; catalogues load on demand                  | In the browser with `setLocale()`                                  |
+
+- Build delivery in CI: set `AUTOI18N_LOCALE=de npx vite build --outDir dist/de` once per locale in a matrix. Setting a locale translates only that locale. An unknown locale fails the build.
+- Runtime delivery: omit the provider to show source text until translations exist. Keep `autoI18n()` before `react()`.
+
+### Runtime API (`virtual:autoi18n`, runtime delivery only)
+
+```tsx
+import { getLocale, getVersion, locales, resolveSupported, setLocale, subscribe } from "virtual:autoi18n";
+
+setLocale(resolveSupported(navigator.languages)); // call before the first render
+// In a component: re-render when the locale or any catalogue changes
+useSyncExternalStore(subscribe, getVersion, getVersion);
+```
+
+- `locales`: the codes this build ships. `getLocale()`: current code. `subscribe(fn)`: returns an unsubscribe function. `getVersion()`: changes on any locale or catalogue change.
+- `setLocale(code)` is async and loads the catalogue for that code.
+- Memoized components (`memo`) must subscribe themselves, or they keep old text until their props change.
+- Add a type declaration for `virtual:autoi18n` in a `.d.ts` file if TypeScript reports it missing. The example app has one at `example/src/autoi18n-virtual.d.ts`.
+- `createLocaleLoader` and `resolveLocale` are exported from the `vite-plugin-ai-auto-i18n/runtime` subpath, not the main entry.
+
+## What is extracted
+
+- JSX text nodes.
+- Static string attributes on lowercase (intrinsic) elements: `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription`, `aria-valuetext`.
+- Text and listed attributes of capitalised components only when declared in `componentProps`.
+- String literals outside JSX, only when marked with the `stringMarker` comment.
+- Not extracted: `href`, template literals, unmarked JS strings, Markdown, server-rendered content, rich-text components.
+
+Mixed sentences with simple expressions become ICU MessageFormat messages: `<p>You have {count} documents</p>` gives the argument `count`. Plurals and selects are allowed in translations. Complex expressions (function calls, JSX, computed access) stay in the source language.
+
+Keep copy untranslated with `translate="no"` on the element (it also covers descendants and attributes).
+
+```tsx
+<h2 translate="no">Sample code</h2>
+<code title="Product SKU">SKU-1042</code>
+```
+
+Marked strings outside JSX:
+
+```tsx
+const items = [{ label: /* i18n */ "Shared with your team" }, { label: "Private" }]; // only the first is translated
+```
+
+In runtime delivery, keep marked strings inside a component or function, not at module level.
+
+## Plugin options
+
+| Option                   | Default                                 | Meaning                                                                                                |
+| ------------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `locales`                | _required_                              | `string[]` of BCP 47 codes. Spread the `locales` group exports to use presets.                          |
+| `sourceLocale`           | `"en"`                                  | Language the JSX is written in. Fallback when a translation is missing.                                 |
+| `delivery`               | `"build"`                               | `"build"` or `"runtime"`.                                                                               |
+| `locale`                 | `sourceLocale`                          | Locale compiled in build delivery. `AUTOI18N_LOCALE` is also read; this option wins.                    |
+| `include`                | `["src/**/*.{tsx,jsx,ts,js}"]`          | Globs of source files to scan, relative to the Vite root.                                               |
+| `exclude`                | `["**/*.test.*", "**/node_modules/**"]` | Globs of files to skip.                                                                                 |
+| `directory`              | `".autoi18n"`                           | Folder for `registry.json` and `locales/`.                                                              |
+| `provider`               | `undefined`                             | One provider, or a map `{ primary?, [name]: provider \| undefined }`. `undefined` entries are skipped.  |
+| `failOnMissingProvider`  | `false`                                 | Fail the build if a locale has untranslated messages and no provider is set.                            |
+| `onAmbiguous`            | `"warn"`                                | `"error"` fails the build when duplicate identical strings change count, so their IDs may have moved.  |
+| `orphanRetentionMinutes` | `43200` (30 days)                       | How long removed messages are kept. `0` deletes on next build; `Infinity` keeps forever.                |
+| `localeConcurrency`      | `2`                                     | Locales translated at once.                                                                             |
+| `componentProps`         | `{}`                                    | `Record<string, string[]>` of props of custom components that hold UI copy. `"children"` = text content. |
+| `stringMarker`           | `"i18n"`                                | Text of the block comment that marks string literals outside JSX, e.g. `"t"` for `/* t */`.             |
+| `debug`                  | `false`                                 | Logs each message sent to and received from the provider, prefixed `[autoi18n debug]`.                  |
+
+Example: `componentProps: { Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button aria-label="Close">`.
+
+## Providers
+
+Every provider translates in batches, runs in parallel, times out, and retries. The plugin never reads environment variables itself; pass key values in.
+
+Preset helpers return `undefined` when credentials are missing, so an entry is skipped:
+
+- `hosted(HostedService.X, apiKey, model?)` returns an `AnthropicProvider`, `GeminiProvider`, or `OpenAICompatibleProvider`. `HostedService` values: `Anthropic`, `Gemini`, `OpenAI`, `Mistral`, `Groq`, `DeepSeek`, `OpenRouter`, `XAI`, `Cerebras`, `Perplexity`, `Together`, `Fireworks`, `HuggingFace`, `DeepInfra`, `SambaNova`, `Moonshot`.
+- `local(LocalService.X, model, baseURL?)` for keyless local servers. Enabled by the model name you have loaded. `LocalService` values: `Ollama`, `LMStudio`, `LlamaCpp`, `VLLM`, `LocalAI`, `DockerModelRunner`.
+- `machine(MachineService.X, apiKey)` for `DeepL` or `Google` (Google Cloud Translation v2 Basic).
+
+Direct classes:
+
+- `new OpenAICompatibleProvider({ model, apiKey?, baseURL? })`: any OpenAI-compatible Chat Completions API. Default `baseURL` is `https://api.openai.com/v1`. Omit `apiKey` for keyless servers.
+- `new AnthropicProvider({ apiKey, model, baseURL?, maxTokens? })`.
+- `new GeminiProvider({ apiKey, model, baseURL?, maxOutputTokens? })`.
+- `new DeepLProvider({ apiKey, baseURL? })` and `new GoogleTranslateProvider({ apiKey, baseURL? })`.
+- Shared options: `batchSize` (40), `concurrency` (4), `timeoutMs` (60000), `maxRetries` (2), `retryDelayMs` (500).
+
+Multiple providers with fallback:
+
+```ts
+provider: {
+  primary: "anthropic", // tried first; never inferred
+  anthropic: hosted(HostedService.Anthropic, env.ANTHROPIC_API_KEY, "claude-haiku-5-5"),
+  openai: hosted(HostedService.OpenAI, env.OPENAI_API_KEY),
+}
+```
+
+Failed messages fall through to the next provider in declaration order, per batch. Naming a `primary` that is not configured fails the build.
+
+Common env variables for the example config: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, `GROQ_API_KEY`, `DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`, `XAI_API_KEY`, `DEEPL_API_KEY`, `GOOGLE_TRANSLATE_API_KEY`. Local runtimes use `<NAME>_MODEL`, for example `OLLAMA_MODEL`.
+
+Use a model that reliably returns JSON. Malformed replies are retried, then left untranslated.
+
+### Custom provider
+
+```ts
+import type { TranslationProvider } from "vite-plugin-ai-auto-i18n";
+
+const myProvider: TranslationProvider = {
+  async translate({ sourceLocale, targetLocale, messages }) {
+    // messages: { id, source, context, kind: "text" | "attribute" | "mixed" | "string", placeholders? }[]
+    const out: Record<string, string> = {};
+    for (const m of messages) out[m.id] = await myService(m.source, targetLocale);
+    return out; // message ID -> translated text; return only IDs you translated
+  },
+};
+```
+
+- Keep ICU arguments such as `{count}` intact. Translations that change argument names or are invalid ICU are rejected.
+- Omitted IDs stay in the source language and are retried on the next build.
+- Throw `PartialTranslationError` (exported) to keep a partial result. Any other error fails the whole locale, which keeps its previous file.
+
+## Reliability and output
+
+- Writes are atomic. Catalogues and registry are written only when content changes.
+- A failed batch leaves its messages in the source language until the next build. A failed locale keeps its previous file.
+- Corrupt `registry.json` or catalogue files are renamed to `<file>.corrupt-<timestamp>` and the plugin continues with empty state.
+- Provider errors log only the HTTP status. Response bodies are discarded.
+- IDs are opaque (`msg_` + hex) and persistent. A moved file or renamed component keeps its ID. A removed message becomes an orphan and keeps its ID for `orphanRetentionMinutes`.
+- Dev server: saving a file re-reads only that file. Adding or removing a file triggers a full scan (debounced 150 ms).
+
+## Maintenance CLIs
+
+Run after installing, from the project root:
+
+```sh
+node node_modules/vite-plugin-ai-auto-i18n/dist/cli/stats.js --directory .autoi18n --source-locale en --verbose
+node node_modules/vite-plugin-ai-auto-i18n/dist/cli/stats.js --directory .autoi18n --json   # for CI
+node node_modules/vite-plugin-ai-auto-i18n/dist/cli/prune.js --directory .autoi18n --retention-minutes 0
+```
+
+- `stats` reports per locale: translated, coverage, missing, outdated (source changed since translation), and orphaned keys.
+- `prune` removes orphaned registry entries and matching catalogue keys without a build.
+
+## Known limitations
+
+1. Runtime delivery shows the source text until a locale's catalogue has loaded.
+2. Duplicate identical strings are paired by source order. Reordered indistinguishable duplicates are reported through `onAmbiguous`, not resolved.
+3. Fingerprints are heuristic. Renaming a component during a refactor can change which ID a message gets.
+4. Machine-translation providers (DeepL, Google) protect only simple `{name}` placeholders. Check complex ICU `plural` and `select` output.
+5. The version is beta. Configuration options and `.autoi18n/` formats are meant to stay stable.
+
+## Links
+
+- Repository and full documentation: https://github.com/rand0mC0d3r/vite-plugin-ai-i18n
+- Install script: https://github.com/rand0mC0d3r/vite-plugin-ai-i18n/blob/main/scripts/install-autoi18n.mjs
+- Example app: https://github.com/rand0mC0d3r/vite-plugin-ai-i18n/tree/main/example

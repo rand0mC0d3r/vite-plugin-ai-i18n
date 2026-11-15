@@ -5,7 +5,6 @@
 > [!WARNING]
 > **Beta.** Configuration options and `.autoi18n/` file formats are meant to stay stable, but review the [known limitations](#-known-limitations) before shipping to production. Pin the version while in beta.
 
-
 ![AI Auto i18n](images/landing.png)
 
 ## 📑 Contents
@@ -353,6 +352,13 @@ Then write ordinary JSX:
 ```tsx
 <button title="Save the current document">Save</button>
 ```
+
+### 🤖 Install with an AI agent
+
+Two files help an AI coding agent set the plugin up in your project:
+
+- [llms.txt](./llms.txt): a reference written for LLMs. It is also shipped in the npm package, so agents can read `node_modules/vite-plugin-ai-auto-i18n/llms.txt`.
+- [scripts/install-autoi18n.mjs](./scripts/install-autoi18n.mjs): a dependency-free Node script. Copy it into your repository and run `node install-autoi18n.mjs`. It installs the package with your package manager, adds `.env.local` to `.gitignore`, creates a template `.env.local`, and prints the `vite.config` snippet. Use `--dry-run` to preview and `--skip-install` to skip the install.
 
 ### 🧪 Try the bundled example
 
@@ -898,7 +904,6 @@ Run the suite with coverage (V8 provider, `src/**`):
 ```bash
 bunx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
 ```
-
 
 ### Release pipeline
 

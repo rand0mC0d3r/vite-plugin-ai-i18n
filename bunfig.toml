@@ -15,6 +15,7 @@ jsdoc = true
 [lint]
 plugins = ["unused-imports", "import"]
 typeAware = true
+ignorePatterns = ["scripts/install-autoi18n.mjs"]
 
 [lint.rules]
 "@typescript-eslint/consistent-type-imports" = "error"
