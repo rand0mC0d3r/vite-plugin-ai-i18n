@@ -899,20 +899,6 @@ Run the suite with coverage (V8 provider, `src/**`):
 bunx vitest run --coverage --coverage.include='src/**' --coverage.reporter=text
 ```
 
-| Metric     | Coverage          |
-| ---------- | ----------------- |
-| Statements | 89.4% (1100/1230) |
-| Branches   | 82.8% (564/681)   |
-| Functions  | 91.1% (246/270)   |
-| Lines      | 91.9% (874/951)   |
-
-Per module:
-
-- Plugin hooks (`src/index.ts`): 95.9% statements
-- Translation pipeline (`src/translate.ts`) and runtime helpers (`src/runtime/`): 100%
-- Prune CLI (`src/cli/prune.ts`): 96.5%
-- Stats CLI (`src/cli/stats.ts`): 0%, no tests
-- Compiler entity table (`src/compiler/entities.ts`): 28.6%
 
 ### Release pipeline
 
