@@ -5,6 +5,9 @@
 > [!WARNING]
 > **Beta.** Configuration options and `.autoi18n/` file formats are meant to stay stable, but review the [known limitations](#-known-limitations) before shipping to production. Pin the version while in beta.
 
+
+![AI Auto i18n](images/landing.png)
+
 ## 📑 Contents
 
 - [✨ Features](#-features)
@@ -295,6 +298,8 @@ Equivalent commands: `bun add -D`, `pnpm add -D`, or `yarn add -D`, with the sam
 
 ### 2️⃣ Add your API key
 
+![AI Providers used by the plugin](images/ai.png)
+
 Put the key in `.env.local` and keep that file out of git:
 
 | Provider                            | Variable                                        |
@@ -415,6 +420,8 @@ export function LocaleSwitcher() {
 ```
 
 ### Locale groups in practice
+
+![Locale groups](images/locales.png)
 
 Groups from the `locales` export replace long lists of codes. Spread them into `locales`, and add any extra codes next to them:
 
