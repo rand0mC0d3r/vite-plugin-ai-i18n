@@ -13,6 +13,12 @@ export const ANTHROPIC_BASE_URL = "https://api.anthropic.com/v1";
 export const ANTHROPIC_VERSION = "2023-06-01";
 export const OPENAI_BASE_URL = "https://api.openai.com/v1";
 export const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+/** DeepL Pro API root. */
+export const DEEPL_BASE_URL = "https://api.deepl.com";
+/** DeepL Free API root, used for keys ending in `:fx`. */
+export const DEEPL_FREE_BASE_URL = "https://api-free.deepl.com";
+/** Cloud Translation v2 endpoint root (the Basic edition). */
+export const GOOGLE_TRANSLATE_BASE_URL = "https://translation.googleapis.com/language/translate/v2";
 
 /** Upper bound on how long a `Retry-After` header can delay a retry. */
 export const MAX_RETRY_AFTER_MS = 60_000;

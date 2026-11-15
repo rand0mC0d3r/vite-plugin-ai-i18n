@@ -30,7 +30,7 @@ export interface TranslateInput {
  * Error raised for failures in a provider's response. `retryable` tells the batch retry loop whether another attempt may
  * succeed; `retryAfterMs` carries the server's Retry-After hint when one was sent.
  */
-class ProviderError extends Error {
+export class ProviderError extends Error {
   constructor(message: string, readonly retryable: boolean, readonly retryAfterMs?: number) {
     super(message);
   }

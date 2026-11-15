@@ -11,7 +11,7 @@ Implicit build-time localization for JSX: author English directly, let the compi
 - Uses tag/attribute/semantic-attribute/handler context to form fingerprints; component names and file paths are excluded so ordinary moves and renames do not automatically invalidate IDs.
 - Persists opaque message IDs in `.autoi18n/registry.json`.
 - Marks disappeared messages as orphaned and deletes them after a retention period (default 30 days, see `orphanRetentionMinutes`).
-- Supports a pluggable translation provider. Ships with Anthropic and Gemini implementations and one OpenAI-compatible implementation that covers OpenAI, Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras, Perplexity, Together AI, Fireworks AI, Hugging Face, DeepInfra, SambaNova, Moonshot and local runtimes such as Ollama, LM Studio, llama.cpp, vLLM, LocalAI and Docker Model Runner (see [Choosing a provider](#choosing-a-provider)).
+- Supports a pluggable translation provider. Ships with Anthropic and Gemini implementations, one OpenAI-compatible implementation that covers OpenAI, Mistral, Groq, DeepSeek, OpenRouter, xAI, Cerebras, Perplexity, Together AI, Fireworks AI, Hugging Face, DeepInfra, SambaNova, Moonshot and local runtimes such as Ollama, LM Studio, llama.cpp, vLLM, LocalAI and Docker Model Runner (see [Choosing a provider](#choosing-a-provider)), and adapters for the dedicated machine-translation APIs DeepL and Google Translate.
 - Writes locale JSON catalogues and keeps source English as fallback.
 - Two delivery modes: `build` (one compiled bundle per locale) and `runtime` (one bundle, locales loaded on demand through `virtual:autoi18n`).
 - Re-translates a message when its source text changes, tracked in the `sources` map of `.autoi18n/locales/<locale>.json`.
@@ -481,6 +481,17 @@ Create the provider with `new GeminiProvider(options)`. It calls the [Gemini API
 | `timeoutMs` | `number` | `60000` | Milliseconds before a single request is aborted. |
 | `maxRetries` | `number` | `2` | Extra attempts for network errors, timeouts, 408/409/429/5xx responses and malformed output. |
 | `retryDelayMs` | `number` | `500` | Delay before the first retry. It doubles on each attempt. |
+
+### Machine-translation providers: DeepL and Google Translate
+
+These APIs return translations directly, not model output, so they skip the JSON prompt. Each adapter protects `{name}` placeholders from the engine and restores them afterwards. Their batching, concurrency and retry options match the other providers.
+
+- `DeepLProvider({ apiKey, baseURL? })`: `POST /v2/translate` with `Authorization: DeepL-Auth-Key`. Keys ending in `:fx` use `https://api-free.deepl.com`, and all others use `https://api.deepl.com`. Plain `en` and `pt` targets map to `EN-US` and `PT-BR`, since DeepL rejects the unqualified codes as targets. Set `DEEPL_API_KEY`.
+- `GoogleTranslateProvider({ apiKey, baseURL? })`: Cloud Translation v2 (Basic) in HTML mode, sent as `x-goog-api-key`. Set `GOOGLE_TRANSLATE_API_KEY`. Placeholders are wrapped in `<span translate="no">`. Google's Advanced (v3) API is not used.
+
+Placeholder protection covers simple `{name}` arguments only. Complex ICU `plural` and `select` blocks are not protected, so check those translations in the output.
+
+The example config enables each of these only when its credentials are set.
 
 ### Choosing a provider
 

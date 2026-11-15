@@ -79,6 +79,8 @@ export interface NamedProviders {
   vllm?: TranslationProvider;
   localai?: TranslationProvider;
   dockermodelrunner?: TranslationProvider;
+  deepl?: TranslationProvider;
+  google?: TranslationProvider;
   [name: string]: TranslationProvider | string | undefined;
 }
 /**

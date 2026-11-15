@@ -1,7 +1,13 @@
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
-import autoI18n, { AnthropicProvider, GeminiProvider, OpenAICompatibleProvider } from "../src/index";
+import autoI18n, {
+  AnthropicProvider,
+  DeepLProvider,
+  GeminiProvider,
+  GoogleTranslateProvider,
+  OpenAICompatibleProvider
+} from "../src/index";
 
 export default defineConfig(({ mode }) => {
   // Reads provider keys from the repo-root .env.local (git-ignored) as well as the process environment.
@@ -67,7 +73,10 @@ export default defineConfig(({ mode }) => {
             : undefined,
           gemini: env.GEMINI_API_KEY
             ? new GeminiProvider({ apiKey: env.GEMINI_API_KEY, model: env.GEMINI_MODEL ?? "gemini-3.5-flash-lite" })
-            : undefined
+            : undefined,
+          // Dedicated machine-translation APIs. Each is enabled by its own credentials.
+          deepl: env.DEEPL_API_KEY ? new DeepLProvider({ apiKey: env.DEEPL_API_KEY }) : undefined,
+          google: env.GOOGLE_TRANSLATE_API_KEY ? new GoogleTranslateProvider({ apiKey: env.GOOGLE_TRANSLATE_API_KEY }) : undefined
         }
       }),
       react()

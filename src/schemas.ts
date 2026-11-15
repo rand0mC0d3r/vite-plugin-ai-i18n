@@ -17,6 +17,12 @@ export const geminiResponseSchema = type({
   candidates: type({ "content?": { "parts?": type({ "text?": "string" }).array() } }).array()
 });
 
+/** Shape of a DeepL `/v2/translate` response. Translations come back in request order. */
+export const deeplResponseSchema = type({ translations: type({ text: "string" }).array() });
+
+/** Shape of a Cloud Translation v2 response. Translations come back in request order. */
+export const googleTranslateResponseSchema = type({ data: { translations: type({ translatedText: "string" }).array() } });
+
 // The model's reply must be a JSON object; individual values are checked per ID by the caller.
 /** Validates a model reply as an object keyed by message ID. */
 export const translationMapSchema = type("Record<string, unknown>");
