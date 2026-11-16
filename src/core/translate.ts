@@ -1,6 +1,6 @@
 import { debugLog } from "../debug.js";
 import { PartialTranslationError } from "../errors.js";
-import { type LocaleFile, pruneLocaleFile } from "../io/catalog.js";
+import { type LocaleFile, pruneLocaleFile } from "../io/store.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
 
 /** Inputs for {@link translateLocale}, which brings a single target locale up to date. */

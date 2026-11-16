@@ -1,4 +1,4 @@
-import type { LocaleFile } from "../io/catalog.js";
+import type { LocaleFile } from "../io/store.js";
 import type { Registry, RegistryEntry } from "../types.js";
 
 /** Translation progress for one locale, measured against the active registry entries. */

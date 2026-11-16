@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import { translateLocale } from "../src/core/translate.js";
 import { PartialTranslationError } from "../src/errors.js";
-import { emptyLocaleFile } from "../src/io/catalog.js";
+import { emptyLocaleFile } from "../src/io/store.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
 const text = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "" });

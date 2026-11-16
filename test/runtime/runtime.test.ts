@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createLocaleLoader } from "../../src/runtime/loader.js";
-import { resolveLocale } from "../../src/runtime/resolve.js";
+import { createLocaleLoader, resolveLocale } from "../../src/runtime/loader.js";
 
 describe("resolveLocale", () => {
   it("matches an exact locale case-insensitively", () => {

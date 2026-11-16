@@ -2,8 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 import { computeStats, type StatsReport } from "../core/stats.js";
-import { type LocaleFile, readLocaleFile } from "../io/catalog.js";
-import { loadRegistry } from "../io/registry-file.js";
+import { loadRegistry, type LocaleFile, readLocaleFile } from "../io/store.js";
 import { listLocaleFiles, parseCliArgs } from "./common.js";
 
 /**

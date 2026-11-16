@@ -65,7 +65,7 @@ export function userContent(messages: TranslationRequest[]): string {
  * Builds a retryable-or-not error from a non-2xx response. The body is not included: provider error payloads can echo
  * credentials or source text into logs.
  */
-export async function httpError(response: Response): Promise<Error> {
+async function httpError(response: Response): Promise<Error> {
   const retryable =
     response.status === 408 || response.status === 409 || response.status === 429 || response.status >= 500;
   await response.body?.cancel().catch(() => undefined);

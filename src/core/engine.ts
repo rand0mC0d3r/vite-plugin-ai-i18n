@@ -1,5 +1,5 @@
 import { pruneOrphans, reconcile } from "../identity/registry.js";
-import { emptyLocaleFile, type LocaleFile } from "../io/catalog.js";
+import { emptyLocaleFile, type LocaleFile } from "../io/store.js";
 import type {
   Catalog,
   ExtractedMessage,

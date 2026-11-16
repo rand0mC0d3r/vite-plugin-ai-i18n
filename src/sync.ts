@@ -8,9 +8,9 @@ import { extractMessages } from "./compiler/extract.js";
 import { buildCatalogs } from "./core/engine.js";
 import { debugLog } from "./debug.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "./identity/registry.js";
-import { type LocaleFile, localeFilePath } from "./io/catalog.js";
 import { hashContent } from "./io/files.js";
 import { type ExtractionCacheEntry, IndexState, sameCatalog } from "./io/state.js";
+import { type LocaleFile, localeFilePath } from "./io/store.js";
 import type { AutoI18nOptions } from "./options.js";
 import type { Catalog, ExtractedMessage } from "./types.js";
 

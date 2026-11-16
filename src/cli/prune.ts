@@ -3,8 +3,7 @@ import path from "node:path";
 
 import { debugLog } from "../debug.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES, pruneOrphans } from "../identity/registry.js";
-import { pruneLocaleFile, readLocaleFile, writeLocaleFile } from "../io/catalog.js";
-import { loadRegistry, saveRegistry } from "../io/registry-file.js";
+import { loadRegistry, pruneLocaleFile, readLocaleFile, saveRegistry, writeLocaleFile } from "../io/store.js";
 import { listLocaleFiles, parseCliArgs } from "./common.js";
 
 /** Drops keys for inactive registry ids from every locale file, in both `messages` and `sources`. */

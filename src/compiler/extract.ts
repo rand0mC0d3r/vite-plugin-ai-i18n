@@ -1,7 +1,6 @@
-import { createFingerprint } from "../identity/fingerprint.js";
+import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import { isStringLiteral, type Node, type ParsedSource, parseSource, walk } from "./ast.js";
-import { normalizeSource } from "./normalize.js";
 import { RUNTIME_MODULE } from "./transform.js";
 
 // `t("...")` imported from the runtime module marks a string for translation.

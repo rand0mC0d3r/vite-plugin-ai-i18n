@@ -4,8 +4,8 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { emptyLocaleFile, localeFilePath, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/io/catalog.js";
 import { readJsonFile, writeFileAtomic } from "../src/io/files.js";
+import { emptyLocaleFile, localeFilePath, pruneCatalog, readLocaleFile, writeLocaleFile } from "../src/io/store.js";
 
 describe("io and catalog helpers", () => {
   it("builds a locale file path and rejects an invalid locale tag", () => {
