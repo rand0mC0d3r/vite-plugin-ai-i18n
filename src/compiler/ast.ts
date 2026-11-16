@@ -2,30 +2,21 @@ import { type ESTree, parseSync } from "rolldown/utils";
 
 export type Node = ESTree.Node;
 export type StringLiteral = ESTree.StringLiteral;
+export type CallExpression = ESTree.CallExpression;
 export type JSXElement = ESTree.JSXElement;
 export type JSXText = ESTree.JSXText;
 export type JSXAttribute = ESTree.JSXAttribute;
 export type JSXExpressionContainer = ESTree.JSXExpressionContainer;
 export type JSXOpeningElement = ESTree.JSXOpeningElement;
 
-/** A comment from the parser's `comments` list. */
-export interface Comment {
-  type: "Line" | "Block";
-  value: string;
-  start: number;
-  end: number;
-}
-
 /** Nodes from the root down to a node's parent, in order. */
 export type Ancestors = Node[];
 /** Callback invoked by {@link walk} for every node, with its ancestors. Returning `false` skips the node's children. */
 export type Visitor = (node: Node, ancestors: Ancestors) => void | boolean;
 
-/** A parsed module together with its comments, ready for AST traversal. */
+/** A parsed module, ready for AST traversal. */
 export interface ParsedSource {
   program: Node;
-  /** Indexed by end offset, so the comment directly before a node is a single lookup. */
-  commentsByEnd: Map<number, Comment>;
 }
 
 /**
@@ -36,7 +27,7 @@ export interface ParsedSource {
 export function parseSource(code: string, filename: string): ParsedSource {
   const result = parseSync(filename, code, { lang: "tsx", sourceType: "unambiguous" });
   if (result.errors.length) throw new SyntaxError(`${filename}: ${result.errors[0].message}`);
-  return { program: result.program, commentsByEnd: new Map(result.comments.map((comment) => [comment.end, comment])) };
+  return { program: result.program };
 }
 
 /** Pre-order traversal that also hands the visitor the chain of ancestors, from the root down to the parent. */
@@ -64,25 +55,4 @@ function isNode(value: unknown): value is Node {
 /** Other literal kinds (numbers, regexes, ...) share the `Literal` type, so the value is checked as well. */
 export function isStringLiteral(node: unknown): node is StringLiteral {
   return isNode(node) && node.type === "Literal" && typeof (node as { value?: unknown }).value === "string";
-}
-
-/**
- * Mirrors Babel's `leadingComments` check: walks back from `start` over whitespace and comments and reports whether a
- * block comment with `value` sits directly before it.
- */
-export function hasLeadingBlockComment(
-  code: string,
-  commentsByEnd: Map<number, Comment>,
-  start: number,
-  value: string,
-): boolean {
-  let position = start;
-  for (;;) {
-    let end = position;
-    while (end > 0 && /\s/.test(code[end - 1])) end--;
-    const comment = commentsByEnd.get(end);
-    if (!comment) return false;
-    if (comment.type === "Block" && comment.value.trim() === value) return true;
-    position = comment.start;
-  }
 }

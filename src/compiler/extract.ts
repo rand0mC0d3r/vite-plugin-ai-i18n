@@ -2,7 +2,6 @@ import { argumentName, escapeIcu } from "../icu.js";
 import { createFingerprint } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import {
-  hasLeadingBlockComment,
   isStringLiteral,
   type JSXAttribute,
   type JSXElement,
@@ -16,6 +15,7 @@ import {
 } from "./ast.js";
 import { decodeJsxEntities } from "./entities.js";
 import { normalizeSource } from "./normalize.js";
+import { RUNTIME_MODULE } from "./transform.js";
 
 /** Matches a tag or component name that starts with an uppercase letter, i.e. a React component. */
 const COMPONENT_TAG = /^[A-Z]/;
@@ -36,8 +36,8 @@ const TRANSLATABLE_ATTRS = new Set([
   "aria-roledescription",
   "aria-valuetext",
 ]);
-// A block comment directly before a string literal opts that literal into translation, for copy outside JSX.
-const DEFAULT_STRING_MARKER = "i18n";
+// `t("...")` imported from the runtime module marks a string for translation, for copy outside JSX.
+const TRANSLATE_FN = "t";
 // `translate="no"` is the standard HTML marker for content that must not be translated. It also covers descendants.
 const IGNORE_ATTR = "translate";
 const IGNORE_VALUE = "no";
@@ -49,8 +49,6 @@ export interface ExtractOptions {
    * `children` also makes the component's text children translatable, for example `{ Button: ["children"] }`.
    */
   componentProps?: Record<string, readonly string[]> | undefined;
-  /** Block-comment text that marks a string literal for translation. Default `i18n`. */
-  stringMarker?: string | undefined;
 }
 
 /** A plain JSX identifier used as an element name or attribute name. */
@@ -118,6 +116,24 @@ function lastIndexWhere(nodes: Node[], predicate: (node: Node) => boolean): numb
   return -1;
 }
 
+/**
+ * Local names bound to `t` by imports from the runtime module. Only calls through these bindings are extracted, so an
+ * unrelated `t()` from another library is left alone.
+ */
+function translateBindings(program: Node): Set<string> {
+  const names = new Set<string>();
+  if (program.type !== "Program") return names;
+  for (const statement of program.body) {
+    if (statement.type !== "ImportDeclaration" || statement.source.value !== RUNTIME_MODULE) continue;
+    for (const specifier of statement.specifiers) {
+      if (specifier.type !== "ImportSpecifier") continue;
+      const imported = specifier.imported.type === "Identifier" ? specifier.imported.name : specifier.imported.value;
+      if (imported === TRANSLATE_FN) names.add(specifier.local.name);
+    }
+  }
+  return names;
+}
+
 /** Index and element of the innermost JSX element among `ancestors`, or undefined when there is none. */
 function nearestElement(ancestors: Node[]): { index: number; element: JSXElement } | undefined {
   const index = lastIndexWhere(ancestors, (ancestor) => ancestor.type === "JSXElement");
@@ -162,12 +178,12 @@ function elementContext(opening: JSXOpeningElement, tag: string, attr?: string):
 
 /**
  * Finds translatable copy in a module: mixed-content JSX elements, plain JSX text, translatable JSX attributes, and
- * string literals marked with a leading `/* i18n *\/` comment. Elements marked `translate="no"` are skipped with their
- * whole subtree.
+ * string literals passed to `t()` imported from the runtime module. Elements marked `translate="no"` are skipped with
+ * their whole subtree.
  *
  * @param code Source text of the module.
  * @param filename Used for parsing and recorded on each message.
- * @param options Component props and the string marker to honour.
+ * @param options Component props to honour.
  * @returns The extracted messages, sorted by their start offset in `code`.
  * @throws SyntaxError if `code` cannot be parsed.
  */
@@ -177,7 +193,8 @@ export function extractMessages(
   options: ExtractOptions = {},
   parsed: ParsedSource = parseSource(code, filename),
 ): ExtractedMessage[] {
-  const { program, commentsByEnd } = parsed;
+  const { program } = parsed;
+  const translateNames = translateBindings(program);
   const found: ExtractedMessage[] = [];
   /**
    * Stores a message with the fingerprint derived from its identifying fields. `identitySource` is the text the
@@ -340,14 +357,13 @@ export function extractMessages(
     });
   }
 
-  /** Extracts a string literal that is preceded by the string marker comment. */
-  function visitString(node: Node, ancestors: Node[]): void {
-    if (!isStringLiteral(node)) return;
-    if (ancestors[ancestors.length - 1]?.type === "JSXAttribute") return;
-    // Babel attaches a leading comment to the outermost node starting at that offset, so `/* i18n */ "a" + "b"` marks the sum, not "a".
-    if (ancestors.some((ancestor) => ancestor.start === node.start)) return;
-    if (!hasLeadingBlockComment(code, commentsByEnd, node.start, options.stringMarker ?? DEFAULT_STRING_MARKER)) return;
-    const source = normalizeSource(node.value);
+  /** Extracts `t("text")` where `t` is imported from the runtime module and the only argument is a string with letters. */
+  function visitCall(node: Node, ancestors: Node[]): void {
+    if (node.type !== "CallExpression" || node.callee.type !== "Identifier") return;
+    if (!translateNames.has(node.callee.name) || node.arguments.length !== 1) return;
+    const [argument] = node.arguments;
+    if (!isStringLiteral(argument)) return;
+    const source = normalizeSource(argument.value);
     if (!source || !hasLetter(source)) return;
     record({
       source,
@@ -369,8 +385,8 @@ export function extractMessages(
         return visitText(node, ancestors);
       case "JSXAttribute":
         return visitAttribute(node, ancestors);
-      case "Literal":
-        return visitString(node, ancestors);
+      case "CallExpression":
+        return visitCall(node, ancestors);
       default:
         return undefined;
     }

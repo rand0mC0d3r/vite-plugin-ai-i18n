@@ -121,23 +121,38 @@ describe("translatable attributes", () => {
   });
 });
 
-describe("marked string literals", () => {
-  it("uses a custom string marker when configured", () => {
-    const code = `export const A = () => [/* t */ "Custom", /* i18n */ "Default"];`;
-    expect(sources(code, { stringMarker: "t" })).toEqual(["Custom"]);
+describe("string literals outside t()", () => {
+  it("ignores a string literal preceded by a comment", () => {
+    expect(sources(`export const A = () => /* i18n */ "Plain";`)).toEqual([]);
+  });
+});
+
+describe("t() calls", () => {
+  it("extracts the string passed to t imported from the runtime module, once", () => {
+    const code = `import { t } from "virtual:autoi18n";\nexport const A = () => <p>{t("Save")}</p>;`;
+    expect(sources(code)).toEqual(["Save"]);
   });
 
-  it("ignores marked string literals without letters", () => {
-    expect(sources(`export const A = () => /* i18n */ "123";`)).toEqual([]);
+  it("records the enclosing component name for a t() call inside a function", () => {
+    const [message] = extract(`import { t } from "virtual:autoi18n";\nexport function Panel() { return t("Inside"); }`);
+    expect(message).toMatchObject({ source: "Inside", kind: "string", component: "Panel", tag: "", context: "" });
   });
 
-  it("ignores strings that are attribute values", () => {
-    expect(sources(`export const A = () => <input /* i18n */ title="Attr" />;`)).toEqual(["Attr"]);
+  it("follows an aliased import and an import placed after the call", () => {
+    const code = `export const A = () => tr("Save");\nimport { t as tr } from "virtual:autoi18n";`;
+    expect(sources(code)).toEqual(["Save"]);
   });
 
-  it("records the enclosing component name for marked strings inside a function", () => {
-    const [message] = extract(`export function Panel() { return /* i18n */ "Inside"; }`);
-    expect(message).toMatchObject({ source: "Inside", kind: "string", component: "Panel" });
+  it("ignores a t() call whose function is not imported from the runtime module", () => {
+    expect(sources(`import { t } from "i18next";\nexport const A = () => t("Save");`)).toEqual([]);
+    expect(sources(`export const A = () => t("Save");`)).toEqual([]);
+  });
+
+  it("ignores calls that are not a single string literal with letters", () => {
+    const calls = [`t(name)`, `t("Save", 1)`, `t()`, `t("123")`, "t(`Save`)", `i18n.t("Save")`];
+    for (const call of calls) {
+      expect(sources(`import { t } from "virtual:autoi18n";\nexport const A = () => ${call};`)).toEqual([]);
+    }
   });
 });
 

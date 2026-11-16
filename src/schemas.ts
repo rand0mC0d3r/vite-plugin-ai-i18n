@@ -81,6 +81,5 @@ export const optionsSchema = type({
   "orphanRetentionMinutes?": type("number >= 0").or(type.unit(Infinity)).or("undefined"),
   "localeConcurrency?": "number >= 1 | undefined",
   "componentProps?": "Record<string, string[]> | undefined",
-  "stringMarker?": nonEmptyString.or("undefined"),
   "debug?": "boolean | undefined",
 });

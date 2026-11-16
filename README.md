@@ -28,7 +28,7 @@
 **Extraction**
 
 - JSX text nodes and static string attributes
-- String literals outside JSX, but only when marked with a comment such as `/* i18n */`
+- String literals outside JSX, only when passed to `t("...")` imported from `virtual:autoi18n`
 
 **Identity**
 
@@ -53,7 +53,7 @@
 
 ```mermaid
 flowchart LR
-    src["Your JSX and /* i18n */ strings"] --> p1["1. Extract"]
+    src["Your JSX and t(\"...\") strings"] --> p1["1. Extract"]
     p1 --> p2["2. Identify"]
     reg[("registry.json<br/>message IDs")] <--> p2
     p2 --> p3["3. Translate"]
@@ -458,11 +458,13 @@ The `locales` export from `virtual:autoi18n` (runtime delivery) is a different t
 
 ### Translating strings outside JSX
 
-Put a block comment directly before the literal:
+Wrap the literal in `t()`, imported from the virtual module:
 
 ```tsx
+import { t } from "virtual:autoi18n";
+
 export function Items() {
-  const items = [{ label: /* i18n */ "Shared with your team" }, { label: "Private" }];
+  const items = [{ label: t("Shared with your team") }, { label: "Private" }];
   return (
     <ul>
       {items.map((i) => (
@@ -473,17 +475,18 @@ export function Items() {
 }
 ```
 
-Only `"Shared with your team"` is translated. `"Private"` has no marker and stays English.
+Only `"Shared with your team"` is translated. `"Private"` is not wrapped in `t()` and stays English.
+
+`t()` is recognised only when it is imported from `virtual:autoi18n`, so calls to other libraries' `t()` functions are left alone. Only a single string-literal argument is extracted. Dynamic arguments, template literals and calls with several arguments are not translated, and at runtime `t(source)` returns its argument unchanged.
 
 > [!NOTE]
-> In runtime delivery, the lookup runs when the expression is evaluated. Keep marked strings inside a component or function, not at module level, so the active locale is known at render time.
+> In runtime delivery, the lookup runs when the expression is evaluated. Keep `t()` calls inside a component or function, not at module level, so the active locale is known at render time.
 
-### Custom marker and custom components
+### Custom components
 
 ```ts
 autoI18n({
   locales: ["en", "de"],
-  stringMarker: "t", // write /* t */ "Save" instead
   componentProps: {
     Button: ["aria-label", "title", "children"], // <Button>Save</Button> is translated
     Tooltip: ["content"],
@@ -538,7 +541,7 @@ Use `AUTOI18N_LOCALE=de vite build` (on Windows, `cross-env AUTOI18N_LOCALE=de v
 
 ### Runtime delivery
 
-Text is wrapped in `t(id, source)` calls and catalogues are fetched on demand. Import the API from the virtual module:
+JSX text and `t("...")` strings are wrapped in `lookup(id, source)` calls, and catalogues are fetched on demand. Import the API from the virtual module:
 
 ```ts
 import { getLocale, locales, resolveSupported, setLocale, subscribe, t } from "virtual:autoi18n";
@@ -573,7 +576,6 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 | `localeConcurrency`      | `number`                                                                        | `2`                                     | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down.                                                 |
 | `debug`                  | `boolean`                                                                       | `false`                                 | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps.                                         |
 | `componentProps`         | `Record<string, string[]>`                                                      | `{}`                                    | Attributes of custom components whose string values are UI copy, for example `{ Button: ["aria-label", "title"] }`. See below.                       |
-| `stringMarker`           | `string`                                                                        | `"i18n"`                                | Text of the block comment that marks a string literal outside JSX, for example `/* i18n */ "Save"`. Set it to `"t"` for `/* t */ "Save"`.            |
 
 **`componentProps`** tells the plugin which props of custom components hold UI copy. The pseudo-prop `children` makes text children translatable, including sentences with `{name}` expressions. Only the listed attributes are extracted from those components.
 
@@ -941,7 +943,7 @@ This is a beta release. Review these before shipping to production:
 4. **Full scan on add or remove.** Saving a file re-reads only that file. Adding or removing a source file triggers a full project scan (debounced by 150 ms), which may be slow in very large projects.
 5. **What gets extracted.**
    - JSX text, and these attributes on intrinsic (lowercase) elements: `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription`, `aria-valuetext`.
-   - String literals outside JSX, only when marked with `stringMarker` (`/* i18n */` by default).
+   - String literals outside JSX, only when passed to `t("...")` imported from `virtual:autoi18n`.
    - Text inside capitalised components (for example `<Button>Save</Button>`) only when the component lists `children` in `componentProps`. Their attributes only when listed there too.
    - Other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
 6. **Example setup.** The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.

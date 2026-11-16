@@ -14,7 +14,7 @@ When asked to add translations to a project that uses this plugin, follow these 
 2. Keep API keys out of git. Put them in `.env.local` and make sure `.gitignore` lists it (the install script adds it). Never write a key into `vite.config.ts` or any tracked file.
 3. Add `autoI18n({...})` to `vite.config.ts` in the `plugins` array, **before** `react()` from `@vitejs/plugin-react`. The React plugin rewrites JSX first in dev, which hides the text the plugin needs to see.
 4. Write ordinary JSX. Text nodes and the attributes listed under [What is extracted](#what-is-extracted) are translated automatically. Do not wrap them in a function call.
-5. Only strings outside JSX need a marker comment: `/* i18n */ "Save"` (the default `stringMarker`).
+5. Only strings outside JSX need a call: `t("Save")`, imported from `virtual:autoi18n`.
 6. Run `npx vite build` (or `bun run build`). This creates `.autoi18n/` with `registry.json` and `locales/<locale>.json`. Commit `.autoi18n/` so later builds reuse existing translations and do not re-request them.
 7. Check progress with `node node_modules/vite-plugin-ai-auto-i18n/dist/cli/stats.js --directory .autoi18n`.
 
@@ -76,7 +76,7 @@ useSyncExternalStore(subscribe, getVersion, getVersion);
 - JSX text nodes.
 - Static string attributes on lowercase (intrinsic) elements: `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription`, `aria-valuetext`.
 - Text and listed attributes of capitalised components only when declared in `componentProps`.
-- String literals outside JSX, only when marked with the `stringMarker` comment.
+- String literals outside JSX, only when passed to `t("...")` imported from `virtual:autoi18n`.
 - Not extracted: `href`, template literals, unmarked JS strings, Markdown, server-rendered content, rich-text components.
 
 Mixed sentences with simple expressions become ICU MessageFormat messages: `<p>You have {count} documents</p>` gives the argument `count`. Plurals and selects are allowed in translations. Complex expressions (function calls, JSX, computed access) stay in the source language.
@@ -91,7 +91,8 @@ Keep copy untranslated with `translate="no"` on the element (it also covers desc
 Marked strings outside JSX:
 
 ```tsx
-const items = [{ label: /* i18n */ "Shared with your team" }, { label: "Private" }]; // only the first is translated
+import { t } from "virtual:autoi18n";
+const items = [{ label: t("Shared with your team") }, { label: "Private" }]; // only the first is translated
 ```
 
 In runtime delivery, keep marked strings inside a component or function, not at module level.
@@ -113,7 +114,6 @@ In runtime delivery, keep marked strings inside a component or function, not at 
 | `orphanRetentionMinutes` | `43200` (30 days)                       | How long removed messages are kept. `0` deletes on next build; `Infinity` keeps forever.                |
 | `localeConcurrency`      | `2`                                     | Locales translated at once.                                                                             |
 | `componentProps`         | `{}`                                    | `Record<string, string[]>` of props of custom components that hold UI copy. `"children"` = text content. |
-| `stringMarker`           | `"i18n"`                                | Text of the block comment that marks string literals outside JSX, e.g. `"t"` for `/* t */`.             |
 | `debug`                  | `false`                                 | Logs each message sent to and received from the provider, prefixed `[autoi18n debug]`.                  |
 
 Example: `componentProps: { Button: ["children", "aria-label"] }` extracts `<Button>Save</Button>` and `<Button aria-label="Close">`.

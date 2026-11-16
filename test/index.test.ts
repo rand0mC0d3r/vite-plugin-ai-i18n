@@ -55,26 +55,19 @@ describe("transformSource", () => {
 
   it("emits runtime lookups with the source as fallback in runtime mode", () => {
     const { code } = transformSource(SOURCE, "App.tsx", messages, "de", catalog, true);
-    expect(code).toContain('import { t as __autoI18nT } from "virtual:autoi18n"');
+    expect(code).toContain('import { lookup as __autoI18nT } from "virtual:autoi18n"');
     expect(code).toContain('__autoI18nT("msg_0", "Save the file")');
     expect(code).toContain('__autoI18nT("msg_1", "Save")');
     expect(code).not.toContain('"Datei speichern"');
   });
 });
 
-describe("marked string literals outside JSX", () => {
-  const CODE = `const items = [{ label: /* i18n */ "Shared with your team", size: "12 KB" }, { label: "Private" }];\nexport const App = () => <p>{items.length}</p>;\n`;
+describe("t() calls outside JSX", () => {
+  const CODE = `import { t } from "virtual:autoi18n";\nconst items = [{ label: t("Shared with your team"), size: "12 KB" }, { label: "Private" }];\nexport const App = () => <p>{items.length}</p>;\n`;
   const messages = withIds(extractMessages(CODE, "Items.tsx"));
 
-  it("extracts only literals preceded by the i18n marker", () => {
+  it("extracts only the string passed to t()", () => {
     expect(messages.map((m) => [m.kind, m.source])).toEqual([["string", "Shared with your team"]]);
-  });
-
-  it("uses a custom string marker when configured", () => {
-    const custom = `const items = [{ label: /* t */ "Shared with your team" }, { label: /* i18n */ "Ignored" }];\n`;
-    expect(extractMessages(custom, "Items.tsx", { stringMarker: "t" }).map((m) => m.source)).toEqual([
-      "Shared with your team",
-    ]);
   });
 
   it("uses the catalogue translation in build mode", () => {
@@ -139,7 +132,7 @@ describe("mixed-content messages", () => {
 
   it("formats runtime translations through the format module with the expression values and the current locale", () => {
     const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", {}, true);
-    expect(code).toContain('import { t as __autoI18nT, getLocale as __autoI18nLocale } from "virtual:autoi18n"');
+    expect(code).toContain('import { lookup as __autoI18nT, getLocale as __autoI18nLocale } from "virtual:autoi18n"');
     expect(code).toContain('import { format as __autoI18nFormat } from "virtual:autoi18n-format"');
     expect(code).toContain(
       '__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected."), {',
@@ -181,7 +174,8 @@ describe("runtime module", () => {
     const code = createRuntimeModule({ en: "/x/en.json", de: "/x/de.json" }, "en");
     expect(code).toContain('"de": () => import("/x/de.json")');
     expect(code).toContain('const sourceLocale = "en"');
-    expect(code).toContain("export function t(id, source)");
+    expect(code).toContain("export function lookup(id, source)");
+    expect(code).toContain("export function t(source)");
     expect(code).not.toContain("export function format");
   });
 });

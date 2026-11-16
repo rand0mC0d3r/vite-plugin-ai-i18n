@@ -11,7 +11,8 @@ type RuntimeModule = {
   setLocale(locale: string): Promise<void>;
   getLocale(): string;
   getVersion(): number;
-  t(id: string, source: string): string;
+  lookup(id: string, source: string): string;
+  t(source: string): string;
 };
 
 describe("createRuntimeModule escaping", () => {
@@ -56,7 +57,8 @@ describe("generated setLocale", () => {
     const runtime = await load({ en: `{ a: "Save" }`, de: `{ a: "Speichern" }` });
     await runtime.setLocale("de");
     expect(runtime.getLocale()).toBe("de");
-    expect(runtime.t("a", "Save")).toBe("Speichern");
+    expect(runtime.lookup("a", "Save")).toBe("Speichern");
+    expect(runtime.t("Save")).toBe("Save");
   });
 
   it("falls back to the source locale when the requested catalogue fails", async () => {
@@ -64,7 +66,7 @@ describe("generated setLocale", () => {
     const runtime = await load({ en: `{ a: "Save" }`, de: null });
     await expect(runtime.setLocale("de")).resolves.toBeUndefined();
     expect(runtime.getLocale()).toBe("en");
-    expect(runtime.t("a", "Save")).toBe("Save");
+    expect(runtime.lookup("a", "Save")).toBe("Save");
   });
 
   it("does not reject and keeps the current state when the source catalogue fails", async () => {
@@ -75,7 +77,7 @@ describe("generated setLocale", () => {
     await expect(runtime.setLocale("de")).resolves.toBeUndefined();
     expect(runtime.getLocale()).toBe("en");
     expect(runtime.getVersion()).toBe(before);
-    expect(runtime.t("a", "Save")).toBe("Save");
+    expect(runtime.lookup("a", "Save")).toBe("Save");
     expect(warn).toHaveBeenCalled();
     expect(error).toHaveBeenCalled();
   });

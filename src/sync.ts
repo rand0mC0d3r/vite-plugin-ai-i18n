@@ -51,7 +51,7 @@ export class Syncer {
   private readonly provider: ReturnType<typeof resolveProvider>;
   private readonly directory: string;
   private readonly debug: boolean;
-  private readonly extractOptions: { componentProps?: Record<string, string[]>; stringMarker?: string };
+  private readonly extractOptions: { componentProps?: Record<string, string[]> };
   private readonly orphanRetentionMinutes: number;
   private readonly include: string[];
   private readonly exclude: string[];
@@ -66,7 +66,6 @@ export class Syncer {
     this.debug = options.debug ?? false;
     this.extractOptions = {
       ...(options.componentProps !== undefined && { componentProps: options.componentProps }),
-      ...(options.stringMarker !== undefined && { stringMarker: options.stringMarker }),
     };
     this.orphanRetentionMinutes = options.orphanRetentionMinutes ?? DEFAULT_ORPHAN_RETENTION_MINUTES;
     this.include = options.include ?? DEFAULT_INCLUDE;

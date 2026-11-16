@@ -1,7 +1,6 @@
 /**
  * What a message was extracted from: `text` for JSX text, `attribute` for a translatable attribute, `mixed` for JSX
- * text containing expressions (which become `{name}` placeholders), and `string` for a string literal marked for
- * translation.
+ * text containing expressions (which become `{name}` placeholders), and `string` for a `t("...")` call.
  */
 export type MessageKind = "text" | "attribute" | "mixed" | "string";
 /** A translatable string found in a source file, before it has an ID. */

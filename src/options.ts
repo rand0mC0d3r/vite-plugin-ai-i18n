@@ -40,8 +40,6 @@ export interface AutoI18nOptions {
    * ["aria-label", "title"] }`. Only these attributes are extracted from those components.
    */
   componentProps?: Record<string, string[]>;
-  /** Text of the block comment that marks a string literal for translation. Default `i18n`. */
-  stringMarker?: string;
 }
 
 /** Throws a single error listing every invalid option, so a misconfigured plugin fails at startup. */

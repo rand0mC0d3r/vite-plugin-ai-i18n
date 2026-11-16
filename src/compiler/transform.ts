@@ -2,7 +2,15 @@ import MagicString, { type SourceMap } from "magic-string";
 
 import { isUsableTranslation } from "../icu.js";
 import type { Catalog, ResolvedMessage } from "../types.js";
-import { type JSXElement, type JSXText, type ParsedSource, parseSource, type StringLiteral, walk } from "./ast.js";
+import {
+  type CallExpression,
+  type JSXElement,
+  type JSXText,
+  type ParsedSource,
+  parseSource,
+  type StringLiteral,
+  walk,
+} from "./ast.js";
 
 /** Virtual module id that exposes the runtime `setLocale()` and catalogues. */
 export const RUNTIME_MODULE = "virtual:autoi18n";
@@ -20,10 +28,10 @@ type Target =
   | { kind: "mixed"; node: JSXElement; message: ResolvedMessage }
   | { kind: "text"; node: JSXText; message: ResolvedMessage }
   | { kind: "attribute"; node: StringLiteral; message: ResolvedMessage }
-  | { kind: "string"; node: StringLiteral; message: ResolvedMessage };
+  | { kind: "string"; node: CallExpression; message: ResolvedMessage };
 
 /**
- * Build mode bakes the catalogue for `locale` into the code. Runtime mode emits `t(id, source)` calls that resolve
+ * Build mode bakes the catalogue for `locale` into the code. Runtime mode emits `lookup(id, source)` calls that resolve
  * against the catalogues loaded by RUNTIME_MODULE. Messages written in `sourceLocale` are emitted as-is.
  *
  * Replacements are applied in place with MagicString, so the returned source map points back to the original file. When
@@ -83,7 +91,7 @@ export function transformSource(
     } else if (node.type === "JSXAttribute" && node.value?.type === "Literal") {
       const message = byKind.attribute.get(node.value.start);
       if (message) targets.push({ kind: "attribute", node: node.value, message });
-    } else if (node.type === "Literal" && typeof node.value === "string") {
+    } else if (node.type === "CallExpression") {
       const message = byKind.string.get(node.start);
       if (message) targets.push({ kind: "string", node, message });
     }
@@ -96,7 +104,10 @@ export function transformSource(
   const textFor = (message: ResolvedMessage): string =>
     locale === sourceLocale ? message.source : (catalog[message.id] ?? message.source);
 
-  /** Expression for a message's text: a `t(id, source)` call at runtime, or the translated string literal in build mode. */
+  /**
+   * Expression for a message's text: a `lookup(id, source)` call at runtime, or the translated string literal in build
+   * mode.
+   */
   const lookup = (message: ResolvedMessage): string => {
     if (runtime) {
       used.lookup = true;
@@ -146,12 +157,13 @@ export function transformSource(
       // JSX attribute strings have no escape sequences, so the value must be an expression container.
       s.overwrite(target.node.start, target.node.end, `{${lookup(message)}}`);
     } else {
+      // The whole `t("...")` call is replaced, so the translation is the call's value.
       s.overwrite(target.node.start, target.node.end, lookup(message));
     }
   }
 
   const specifiers = [
-    ...(used.lookup ? [`t as ${RUNTIME_LOOKUP}`] : []),
+    ...(used.lookup ? [`lookup as ${RUNTIME_LOOKUP}`] : []),
     ...(used.locale ? [`getLocale as ${RUNTIME_LOCALE}`] : []),
   ];
   if (specifiers.length) s.prepend(`import { ${specifiers.join(", ")} } from "${RUNTIME_MODULE}";\n`);
