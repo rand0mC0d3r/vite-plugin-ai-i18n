@@ -1,12 +1,6 @@
 import { chatCompletionSchema } from "../schemas.js";
-import type { Catalog } from "../types.js";
-import {
-  BatchedProvider,
-  type BatchedProviderOptions,
-  systemPrompt,
-  type TranslateInput,
-  userContent,
-} from "./base.js";
+import type { Catalog, TranslateInput } from "../types.js";
+import { BatchedProvider, type BatchedProviderOptions, systemPrompt, userContent } from "./base.js";
 
 /** Default API endpoint for OpenAI-compatible chat completions. */
 const OPENAI_BASE_URL = "https://api.openai.com/v1";

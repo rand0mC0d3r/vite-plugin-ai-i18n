@@ -1,4 +1,4 @@
-import { createLocaleLoader } from "../runtime/loader.js";
+import { createLocaleLoader, unwrapDefault } from "../runtime/loader.js";
 import { resolveLocale } from "../runtime/resolve.js";
 
 /**
@@ -21,11 +21,12 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
   const loaders = Object.entries(catalogFiles)
     .map(
       ([locale, file]) =>
-        `  ${toJsStringLiteral(locale)}: () => import(${toJsStringLiteral(file)}).then(m => (m.default ?? m).messages)`,
+        `  ${toJsStringLiteral(locale)}: () => import(${toJsStringLiteral(file)}).then(m => unwrapDefault(m).messages)`,
     )
     .join(",\n");
   return (
     [
+      `const unwrapDefault = ${unwrapDefault.toString()};`,
       `const loaders = {\n${loaders}\n};`,
       `const sourceLocale = ${toJsStringLiteral(sourceLocale)};`,
       `const resolveLocale = ${resolveLocale.toString()};`,

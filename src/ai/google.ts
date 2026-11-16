@@ -1,9 +1,7 @@
-import { ArkErrors } from "arktype";
-
 import { googleTranslateResponseSchema } from "../schemas.js";
-import type { Catalog } from "../types.js";
-import { BatchedProvider, type BatchedProviderOptions, ProviderError, type TranslateInput } from "./base.js";
-import { alignedCatalog, protectText } from "./machine-helpers.js";
+import type { Catalog, TranslateInput } from "../types.js";
+import { BatchedProvider, type BatchedProviderOptions } from "./base.js";
+import { alignedCatalog, parseReply, protectText } from "./machine-helpers.js";
 
 /** Cloud Translation v2 endpoint root (the Basic edition). */
 const GOOGLE_TRANSLATE_BASE_URL = "https://translation.googleapis.com/language/translate/v2";
@@ -34,8 +32,7 @@ export class GoogleTranslateProvider extends BatchedProvider<GoogleTranslateOpti
         format: "html",
       },
     );
-    const parsed = googleTranslateResponseSchema(data);
-    if (parsed instanceof ArkErrors) throw new ProviderError("Google Translate returned an unexpected response", true);
+    const parsed = parseReply(googleTranslateResponseSchema(data), "Google Translate");
     return alignedCatalog(
       input.messages,
       parsed.data.translations.map((t) => t.translatedText),

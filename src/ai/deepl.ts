@@ -1,9 +1,7 @@
-import { ArkErrors } from "arktype";
-
 import { deeplResponseSchema } from "../schemas.js";
-import type { Catalog } from "../types.js";
-import { BatchedProvider, type BatchedProviderOptions, ProviderError, type TranslateInput } from "./base.js";
-import { alignedCatalog, protectText } from "./machine-helpers.js";
+import type { Catalog, TranslateInput } from "../types.js";
+import { BatchedProvider, type BatchedProviderOptions } from "./base.js";
+import { alignedCatalog, parseReply, protectText } from "./machine-helpers.js";
 
 /** DeepL Pro API root. */
 const DEEPL_BASE_URL = "https://api.deepl.com";
@@ -48,8 +46,7 @@ export class DeepLProvider extends BatchedProvider<DeepLOptions> {
         ignore_tags: ["x"],
       },
     );
-    const parsed = deeplResponseSchema(data);
-    if (parsed instanceof ArkErrors) throw new ProviderError("DeepL returned an unexpected response", true);
+    const parsed = parseReply(deeplResponseSchema(data), "DeepL");
     return alignedCatalog(
       input.messages,
       parsed.translations.map((t) => t.text),

@@ -59,12 +59,18 @@ export interface TranslationRequest {
   kind: MessageKind;
   placeholders?: string[] | undefined;
 }
+/** One translation call: the locale pair and the messages to translate between them. */
+export interface TranslateInput {
+  sourceLocale: string;
+  targetLocale: string;
+  messages: TranslationRequest[];
+}
 /**
  * Translates a batch of messages into one target locale. Return a catalogue with a key for each message that was
  * translated. Missing keys are left untranslated. Throw a `PartialTranslationError` to keep the keys already done.
  */
 export interface TranslationProvider {
-  translate(input: { sourceLocale: string; targetLocale: string; messages: TranslationRequest[] }): Promise<Catalog>;
+  translate(input: TranslateInput): Promise<Catalog>;
 }
 /**
  * Named providers. The services listed in the README have typed keys so editors can suggest them; any other name is

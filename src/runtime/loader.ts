@@ -5,9 +5,17 @@
 export type LocaleLoader = () => Promise<{ default: Record<string, string> } | Record<string, string>>;
 
 /**
+ * Returns a module's default export when it has one, otherwise the module itself. Serialised into the runtime module
+ * via toString(), so it must not reference anything outside its body.
+ */
+export function unwrapDefault(module: object): unknown {
+  return "default" in module ? module.default : module;
+}
+
+/**
  * Returns a cached catalogue loader. Unknown locales load the fallback, and a failed load is not cached. `prime` stores
  * a catalogue that was already fetched, such as one pushed by the dev server. Serialised into the runtime module via
- * toString(), so it must not reference anything outside its body.
+ * toString(), so it must not reference anything outside its body (other than `unwrapDefault`, which is embedded too).
  *
  * @param loaders Loader for each supported locale, keyed by locale code.
  * @param fallback Locale loaded when the requested one has no loader.
@@ -21,9 +29,7 @@ export function createLocaleLoader(loaders: Record<string, LocaleLoader>, fallba
     if (cached) return cached;
     const loader: LocaleLoader | undefined = Object.hasOwn(loaders, selected) ? loaders[selected] : undefined;
     if (!loader) return Promise.reject(new Error(`No catalogue loader for locale "${selected}"`));
-    const pending = loader().then(
-      (module) => ("default" in module ? module.default : module) as Record<string, string>,
-    );
+    const pending = loader().then((module) => unwrapDefault(module) as Record<string, string>);
     cache.set(selected, pending);
     pending.catch(() => {
       if (cache.get(selected) === pending) cache.delete(selected);

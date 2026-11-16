@@ -1,3 +1,5 @@
+import { ArkErrors } from "arktype";
+
 import type { Catalog, TranslationRequest } from "../types.js";
 import { ProviderError } from "./base.js";
 
@@ -27,6 +29,12 @@ export function restoreText(translated: string, open: string, close: string): st
       const code = entity[1].toLowerCase() === "x" ? parseInt(entity.slice(2), 16) : Number(entity.slice(1));
       return code <= 0x10ffff ? String.fromCodePoint(code) : match;
     });
+}
+
+/** Returns a validated engine reply, or throws a retryable ProviderError naming the engine when the schema check failed. */
+export function parseReply<T>(parsed: T | ArkErrors, engine: string): T {
+  if (parsed instanceof ArkErrors) throw new ProviderError(`${engine} returned an unexpected response`, true);
+  return parsed;
 }
 
 /**

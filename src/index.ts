@@ -119,7 +119,7 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         }
         return null;
       }
-      const locale = config.command === "serve" ? sourceLocale : syncer.selectedLocale();
+      const locale = syncer.isServing() ? sourceLocale : syncer.selectedLocale();
       // The AST is only reused while the code still matches the indexed hash, so it describes the same text.
       const parsed = state.parsedSources.get(file);
       state.parsedSources.delete(file);

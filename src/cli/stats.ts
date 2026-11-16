@@ -47,7 +47,7 @@ function formatReport(report: StatsReport, verbose: boolean): string {
     lines.push(`  by component: ${components.map(([name, count]) => `${name} ${count}`).join(", ")}`);
 
   lines.push("", "Coverage");
-  if (report.locales.length === 0) {
+  if (report.averageCoverage === null) {
     lines.push("  no locale files found.");
   } else {
     const rows = [
@@ -70,7 +70,7 @@ function formatReport(report: StatsReport, verbose: boolean): string {
             .join("  ")
             .trimEnd(),
       );
-    lines.push(`  average coverage: ${percent(report.averageCoverage ?? 1)}`);
+    lines.push(`  average coverage: ${percent(report.averageCoverage)}`);
     if (verbose) {
       for (const stats of report.locales) {
         if (stats.missing.length) lines.push(`  ${stats.locale} missing: ${stats.missing.join(", ")}`);

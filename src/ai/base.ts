@@ -3,7 +3,7 @@ import { ArkErrors } from "arktype";
 import { Semaphore } from "../core/concurrency.js";
 import { PartialTranslationError } from "../errors.js";
 import { translationMapSchema } from "../schemas.js";
-import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
+import type { Catalog, TranslateInput, TranslationProvider, TranslationRequest } from "../types.js";
 
 /** Upper bound on how long a `Retry-After` header can delay a retry. */
 const MAX_RETRY_AFTER_MS = 60_000;
@@ -23,13 +23,6 @@ export interface BatchedProviderOptions {
   retryDelayMs?: number;
   /** Batches sent in parallel across all locales of one provider instance. Default 4. */
   concurrency?: number;
-}
-
-/** One translation call: the locale pair and the messages to translate between them. */
-export interface TranslateInput {
-  sourceLocale: string;
-  targetLocale: string;
-  messages: TranslationRequest[];
 }
 
 /**

@@ -1,12 +1,6 @@
 import { geminiResponseSchema } from "../schemas.js";
-import type { Catalog } from "../types.js";
-import {
-  BatchedProvider,
-  type BatchedProviderOptions,
-  systemPrompt,
-  type TranslateInput,
-  userContent,
-} from "./base.js";
+import type { Catalog, TranslateInput } from "../types.js";
+import { BatchedProvider, type BatchedProviderOptions, systemPrompt, userContent } from "./base.js";
 
 /** Default API endpoint for the Gemini generateContent API. */
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";

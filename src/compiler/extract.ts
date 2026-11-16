@@ -140,6 +140,27 @@ function nearestElement(ancestors: Node[]): { index: number; element: JSXElement
   return index < 0 ? undefined : { index, element: ancestors[index] as JSXElement };
 }
 
+/** Makes each name unique by appending `_2`, `_3`, ... to repeats. `prepare` maps each base before deduplication. */
+function uniqueNames(bases: string[], prepare: (base: string) => string = (base) => base): string[] {
+  const names: string[] = [];
+  for (const base of bases) {
+    const prepared = prepare(base);
+    let name = prepared;
+    for (let suffix = 2; names.includes(name); suffix++) name = `${prepared}_${suffix}`;
+    names.push(name);
+  }
+  return names;
+}
+
+/** The attributes of an opening element whose name is a plain identifier, paired with that name. */
+function namedAttributes(opening: JSXOpeningElement): { name: string; attribute: JSXAttribute }[] {
+  return opening.attributes.flatMap((attribute) =>
+    attribute.type === "JSXAttribute" && attribute.name.type === "JSXIdentifier"
+      ? [{ name: attribute.name.name, attribute }]
+      : [],
+  );
+}
+
 /** True when the node or any ancestor element is marked with translate="no". `chain` runs from the root to the node. */
 function isMarkedUntranslated(chain: Node[]): boolean {
   return chain.some((node) => {
@@ -154,23 +175,16 @@ function isMarkedUntranslated(chain: Node[]): boolean {
  * identifying attributes, and the handler names. Attribute values that are expressions are recorded as `{expr}`.
  */
 function elementContext(opening: JSXOpeningElement, tag: string, attr?: string): string {
-  const attrs = opening.attributes
-    .filter(
-      (a): a is JSXAttribute =>
-        a.type === "JSXAttribute" &&
-        a.name.type === "JSXIdentifier" &&
-        ["aria-label", "title", "name", "type", "role"].includes(a.name.name),
-    )
-    .map((a) => `${(a.name as JSXIdentifierNode).name}=${attributeText(a.value) ?? "{expr}"}`)
+  const named = namedAttributes(opening);
+  const attrs = named
+    .filter(({ name }) => ["aria-label", "title", "name", "type", "role"].includes(name))
+    .map(({ name, attribute }) => `${name}=${attributeText(attribute.value) ?? "{expr}"}`)
     .sort()
     .join(";");
   // Only the presence of a handler is recorded: renaming the function it points at should not change the identity.
-  const handlers = opening.attributes
-    .filter(
-      (a): a is JSXAttribute =>
-        a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && /^on[A-Z]/.test(a.name.name),
-    )
-    .map((a) => (a.name as JSXIdentifierNode).name)
+  const handlers = named
+    .map(({ name }) => name)
+    .filter((name) => /^on[A-Z]/.test(name))
     .sort()
     .join(",");
   return [tag, attr ?? "", attrs, handlers].filter(Boolean).join(" | ");
@@ -247,20 +261,9 @@ export function extractMessages(
     const rawTag = node.openingElement.name;
     if (!isTextTag(rawTag)) return;
     // Names as written in the source, made unique. They identify the message, so they stay out of the ICU text.
-    const sourceNames: string[] = [];
-    for (const base of baseNames) {
-      let name = base;
-      for (let suffix = 2; sourceNames.includes(name); suffix++) name = `${base}_${suffix}`;
-      sourceNames.push(name);
-    }
+    const sourceNames = uniqueNames(baseNames);
     // ICU argument names are letters, digits and underscores only, so `user.name` becomes `user_name`.
-    const names: string[] = [];
-    for (const base of sourceNames) {
-      const sanitized = argumentName(base);
-      let name = sanitized;
-      for (let suffix = 2; names.includes(name); suffix++) name = `${sanitized}_${suffix}`;
-      names.push(name);
-    }
+    const names = uniqueNames(sourceNames, argumentName);
     let raw = "";
     let icu = "";
     let index = 0;
@@ -295,6 +298,13 @@ export function extractMessages(
     );
   }
 
+  /** The innermost element enclosing a node, with the component that owns that element. */
+  function enclosingElement(ancestors: Node[]): { element: JSXElement; component: string } | undefined {
+    const nearest = nearestElement(ancestors);
+    if (!nearest) return undefined;
+    return { element: nearest.element, component: componentName(ancestors.slice(0, nearest.index)) };
+  }
+
   /**
    * Extracts a text node that is the only content of a translatable element. Mixed-content elements are left to
    * `visitElement`.
@@ -304,9 +314,9 @@ export function extractMessages(
     const raw = textOf(node);
     const source = normalizeSource(raw);
     if (!source) return;
-    const nearest = nearestElement(ancestors);
-    if (!nearest) return;
-    const { index: elementIndex, element } = nearest;
+    const enclosing = enclosingElement(ancestors);
+    if (!enclosing) return;
+    const { element, component } = enclosing;
     // Mixed-content elements are handled as a whole by the JSXElement visitor, never fragment by fragment.
     if (element.children.some((child) => child.type === "JSXExpressionContainer")) return;
     const rawTag = element.openingElement.name;
@@ -320,7 +330,7 @@ export function extractMessages(
       start: node.start,
       end: node.end,
       tag,
-      component: componentName(ancestors.slice(0, elementIndex)),
+      component,
       context: elementContext(element.openingElement, tag),
     });
   }
@@ -341,9 +351,9 @@ export function extractMessages(
     if (!isStringLiteral(node.value)) return;
     const source = normalizeSource(decodeJsxEntities(node.value.value));
     if (!source || !hasLetter(source)) return;
-    const nearest = nearestElement(ancestors);
-    if (!nearest) return;
-    const { index: elementIndex, element } = nearest;
+    const enclosing = enclosingElement(ancestors);
+    if (!enclosing) return;
+    const { element, component } = enclosing;
     record({
       source,
       kind: "attribute",
@@ -351,7 +361,7 @@ export function extractMessages(
       start: node.value.start,
       end: node.value.end,
       tag,
-      component: componentName(ancestors.slice(0, elementIndex)),
+      component,
       attribute,
       context: elementContext(element.openingElement, tag, attribute),
     });

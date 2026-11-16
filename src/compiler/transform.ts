@@ -116,11 +116,15 @@ export function transformSource(
     return JSON.stringify(textFor(message));
   };
 
+  /** Wraps text in the whitespace that was outside the extracted message. */
+  const affixed = (message: ResolvedMessage, text: string): string =>
+    `${message.prefix ?? ""}${text}${message.suffix ?? ""}`;
+
   /** Like `lookup`, but also wraps the text in the whitespace that was outside the extracted message. */
   const withAffixes = (message: ResolvedMessage): string => {
+    if (!runtime) return JSON.stringify(affixed(message, textFor(message)));
     const prefix = message.prefix ?? "";
     const suffix = message.suffix ?? "";
-    if (!runtime) return JSON.stringify(`${prefix}${textFor(message)}${suffix}`);
     return [prefix && JSON.stringify(prefix), lookup(message), suffix && JSON.stringify(suffix)]
       .filter(Boolean)
       .join(" + ");
@@ -149,7 +153,7 @@ export function transformSource(
       // A translation that changes the argument names, or is blank, would render wrong text, so the source is used instead.
       const translated = textFor(message);
       const text = isUsableTranslation(translated, names) ? translated : message.source;
-      const formatted = JSON.stringify(`${message.prefix ?? ""}${text}${message.suffix ?? ""}`);
+      const formatted = JSON.stringify(affixed(message, text));
       s.overwrite(start, end, `{${RUNTIME_FORMAT}(${formatted}, {${values}}, ${JSON.stringify(locale)})}`);
     } else if (target.kind === "text") {
       s.overwrite(target.node.start, target.node.end, `{${withAffixes(message)}}`);

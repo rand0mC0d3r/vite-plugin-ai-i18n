@@ -86,6 +86,11 @@ export class Syncer {
     return this.explicitLocale() ?? this.sourceLocale;
   }
 
+  /** True under the Vite dev server, which renders the source locale and keeps every catalogue. */
+  isServing(): boolean {
+    return this.config.command === "serve";
+  }
+
   localesDir(): string {
     return path.resolve(this.config.root, this.directory, "locales");
   }
@@ -108,7 +113,7 @@ export class Syncer {
   private localesToTranslate(): string[] {
     const others = this.options.locales.filter((x) => x !== this.sourceLocale);
     const explicit = this.explicitLocale();
-    if (this.delivery === "build" && explicit !== undefined && explicit !== "" && this.config.command !== "serve")
+    if (this.delivery === "build" && explicit !== undefined && explicit !== "" && !this.isServing())
       return others.filter((x) => x === explicit);
     return others;
   }

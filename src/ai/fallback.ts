@@ -1,5 +1,5 @@
 import { PartialTranslationError } from "../errors.js";
-import type { Catalog, ProviderConfig, TranslationProvider, TranslationRequest } from "../types.js";
+import type { Catalog, ProviderConfig, TranslateInput, TranslationProvider } from "../types.js";
 
 /** A provider paired with the name used to refer to it in configuration and log messages. */
 interface NamedProvider {
@@ -21,11 +21,7 @@ export class FallbackProvider implements TranslationProvider {
     private readonly onFallback: (message: string) => void = () => {},
   ) {}
 
-  async translate(input: {
-    sourceLocale: string;
-    targetLocale: string;
-    messages: TranslationRequest[];
-  }): Promise<Catalog> {
+  async translate(input: TranslateInput): Promise<Catalog> {
     const result: Catalog = {};
     let remaining = input.messages;
     let firstError: unknown;
