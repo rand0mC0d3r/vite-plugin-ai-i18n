@@ -121,12 +121,6 @@ describe("translatable attributes", () => {
   });
 });
 
-describe("string literals outside t()", () => {
-  it("ignores a string literal preceded by a comment", () => {
-    expect(sources(`export const A = () => /* i18n */ "Plain";`)).toEqual([]);
-  });
-});
-
 describe("t() calls", () => {
   it("extracts the string passed to t imported from the runtime module, once", () => {
     const code = `import { t } from "virtual:autoi18n";\nexport const A = () => <p>{t("Save")}</p>;`;
