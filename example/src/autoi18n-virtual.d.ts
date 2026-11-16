@@ -5,5 +5,5 @@ declare module "virtual:autoi18n" {
   export function resolveSupported(preferred: readonly string[]): string;
   export function setLocale(locale: string): Promise<void>;
   export function subscribe(listener: (locale: string) => void): () => void;
-  export function t(source: string): string;
+  export function t(source: string, values?: Record<string, unknown>): string;
 }

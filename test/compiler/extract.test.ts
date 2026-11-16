@@ -42,10 +42,27 @@ describe("t() calls", () => {
   });
 
   it("ignores calls that are not a single string literal with letters", () => {
-    const calls = [`t(name)`, `t("Save", 1)`, `t()`, `t("123")`, "t(`Save`)", `i18n.t("Save")`];
+    const calls = [`t(name)`, `t()`, `t("123")`, "t(`Save`)", `i18n.t("Save")`];
     for (const call of calls) {
       expect(sources(`${RUNTIME}export const A = () => ${call};`)).toEqual([]);
     }
+  });
+
+  it("accepts a second argument of values and records where it starts", () => {
+    const code = `${RUNTIME}export const A = () => t("{count, plural, one {# file} other {# files}}", { count });`;
+    const [message] = extract(code);
+    expect(message.source).toBe("{count, plural, one {# file} other {# files}}");
+    expect(message.valuesStart).toBe(code.indexOf("{ count"));
+  });
+
+  it("skips a call whose values are a spread, since its arguments are not known statically", () => {
+    expect(sources(`${RUNTIME}export const A = (v) => t("Hello {name}", ...[v]);`)).toEqual([]);
+  });
+
+  it("rejects a message with values that is not valid ICU, naming the file", () => {
+    expect(() => extract(`${RUNTIME}export const A = () => t("Use {", { a: 1 });`)).toThrow(
+      /App\.tsx: t\(\) message is not valid ICU MessageFormat/,
+    );
   });
 
   it("ignores JSX text and attributes, which are no longer extracted", () => {

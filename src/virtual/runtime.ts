@@ -1,3 +1,4 @@
+import { FORMAT_MODULE } from "../compiler/transform.js";
 import { createLocaleLoader, resolveLocale, unwrapDefault } from "../runtime/loader.js";
 
 /**
@@ -25,6 +26,7 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
     .join(",\n");
   return (
     [
+      `import { formatMessage } from ${toJsStringLiteral(FORMAT_MODULE)};`,
       `const unwrapDefault = ${unwrapDefault.toString()};`,
       `const loaders = {\n${loaders}\n};`,
       `const sourceLocale = ${toJsStringLiteral(sourceLocale)};`,
@@ -68,9 +70,14 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
       `  listeners.forEach(fn => fn(currentLocale));`,
       `}`,
       `export function subscribe(fn) { listeners.add(fn); return () => { listeners.delete(fn); }; }`,
-      `export function lookup(id, source) { return messages[id] ?? source; }`,
-      `// Only literal t("...") calls are translated at build time. Any other call returns its argument unchanged.`,
-      `export function t(source) { return source; }`,
+      `export function lookup(id, source, values) {`,
+      `  const text = messages[id] ?? source;`,
+      `  return values === undefined ? text : formatMessage(text, currentLocale, values);`,
+      `}`,
+      `// Only literal t("...") calls are translated at build time. Any other call returns its argument unchanged, formatted with values when given.`,
+      `export function t(source, values) {`,
+      `  return values === undefined ? source : formatMessage(source, currentLocale, values);`,
+      `}`,
       `// Dev server pushes the catalogues that changed after a source change; no page reload is needed.`,
       `if (import.meta.hot) {`,
       `  import.meta.hot.on("autoi18n:update", data => {`,

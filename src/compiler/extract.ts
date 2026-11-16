@@ -1,3 +1,4 @@
+import { argumentNames } from "../icu.js";
 import { createFingerprint, normalizeSource } from "../identity/fingerprint.js";
 import type { ExtractedMessage } from "../types.js";
 import { isStringLiteral, type Node, type ParsedSource, parseSource, walk } from "./ast.js";
@@ -7,6 +8,17 @@ import { RUNTIME_MODULE } from "./transform.js";
 const TRANSLATE_FN = "t";
 
 const hasLetter = (text: string): boolean => /[A-Za-z]/.test(text);
+
+/** Throws when a message with values is not valid ICU, naming the file so the build error points at it. */
+function checkIcu(source: string, filename: string): void {
+  try {
+    argumentNames(source);
+  } catch (error) {
+    throw new SyntaxError(`${filename}: t() message is not valid ICU MessageFormat: ${(error as Error).message}`, {
+      cause: error,
+    });
+  }
+}
 
 /**
  * Local names bound to `t` by imports from the runtime module. Only calls through these bindings are extracted, so an
@@ -52,14 +64,16 @@ function componentName(ancestors: Node[]): string {
 }
 
 /**
- * Finds `t("...")` calls in a module, where `t` is imported from the runtime module and the only argument is a string
- * literal containing letters. The calls stay in the source; the transform replaces them later.
+ * Finds `t("...")` calls in a module, where `t` is imported from the runtime module and the first argument is a string
+ * literal containing letters. An optional second argument holds values for ICU placeholders, such as `t("{count}
+ * files", { count })`; the source is then validated as ICU. The calls stay in the source; the transform replaces them
+ * later.
  *
  * @param code Source text of the module.
  * @param filename Used for parsing and recorded on each message.
  * @param parsed The module's AST, when the caller already has it.
  * @returns The extracted messages, sorted by their start offset in `code`.
- * @throws SyntaxError if `code` cannot be parsed.
+ * @throws SyntaxError if `code` cannot be parsed, or a message with values is not valid ICU.
  */
 export function extractMessages(
   code: string,
@@ -71,16 +85,19 @@ export function extractMessages(
   const found: ExtractedMessage[] = [];
   walk(program, (node, ancestors) => {
     if (node.type !== "CallExpression" || node.callee.type !== "Identifier") return;
-    if (!translateNames.has(node.callee.name) || node.arguments.length !== 1) return;
+    if (!translateNames.has(node.callee.name) || node.arguments.length > 2) return;
     const [argument] = node.arguments;
-    if (!isStringLiteral(argument)) return;
+    const values = node.arguments.at(1);
+    if (!isStringLiteral(argument) || values?.type === "SpreadElement") return;
     const source = normalizeSource(argument.value);
     if (!source || !hasLetter(source)) return;
+    if (values) checkIcu(source, filename);
     found.push({
       source,
       file: filename,
       start: node.start,
       end: node.end,
+      valuesStart: values?.start,
       component: componentName(ancestors),
       fingerprint: createFingerprint({ source }),
     });

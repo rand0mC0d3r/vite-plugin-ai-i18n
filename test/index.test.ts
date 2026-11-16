@@ -83,13 +83,32 @@ describe("t() call sites", () => {
   });
 });
 
+describe("t() calls with values", () => {
+  const CODE = `import { t } from "virtual:autoi18n";\nexport const App = ({ count }) => <p>{t("{count, plural, one {# file} other {# files}}", { count })}</p>;\n`;
+  const messages = withIds(extractMessages(CODE, "Files.tsx"));
+
+  it("formats the translation with the values in build mode and imports the formatter", () => {
+    const { code } = transformSource(CODE, "Files.tsx", messages, "de", {
+      msg_0: "{count, plural, one {# Datei} other {# Dateien}}",
+    });
+    expect(code).toContain('import { formatMessage as __autoI18nFormat } from "vite-plugin-ai-auto-i18n/runtime";');
+    expect(code).toContain('__autoI18nFormat("{count, plural, one {# Datei} other {# Dateien}}", "de", { count })');
+  });
+
+  it("passes the values to lookup in runtime mode", () => {
+    const { code } = transformSource(CODE, "Files.tsx", messages, "de", {}, true);
+    expect(code).toContain('__autoI18nT("msg_0", "{count, plural, one {# file} other {# files}}", { count })');
+    expect(code).not.toContain("__autoI18nFormat");
+  });
+});
+
 describe("runtime module", () => {
   it("lists every catalogue and resolves unknown locales to the source", () => {
     const code = createRuntimeModule({ en: "/x/en.json", de: "/x/de.json" }, "en");
     expect(code).toContain('"de": () => import("/x/de.json")');
     expect(code).toContain('const sourceLocale = "en"');
-    expect(code).toContain("export function lookup(id, source)");
-    expect(code).toContain("export function t(source)");
+    expect(code).toContain("export function lookup(id, source, values)");
+    expect(code).toContain("export function t(source, values)");
   });
 });
 

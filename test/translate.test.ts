@@ -56,6 +56,19 @@ describe("translateLocale", () => {
     expect(result.file.sources).toEqual({ a: "Save" });
   });
 
+  it("rejects a translation that drops or renames an ICU argument so it is requested again", async () => {
+    const source = "{count, plural, one {# file} other {# files}}";
+    const p = provider({ a: "{anzahl, plural, one {# Datei} other {# Dateien}}" });
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [text("a", source)],
+      previous: emptyLocaleFile(),
+    });
+    expect(result.file.messages).toEqual({});
+    expect(result.untranslated).toBe(1);
+  });
+
   it("prunes keys for messages that are no longer active", async () => {
     const previous = { messages: { keep: "Behalten", gone: "Weg" }, sources: { keep: "Keep", gone: "Gone" } };
     const result = await translateLocale({

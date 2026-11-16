@@ -110,7 +110,14 @@ export function Doc({ count }: { count: number }) {
 }
 ```
 
-Each `t()` call takes exactly one string literal. Keep variables outside the call and let the surrounding JSX combine the pieces.
+Each `t()` call takes one string literal. Keep variables outside the call and let the surrounding JSX combine the pieces. To fill in values, pass an object as the second argument and write the message in [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/):
+
+```tsx
+<span>{t("{count, plural, one {# document selected} other {# documents selected}}", { count })}</span>
+<span>{t("Hello {name}", { name: user.name })}</span>
+```
+
+Plurals, `select` and simple `{name}` placeholders all work. Messages are checked at build time, so an invalid ICU string fails the build and names the file. At runtime the values are formatted for the active locale with [`intl-messageformat`](https://formatjs.io/docs/intl-messageformat/). That library is bundled only when a build uses values with `delivery: "build"`, but `delivery: "runtime"` always includes it, since the shared runtime module formats values. A missing value is logged and the message is shown unformatted.
 
 ### Phase 1: extract
 
@@ -127,7 +134,7 @@ The compiler parses each file in `include` and records every `t("...")` call wit
 ```
 
 - Only calls to a `t` imported from `virtual:autoi18n` are extracted. An unrelated `t()` from another library is ignored.
-- A call is ignored when its argument is not a single string literal, for example a variable, a template literal or extra arguments. Such calls are returned unchanged at runtime and are not translated.
+- A call is ignored when its first argument is not a string literal, for example a variable or a template literal. A second argument that is a spread (`t("Hi", ...args)`) is ignored too, since its values cannot be read statically. Such calls are returned unchanged at runtime and are not translated.
 - Strings with no letters, such as `t("…")` or `t("12")`, are skipped.
 
 ### Phase 2: identify
@@ -467,7 +474,7 @@ export function Items() {
 
 Only `"Shared with your team"` is translated. `"Private"` is not wrapped in `t()` and stays English.
 
-`t()` is recognised only when it is imported from `virtual:autoi18n`, so calls to other libraries' `t()` functions are left alone. Only a single string-literal argument is extracted. Dynamic arguments, template literals and calls with several arguments are not translated, and at runtime `t(source)` returns its argument unchanged.
+`t()` is recognised only when it is imported from `virtual:autoi18n`, so calls to other libraries' `t()` functions are left alone. A call is extracted when its first argument is a string literal, with an optional second argument of values. Variables, template literals and spread values are not translated, and at runtime `t(source, values)` formats its source with the values and otherwise returns it unchanged.
 
 > [!NOTE]
 > In runtime delivery, the lookup runs when the expression is evaluated. Keep `t()` calls inside a component or function, not at module level, so the active locale is known at render time.
@@ -689,7 +696,7 @@ Example: `new GeminiProvider({ apiKey: env.GEMINI_API_KEY!, model: "gemini-3.5-f
 
 ### Machine-translation providers
 
-DeepL and Google Translate return translations directly rather than model output, so they skip the JSON prompt. Each adapter protects `{name}` placeholders from the engine and restores them afterwards. Batching, concurrency and retry options match the other providers.
+DeepL and Google Translate return translations directly rather than model output, so they skip the JSON prompt. Each adapter protects `{name}` placeholders from the engine and restores them afterwards. Plural and `select` messages are less reliable with these engines: a translation that drops or renames an ICU argument is rejected and the source text is shown until a valid one is produced. Batching, concurrency and retry options match the other providers.
 
 - **`DeepLProvider({ apiKey, baseURL? })`**: `POST /v2/translate` with `Authorization: DeepL-Auth-Key`.
   - Keys ending in `:fx` use `https://api-free.deepl.com`; all others use `https://api.deepl.com`.
@@ -899,7 +906,7 @@ This is a beta release. Review these before shipping to production:
 1. **Runtime loading.** Runtime delivery loads a catalogue per locale. A message's source text is used until its catalogue has loaded.
 2. **Duplicate identical strings.** Message IDs come from the source text alone, so identical text used in several places shares one ID. Occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`, not resolved automatically.
 3. **Full scan on add or remove.** Saving a file re-reads only that file. Adding or removing a source file triggers a full project scan (debounced by 150 ms), which may be slow in very large projects.
-4. **What gets extracted.** Only string literals passed to `t("...")` imported from `virtual:autoi18n`, with exactly one argument. JSX text, attributes, template literals, unmarked JS strings, Markdown, server-rendered content and rich-text components are not extracted and need `t()` or a separate policy.
+4. **What gets extracted.** Only string literals passed to `t("...")` imported from `virtual:autoi18n`, with an optional second argument of values. JSX text, attributes, template literals, unmarked JS strings, Markdown, server-rendered content and rich-text components are not extracted and need `t()` or a separate policy.
 5. **Example setup.** The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
 6. **Fingerprints are source-only.** Editing a message's text changes its ID and re-translates it. Changing its position or component does not.
 

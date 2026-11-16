@@ -7,6 +7,8 @@ export interface ExtractedMessage {
   /** Character offsets of the `t("...")` call in the file. */
   start: number;
   end: number;
+  /** Offset of the values argument in `t("...", values)`. Undefined when the call has no values. */
+  valuesStart?: number | undefined;
   /** Enclosing component name. Used with `fingerprint` to match a message to its registry entry. */
   component: string;
   /** Hash of the normalized source, used to match registry entries. */

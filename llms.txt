@@ -72,7 +72,7 @@ useSyncExternalStore(subscribe, getVersion, getVersion);
 
 ## What is extracted
 
-Only string literals passed to `t("...")`, imported from `virtual:autoi18n`, with exactly one argument. Calls with variables, template literals, or several arguments are not extracted, and at runtime `t(source)` returns its argument unchanged.
+Only string literals passed to `t("...")`, imported from `virtual:autoi18n`, with an optional second argument of values. Variables, template literals, and spread values are not extracted. Values use ICU MessageFormat, for example `t("{count, plural, one {# file} other {# files}}", { count })`. A message that is not valid ICU fails the build. At runtime `t(source, values)` formats its source and otherwise returns it unchanged.
 
 ```tsx
 import { t } from "virtual:autoi18n";
@@ -180,7 +180,7 @@ node node_modules/vite-plugin-ai-auto-i18n/dist/cli/prune.js --directory .autoi1
 1. Runtime delivery shows the source text until a locale's catalogue has loaded.
 2. Duplicate identical strings are paired by source order. Reordered indistinguishable duplicates are reported through `onAmbiguous`, not resolved.
 3. Fingerprints use the source text only. Editing a message's text changes its ID and re-translates it.
-4. Machine-translation providers (DeepL, Google) protect only simple `{name}` placeholders. Check plural and select output.
+4. Machine-translation providers (DeepL, Google) protect only simple `{name}` placeholders. Check plural and select output. Translations that drop or rename an ICU argument are rejected and re-requested.
 5. The version is beta. Configuration options and `.autoi18n/` formats are meant to stay stable.
 
 ## Links

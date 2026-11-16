@@ -11,8 +11,8 @@ type RuntimeModule = {
   setLocale(locale: string): Promise<void>;
   getLocale(): string;
   getVersion(): number;
-  lookup(id: string, source: string): string;
-  t(source: string): string;
+  lookup(id: string, source: string, values?: Record<string, unknown>): string;
+  t(source: string, values?: Record<string, unknown>): string;
 };
 
 describe("createRuntimeModule escaping", () => {
@@ -59,6 +59,25 @@ describe("generated setLocale", () => {
     expect(runtime.getLocale()).toBe("de");
     expect(runtime.lookup("a", "Save")).toBe("Speichern");
     expect(runtime.t("Save")).toBe("Save");
+  });
+
+  it("formats messages with values in the active locale", async () => {
+    const runtime = await load({
+      en: `{ a: "{count, plural, one {# file} other {# files}}" }`,
+      de: `{ a: "{count, plural, one {# Datei} other {# Dateien}}" }`,
+    });
+    await runtime.setLocale("en");
+    expect(runtime.lookup("a", "unused", { count: 1 })).toBe("1 file");
+    await runtime.setLocale("de");
+    expect(runtime.lookup("a", "unused", { count: 2 })).toBe("2 Dateien");
+    expect(runtime.t("{count, plural, one {# Datei} other {# Dateien}}", { count: 1 })).toBe("1 Datei");
+  });
+
+  it("returns the source unformatted when a value is missing", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const runtime = await load({ en: `{}` });
+    expect(runtime.t("Hello {name}", {})).toBe("Hello {name}");
+    expect(warn).toHaveBeenCalled();
   });
 
   it("falls back to the source locale when the requested catalogue fails", async () => {

@@ -1,5 +1,6 @@
 import { debugLog } from "../debug.js";
 import { PartialTranslationError } from "../errors.js";
+import { keepsArguments } from "../icu.js";
 import { type LocaleFile, pruneLocaleFile } from "../io/store.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
 
@@ -35,8 +36,9 @@ export interface LocaleTranslation {
 
 /**
  * Brings one locale up to date. Messages are re-requested when they are new or when their source text changed under the
- * same ID. Empty translations are dropped so they are requested again later, and keys for messages that are no longer
- * active are removed. A partially failed request keeps the translations that did succeed.
+ * same ID. Empty translations, and translations that change the arguments of an ICU source, are dropped so they are
+ * requested again later, and keys for messages that are no longer active are removed. A partially failed request keeps
+ * the translations that did succeed.
  */
 export async function translateLocale(input: LocaleTranslationInput): Promise<LocaleTranslation> {
   const { provider, sourceLocale, locale, requests, previous, debug } = input;
@@ -76,7 +78,8 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
     delete messages[request.id];
     delete sources[request.id];
     const text = translated[request.id];
-    if (typeof text !== "string" || !text.trim()) continue;
+    // A translation that drops or renames an argument would format wrongly, so it is requested again instead.
+    if (typeof text !== "string" || !text.trim() || !keepsArguments(request.source, text)) continue;
     messages[request.id] = text;
     sources[request.id] = request.source;
   }

@@ -19,8 +19,6 @@
     "msg_d624fc2394d54c20": "Archiviert",
     "msg_940ed0e9a0e549af": "Dokumente nach Status filtern",
     "msg_675ffed9360141ce": "Massenaktionen",
-    "msg_ab54e93d27fb4df9": "Dokument ausgewählt",
-    "msg_7b1ad7c4842b4a2d": "Dokumente ausgewählt",
     "msg_2ed607087d244f4a": "Archivieren",
     "msg_d7110bcf1762423d": "Ausgewählte Dokumente endgültig löschen",
     "msg_8e3a9efbe8de4ec5": "Löschen",
@@ -63,7 +61,8 @@
     "msg_5cb83f2a737b435b": "Automatische Archivierung lief um 02:00",
     "msg_92673cac00bb4e9e": "3 Dateien verschoben",
     "msg_4081b1dc279e4182": "Dokumente",
-    "msg_90696104bf7b404a": "Änderungen erfolgreich gespeichert."
+    "msg_90696104bf7b404a": "Änderungen erfolgreich gespeichert.",
+    "msg_b2c0116325104e0a": "{count, plural, one {# Dokument ausgewählt} other {# Dokumente ausgewählt}}"
   },
   "sources": {
     "msg_7f6cd5f3d7ce43ac": "Language",
@@ -85,8 +84,6 @@
     "msg_d624fc2394d54c20": "Archived",
     "msg_940ed0e9a0e549af": "Filter documents by status",
     "msg_675ffed9360141ce": "Bulk actions",
-    "msg_ab54e93d27fb4df9": "document selected",
-    "msg_7b1ad7c4842b4a2d": "documents selected",
     "msg_2ed607087d244f4a": "Archive",
     "msg_d7110bcf1762423d": "Permanently delete selected documents",
     "msg_8e3a9efbe8de4ec5": "Delete",
@@ -129,6 +126,7 @@
     "msg_5cb83f2a737b435b": "Auto-archive ran at 02:00",
     "msg_92673cac00bb4e9e": "3 files moved",
     "msg_4081b1dc279e4182": "Documents",
-    "msg_90696104bf7b404a": "Changes saved successfully."
+    "msg_90696104bf7b404a": "Changes saved successfully.",
+    "msg_b2c0116325104e0a": "{count, plural, one {# document selected} other {# documents selected}}"
   }
 }

@@ -10,6 +10,15 @@ export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, fileURLToPath(new URL("..", import.meta.url)), ""), ...process.env };
 
   return {
+    resolve: {
+      alias: [
+        // The generated module imports the package's runtime subpath. Use the source so the example runs without a build.
+        {
+          find: /^vite-plugin-ai-auto-i18n\/runtime$/,
+          replacement: fileURLToPath(new URL("../src/runtime/index.ts", import.meta.url)),
+        },
+      ],
+    },
     plugins: [
       autoI18n({
         locales: ["en", "de"],

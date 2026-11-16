@@ -174,9 +174,7 @@ function BulkBar({
 }) {
   return (
     <div role="toolbar" aria-label={t("Bulk actions")} className="bulk-bar">
-      <span>
-        {count} {count === 1 ? t("document selected") : t("documents selected")}
-      </span>
+      <span>{t("{count, plural, one {# document selected} other {# documents selected}}", { count })}</span>
       <button type="button" onClick={onArchive}>
         {t("Archive")}
       </button>
