@@ -1,6 +1,5 @@
 import { stat } from "node:fs/promises";
 
-import type { ParsedSource } from "../compiler/ast.js";
 import type { Catalog, ExtractedMessage, Registry, ResolvedMessage } from "../types.js";
 import { type LocaleFile, readLocaleFile, writeLocaleFile } from "./catalog.js";
 import { loadRegistry, saveRegistry } from "./registry-file.js";
@@ -81,8 +80,6 @@ function sameLocale(a: LocaleFile, b: LocaleFile): boolean {
  */
 export class IndexState {
   extractions = new Map<string, ExtractionCacheEntry>();
-  /** ASTs parsed by the latest sync for files whose content changed. The transform hook consumes each once. */
-  parsedSources = new Map<string, ParsedSource>();
   fileMessages = new Map<string, ResolvedMessage[]>();
   catalogs = new Map<string, Catalog>();
   catalogFiles: Record<string, string> = {};

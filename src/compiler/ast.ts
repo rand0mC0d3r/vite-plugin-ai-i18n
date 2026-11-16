@@ -2,12 +2,6 @@ import { type ESTree, parseSync } from "rolldown/utils";
 
 export type Node = ESTree.Node;
 export type StringLiteral = ESTree.StringLiteral;
-export type CallExpression = ESTree.CallExpression;
-export type JSXElement = ESTree.JSXElement;
-export type JSXText = ESTree.JSXText;
-export type JSXAttribute = ESTree.JSXAttribute;
-export type JSXExpressionContainer = ESTree.JSXExpressionContainer;
-export type JSXOpeningElement = ESTree.JSXOpeningElement;
 
 /** Nodes from the root down to a node's parent, in order. */
 export type Ancestors = Node[];

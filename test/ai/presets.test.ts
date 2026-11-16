@@ -8,7 +8,7 @@ import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 import { hosted, HostedService, local, LocalService, machine, MachineService } from "../../src/ai/presets.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request: TranslationRequest = { id: "a", source: "Save", context: "", kind: "text" };
+const request: TranslationRequest = { id: "a", source: "Save", context: "" };
 const input = { sourceLocale: "en", targetLocale: "de", messages: [request] };
 
 /** Narrows an optional provider for tests, failing loudly if the factory returned nothing. */

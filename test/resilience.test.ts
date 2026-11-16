@@ -13,7 +13,7 @@ import { readJsonFile } from "../src/io/files.js";
 import { loadRegistry } from "../src/io/registry-file.js";
 import type { ExtractedMessage, Registry, TranslationRequest } from "../src/types.js";
 
-const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
+const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "" });
 
 // Request body sent by OpenAICompatibleProvider; only the fields these tests read.
 type ChatRequest = { messages: { content: string }[] };
@@ -25,17 +25,6 @@ const jsonResponse = (content: unknown, status = 200) =>
     }),
     { status },
   );
-
-describe("extractMessages scope", () => {
-  it("skips non-translatable attributes and component children", () => {
-    const source = `export function A() { return (<div><a href="/home" title="Home page">Go</a><Button>Save</Button></div>); }\n`;
-    const sources = extractMessages(source, "A.tsx").map((m) => m.source);
-    expect(sources).toContain("Go");
-    expect(sources).toContain("Home page");
-    expect(sources).not.toContain("/home");
-    expect(sources).not.toContain("Save");
-  });
-});
 
 describe("OpenAICompatibleProvider", () => {
   let fetchMock: Mock<typeof fetch>;
@@ -115,13 +104,10 @@ describe("OpenAICompatibleProvider", () => {
 describe("registry identity", () => {
   const message = (start: number, source = "Save", fingerprint = "fp-save"): ExtractedMessage => ({
     source,
-    kind: "text",
     file: "App.tsx",
     start,
     end: start + 4,
-    tag: "button",
     component: "App",
-    context: "",
     fingerprint,
   });
 
@@ -169,10 +155,10 @@ describe("registry identity", () => {
     expect(second.messages[1].id).toBe(first.messages[0].id);
   });
 
-  it("keeps the fingerprint stable when a handler is renamed", () => {
-    const code = (handler: string) => `export const A = () => <button onClick={${handler}}>Save</button>;\n`;
-    const [before] = extractMessages(code("save"), "A.tsx");
-    const [after] = extractMessages(code("submit"), "A.tsx");
+  it("keeps the fingerprint stable when the t() call moves to another component", () => {
+    const code = (name: string) => `import { t } from "virtual:autoi18n";\nexport const ${name} = () => t("Save");\n`;
+    const [before] = extractMessages(code("A"), "A.tsx");
+    const [after] = extractMessages(code("Submit"), "A.tsx");
     expect(after.fingerprint).toBe(before.fingerprint);
   });
 
@@ -236,10 +222,7 @@ describe("corrupt file handling", () => {
     const valid = {
       id: "msg_a",
       source: "Save",
-      kind: "text",
-      tag: "button",
       component: "App",
-      context: "",
       fingerprint: "fp",
       location: "App.tsx:1",
       status: "active",

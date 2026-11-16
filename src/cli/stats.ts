@@ -40,8 +40,6 @@ function formatReport(report: StatsReport, verbose: boolean): string {
   const { registry } = report;
   lines.push("Registry");
   lines.push(`  entries: ${registry.total} (${registry.active} active, ${registry.orphaned} orphaned)`);
-  const kinds = Object.entries(registry.byKind).sort(([a], [b]) => a.localeCompare(b));
-  if (kinds.length) lines.push(`  by kind: ${kinds.map(([kind, count]) => `${kind} ${count}`).join(", ")}`);
   const components = Object.entries(registry.byComponent).sort(([a], [b]) => a.localeCompare(b));
   if (components.length)
     lines.push(`  by component: ${components.map(([name, count]) => `${name} ${count}`).join(", ")}`);

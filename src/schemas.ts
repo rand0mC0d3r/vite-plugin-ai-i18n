@@ -38,11 +38,7 @@ export const localeFileSchema = type({ messages: "Record<string, unknown>", sour
 export const registryEntrySchema = type({
   id: "string",
   source: "string",
-  kind: "'text' | 'attribute' | 'mixed' | 'string'",
-  tag: "string",
   component: "string",
-  "attribute?": "string",
-  context: "string",
   fingerprint: "string",
   location: "string",
   status: "'active' | 'orphaned'",
@@ -80,6 +76,5 @@ export const optionsSchema = type({
   "onAmbiguous?": "'warn' | 'error' | undefined",
   "orphanRetentionMinutes?": type("number >= 0").or(type.unit(Infinity)).or("undefined"),
   "localeConcurrency?": "number >= 1 | undefined",
-  "componentProps?": "Record<string, string[]> | undefined",
   "debug?": "boolean | undefined",
 });

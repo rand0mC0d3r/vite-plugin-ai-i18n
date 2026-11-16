@@ -109,11 +109,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
         registry.entries[id] = {
           id,
           source: message.source,
-          kind: message.kind,
-          tag: message.tag,
           component: message.component,
-          attribute: message.attribute,
-          context: message.context,
           fingerprint: message.fingerprint,
           location: `${message.file}:${message.start}`,
           status: "active",

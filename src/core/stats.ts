@@ -23,7 +23,6 @@ export interface RegistryStats {
   total: number;
   active: number;
   orphaned: number;
-  byKind: Record<string, number>;
   byComponent: Record<string, number>;
   /** Orphaned entries, least recently seen first. */
   orphans: RegistryEntry[];
@@ -88,7 +87,6 @@ export function computeStats(registry: Registry, locales: Record<string, LocaleF
       total: entries.length,
       active: active.length,
       orphaned: orphans.length,
-      byKind: countBy(active.map((entry) => entry.kind)),
       byComponent: countBy(active.map((entry) => entry.component)),
       orphans,
     },

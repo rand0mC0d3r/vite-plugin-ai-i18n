@@ -4,7 +4,7 @@ import { ProviderError } from "../../src/ai/base.js";
 import { alignedCatalog, restoreText } from "../../src/ai/machine-helpers.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request = (id: string, source: string): TranslationRequest => ({ id, source, context: "", kind: "text" });
+const request = (id: string, source: string): TranslationRequest => ({ id, source, context: "" });
 
 describe("restoreText", () => {
   it("decodes decimal, hex and case-insensitive named entities", () => {

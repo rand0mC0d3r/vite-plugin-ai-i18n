@@ -13,14 +13,11 @@ function entry(id: string, overrides: Partial<RegistryEntry> = {}): RegistryEntr
   return {
     id,
     source: `text ${id}`,
-    kind: "text",
-    tag: "p",
     component: "App",
     location: "src/a.tsx:1",
     status: "active",
     firstSeen: OLD,
     lastSeen: OLD,
-    context: "",
     fingerprint: id,
     ...overrides,
   };
@@ -87,7 +84,6 @@ describe("stats CLI", () => {
 
     const output = logged();
     expect(output).toContain("entries: 0 (0 active, 0 orphaned)");
-    expect(output).not.toContain("by kind:");
     expect(output).not.toContain("by component:");
     expect(output).toContain("no locale files found.");
     expect(output).toContain("Orphans\n  none.");
@@ -117,9 +113,9 @@ describe("stats CLI", () => {
     const registry: Registry = {
       version: 1,
       entries: {
-        a: entry("a", { kind: "text", component: "Header" }),
-        b: entry("b", { kind: "attribute", component: "Header" }),
-        c: entry("c", { kind: "text", component: "Footer" }),
+        a: entry("a", { component: "Header" }),
+        b: entry("b", { component: "Header" }),
+        c: entry("c", { component: "Footer" }),
         gone: entry("gone", { status: "orphaned", lastSeen: OLDER }),
       },
     };
@@ -137,7 +133,6 @@ describe("stats CLI", () => {
 
     const output = logged();
     expect(output).toContain("entries: 4 (3 active, 1 orphaned)");
-    expect(output).toContain("by kind: attribute 1, text 2");
     expect(output).toContain("by component: Footer 1, Header 2");
     expect(output).toMatch(/locale\s+translated\s+missing\s+outdated\s+orphaned keys\s+coverage/);
     expect(output).toMatch(/de\s+2\/3\s+1\s+1\s+1\s+66\.7%/);

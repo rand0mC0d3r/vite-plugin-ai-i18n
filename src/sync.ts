@@ -4,7 +4,6 @@ import path from "node:path";
 import type { Logger, ResolvedConfig } from "vite";
 
 import { resolveProvider } from "./ai/fallback.js";
-import { type ParsedSource, parseSource } from "./compiler/ast.js";
 import { extractMessages } from "./compiler/extract.js";
 import { buildCatalogs } from "./core/engine.js";
 import { debugLog } from "./debug.js";
@@ -51,7 +50,6 @@ export class Syncer {
   private readonly provider: ReturnType<typeof resolveProvider>;
   private readonly directory: string;
   private readonly debug: boolean;
-  private readonly extractOptions: { componentProps?: Record<string, string[]> };
   private readonly orphanRetentionMinutes: number;
   private readonly include: string[];
   private readonly exclude: string[];
@@ -64,9 +62,6 @@ export class Syncer {
     this.directory = options.directory ?? ".autoi18n";
     this.delivery = options.delivery ?? "build";
     this.debug = options.debug ?? false;
-    this.extractOptions = {
-      ...(options.componentProps !== undefined && { componentProps: options.componentProps }),
-    };
     this.orphanRetentionMinutes = options.orphanRetentionMinutes ?? DEFAULT_ORPHAN_RETENTION_MINUTES;
     this.include = options.include ?? DEFAULT_INCLUDE;
     this.exclude = options.exclude ?? DEFAULT_EXCLUDE;
@@ -130,7 +125,6 @@ export class Syncer {
   // Reads and extracts each file, reusing a cached extraction whose content hash is unchanged.
   private async extractFiles(files: string[], incremental: boolean, changedFile: string | undefined) {
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
-    const nextParsed = new Map<string, ParsedSource>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
     for (const file of files) {
       const cached = this.state.extractions.get(file);
@@ -143,25 +137,21 @@ export class Syncer {
         if (cached?.hash === hash) {
           entry = cached;
         } else {
-          const parsed = parseSource(code, file);
-          entry = { hash, messages: extractMessages(code, file, this.extractOptions, parsed) };
-          nextParsed.set(file, parsed);
+          entry = { hash, messages: extractMessages(code, file) };
         }
       }
       nextExtractions.set(file, entry);
       indexed.push({ file, messages: entry.messages });
     }
-    return { nextExtractions, nextParsed, indexed };
+    return { nextExtractions, indexed };
   }
 
-  // Logs the per-locale outcome of a build: missing providers, rejected, untranslated and failed messages.
+  // Logs the per-locale outcome of a build: missing providers, untranslated and failed messages.
   private reportLocales(report: Reporter, result: BuildResult): void {
     for (const [locale, translation] of result.locales) {
       if (translation.requested > 0 && !this.provider && this.options.failOnMissingProvider === true) {
         report.error(`Missing ${translation.requested} ${locale} translations and no provider is configured.`);
       }
-      if (translation.rejected)
-        report.info(`autoi18n: rejected ${translation.rejected} ${locale} translations with changed placeholders.`);
       if (translation.untranslated) {
         const log = this.provider ? report.warn : report.info;
         log(
@@ -187,7 +177,7 @@ export class Syncer {
     this.activeReport = report;
     const incremental = changedFile !== undefined && state.extractions.has(changedFile);
     const files = incremental ? [...state.extractions.keys()] : await this.collectFiles();
-    const { nextExtractions, nextParsed, indexed } = await this.extractFiles(files, incremental, changedFile);
+    const { nextExtractions, indexed } = await this.extractFiles(files, incremental, changedFile);
 
     const outDir = this.localesDir();
     const locales = this.localesToTranslate();
@@ -244,7 +234,6 @@ export class Syncer {
       offset += messages.length;
     }
     state.extractions = nextExtractions;
-    state.parsedSources = nextParsed;
     state.catalogs = nextCatalogs;
     state.catalogFiles = Object.fromEntries(
       this.options.locales.map((locale) => [locale, localeFilePath(outDir, locale)]),

@@ -69,9 +69,7 @@ export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBu
   const requests = messages.map((m) => ({
     id: m.id,
     source: m.source,
-    context: `${m.component} > ${m.context}`,
-    kind: m.kind,
-    placeholders: m.placeholders,
+    context: m.component,
   }));
 
   const outcomes = await mapWithConcurrency(input.locales, input.localeConcurrency, (locale) =>

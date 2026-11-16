@@ -1,43 +1,21 @@
-/**
- * What a message was extracted from: `text` for JSX text, `attribute` for a translatable attribute, `mixed` for JSX
- * text containing expressions (which become `{name}` placeholders), and `string` for a `t("...")` call.
- */
-export type MessageKind = "text" | "attribute" | "mixed" | "string";
-/** A translatable string found in a source file, before it has an ID. */
+/** A `t("...")` string found in a source file, before it has an ID. */
 export interface ExtractedMessage {
-  /** The source text, with any HTML entities already decoded. */
+  /** The source text. */
   source: string;
-  /** Whitespace that surrounded the raw text. It is re-emitted around the translation so layout is unchanged. */
-  prefix?: string;
-  suffix?: string;
-  kind: MessageKind;
-  /** For "mixed" messages: placeholder names in the order of the element's expression children. */
-  placeholders?: string[];
   /** Source file the message was found in. */
   file: string;
-  /** Character offsets of the message in the file. */
+  /** Character offsets of the `t("...")` call in the file. */
   start: number;
   end: number;
-  /** Tag or call the message belongs to, for example `button`. */
-  tag: string;
   /** Enclosing component name. Used with `fingerprint` to match a message to its registry entry. */
   component: string;
-  attribute?: string | undefined;
-  /** Position within the component, such as the enclosing element. Shown to translators as `Component > context`. */
-  context: string;
-  /**
-   * Hash of the source and its location fields (kind, tag, component, attribute, context), used to match registry
-   * entries.
-   */
+  /** Hash of the normalized source, used to match registry entries. */
   fingerprint: string;
 }
 /** A message with the stable ID that the registry assigned to it. */
 export type ResolvedMessage = ExtractedMessage & { id: string };
 /** One message remembered in the registry. Entries are kept across builds so stable IDs survive edits. */
-export type RegistryEntry = Pick<
-  ExtractedMessage,
-  "source" | "kind" | "tag" | "component" | "attribute" | "context" | "fingerprint"
-> & {
+export type RegistryEntry = Pick<ExtractedMessage, "source" | "component" | "fingerprint"> & {
   id: string;
   location: string;
   status: "active" | "orphaned";
@@ -55,9 +33,8 @@ export type Catalog = Record<string, string>;
 export interface TranslationRequest {
   id: string;
   source: string;
+  /** Enclosing component name, so providers can pick the right UI wording. */
   context: string;
-  kind: MessageKind;
-  placeholders?: string[] | undefined;
 }
 /** One translation call: the locale pair and the messages to translate between them. */
 export interface TranslateInput {

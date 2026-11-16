@@ -11,14 +11,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      // Must precede react(): @vitejs/plugin-react transforms JSX first in dev, removing the text nodes autoI18n extracts.
       autoI18n({
         locales: ["en", "de"],
         sourceLocale: "en",
         delivery: "runtime",
         failOnMissingProvider: true,
         debug: true,
-        componentProps: { Button: ["children"] },
         provider: {
           // Set PRIMARY_PROVIDER to a configured name to choose the first provider tried. Otherwise the order below applies.
           primary: env.PRIMARY_PROVIDER === "" ? undefined : env.PRIMARY_PROVIDER,

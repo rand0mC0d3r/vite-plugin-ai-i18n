@@ -1,6 +1,6 @@
 # 🌍 vite-plugin-ai-auto-i18n (Vite AI i18n plugin)
 
-**Build-time localization for JSX.** Write English directly. The compiler extracts user-facing copy, gives each message a stable ID, and can translate it with an AI or machine-translation provider.
+**Build-time localization for `t()` strings.** Wrap user-facing copy in `t("...")` imported from `virtual:autoi18n`. The compiler extracts each string, gives it a stable ID, and can translate it with an AI or machine-translation provider.
 
 > [!WARNING]
 > **Beta.** Configuration options and `.autoi18n/` file formats are meant to stay stable, but review the [known limitations](#-known-limitations) before shipping to production. Pin the version while in beta.
@@ -27,8 +27,7 @@
 
 **Extraction**
 
-- JSX text nodes and static string attributes
-- String literals outside JSX, only when passed to `t("...")` imported from `virtual:autoi18n`
+- String literals passed to `t("...")` imported from `virtual:autoi18n`. Nothing else is extracted, so JSX text and attributes need `t()` too.
 
 **Identity**
 
@@ -53,7 +52,7 @@
 
 ```mermaid
 flowchart LR
-    src["Your JSX and t(\"...\") strings"] --> p1["1. Extract"]
+    src["Your t(\"...\") strings"] --> p1["1. Extract"]
     p1 --> p2["2. Identify"]
     reg[("registry.json<br/>message IDs")] <--> p2
     p2 --> p3["3. Translate"]
@@ -97,50 +96,39 @@ The examples below follow one component through the phases. IDs are shortened fo
 
 ```tsx
 // src/Doc.tsx
+import { t } from "virtual:autoi18n";
+
 export function Doc({ count }: { count: number }) {
   return (
     <section>
-      <button title="Save the current document">Save</button>
-      <p>You have {count} documents</p>
+      <button title={t("Save the current document")}>{t("Save")}</button>
+      <p>
+        {t("You have")} {count} {count === 1 ? t("document") : t("documents")}
+      </p>
     </section>
   );
 }
 ```
 
+Each `t()` call takes exactly one string literal. Keep variables outside the call and let the surrounding JSX combine the pieces.
+
 ### Phase 1: extract
 
-The compiler parses each file in `include` and records every translatable string with its kind, tag, component and a fingerprint. Nothing is written yet.
+The compiler parses each file in `include` and records every `t("...")` call with its component and a fingerprint. Nothing is written yet.
 
 ```jsonc
 [
-  {
-    "source": "Save the current document",
-    "kind": "attribute",
-    "tag": "button",
-    "attribute": "title",
-    "component": "Doc",
-    "context": "button | title | title=Save the current document",
-  },
-  {
-    "source": "Save",
-    "kind": "text",
-    "tag": "button",
-    "component": "Doc",
-    "context": "button | title=Save the current document",
-  },
-  {
-    "source": "You have {count} documents",
-    "kind": "mixed",
-    "placeholders": ["count"],
-    "tag": "p",
-    "component": "Doc",
-    "context": "p",
-  },
+  { "source": "Save the current document", "component": "Doc", "fingerprint": "6e396974a738eb3f26898d35" },
+  { "source": "Save", "component": "Doc", "fingerprint": "1509f561f2416598629b886a" },
+  { "source": "You have", "component": "Doc", "fingerprint": "af3f12e161fdb1cbbb73000e" },
+  { "source": "document", "component": "Doc", "fingerprint": "43cc23fa52b87b4cc1d02b5b" },
+  { "source": "documents", "component": "Doc", "fingerprint": "9b16b44d0e0a5cac4f968bef" },
 ]
 ```
 
-- Mixed sentences are ICU MessageFormat messages. Simple expressions become named arguments (`{count}`), and translators can use ICU syntax such as plurals and selects.
-- Literal `'`, `{` and `}` in the text are escaped (`Don''t`).
+- Only calls to a `t` imported from `virtual:autoi18n` are extracted. An unrelated `t()` from another library is ignored.
+- A call is ignored when its argument is not a single string literal, for example a variable, a template literal or extra arguments. Such calls are returned unchanged at runtime and are not translated.
+- Strings with no letters, such as `t("…")` or `t("12")`, are skipped.
 
 ### Phase 2: identify
 
@@ -158,12 +146,9 @@ Each extracted message is matched against `.autoi18n/registry.json`:
     "msg_a1": {
       "id": "msg_a1",
       "source": "Save the current document",
-      "kind": "attribute",
-      "tag": "button",
       "component": "Doc",
-      "attribute": "title",
-      "fingerprint": "58365c073009b7b7b2aa27b1",
-      "location": "src/Doc.tsx:4",
+      "fingerprint": "6e396974a738eb3f26898d35",
+      "location": "/path/to/app/src/Doc.tsx:183",
       "status": "active",
       "firstSeen": "2026-11-02T17:28:36.128Z",
       "lastSeen": "2026-11-14T14:54:42.201Z",
@@ -172,7 +157,7 @@ Each extracted message is matched against `.autoi18n/registry.json`:
 }
 ```
 
-Component names and file paths are not part of the fingerprint, so moving or renaming a file does not change the ID.
+The fingerprint is a hash of the normalized source text only. Component names, file paths and positions are not part of it, so moving or renaming a file or component does not change the ID. Whitespace-only edits do not change it either. `location` is informational and is not part of identity.
 
 #### Message lifecycle
 
@@ -196,12 +181,12 @@ Only new or changed messages (source text changed since the last build) are sent
   "messages": {
     "msg_a1": "Dokument speichern",
     "msg_a2": "Speichern",
-    "msg_a3": "Du hast {count} Dokumente",
+    "msg_a3": "Du hast",
   },
   "sources": {
     "msg_a1": "Save the current document",
     "msg_a2": "Save",
-    "msg_a3": "You have {count} documents",
+    "msg_a3": "You have",
   },
 }
 ```
@@ -226,33 +211,41 @@ Fallback runs per batch. See [Multiple providers and fallback](#multiple-provide
 
 The source is rewritten according to `delivery`.
 
-**`delivery: "build"`** bakes the German text into the code, and the `t()` call disappears:
+**`delivery: "build"`** bakes the German text into the code, and the `t()` call is replaced by a string literal. The `virtual:autoi18n` import is left in place:
 
 ```diff
+ // src/Doc.tsx
+ import { t } from "virtual:autoi18n";
+
  export function Doc({ count }: { count: number }) {
    return (
      <section>
--      <button title="Save the current document">Save</button>
--      <p>You have {count} documents</p>
-+      <button title="Dokument speichern">{"Speichern"}</button>
-+      <p>{__autoI18nFormat("Du hast {count} Dokumente", {"count": count}, "de")}</p>
+-      <button title={t("Save the current document")}>{t("Save")}</button>
++      <button title={"Dokument speichern"}>{"Speichern"}</button>
+       <p>
+-        {t("You have")} {count} {count === 1 ? t("document") : t("documents")}
++        {"Du hast"} {count} {count === 1 ? "Dokument" : "Dokumente"}
+       </p>
      </section>
    );
  }
 ```
 
-**`delivery: "runtime"`** replaces each string with a lookup. The source text stays in the code as the fallback:
+**`delivery: "runtime"`** replaces each call with a lookup by ID. The source text stays in the code as the fallback. The plugin adds the `lookup` import at the top of the file:
 
 ```diff
-+import { t as __autoI18nT, getLocale as __autoI18nLocale } from "virtual:autoi18n";
-+import { format as __autoI18nFormat } from "virtual:autoi18n-format";
++import { lookup as __autoI18nT } from "virtual:autoi18n";
+ import { t } from "virtual:autoi18n";
+
  export function Doc({ count }: { count: number }) {
    return (
      <section>
--      <button title="Save the current document">Save</button>
--      <p>You have {count} documents</p>
+-      <button title={t("Save the current document")}>{t("Save")}</button>
 +      <button title={__autoI18nT("msg_a1", "Save the current document")}>{__autoI18nT("msg_a2", "Save")}</button>
-+      <p>{__autoI18nFormat(__autoI18nT("msg_a3", "You have {count} documents"), {"count": count}, __autoI18nLocale())}</p>
+       <p>
+-        {t("You have")} {count} {count === 1 ? t("document") : t("documents")}
++        {__autoI18nT("msg_a3", "You have")} {count} {count === 1 ? __autoI18nT("msg_a4", "document") : __autoI18nT("msg_a5", "documents")}
+       </p>
      </section>
    );
  }
@@ -347,10 +340,12 @@ export default defineConfig(({ mode }) => {
 
 The build writes `.autoi18n/` (registry and catalogues). Commit it so existing translations are reused instead of requested again. ✅
 
-Then write ordinary JSX:
+Then wrap user-facing strings in `t()`:
 
 ```tsx
-<button title="Save the current document">Save</button>
+import { t } from "virtual:autoi18n";
+
+<button title={t("Save the current document")}>{t("Save")}</button>;
 ```
 
 ### 🤖 Install with an AI agent
@@ -449,16 +444,11 @@ The `locales` export from `virtual:autoi18n` (runtime delivery) is a different t
 
 ### Keeping copy untranslated
 
-```tsx
-<h2 translate="no">Sample code</h2>
-<code title="Product SKU">SKU-1042</code>
-```
+Only `t()` calls are extracted. Anything not wrapped in `t()` stays in the source language, including JSX text, attributes and `translate="no"` elements.
 
-`translate="no"` also covers the element's descendants and attributes.
+### Marking strings
 
-### Translating strings outside JSX
-
-Wrap the literal in `t()`, imported from the virtual module:
+Wrap each literal in `t()`, imported from the virtual module:
 
 ```tsx
 import { t } from "virtual:autoi18n";
@@ -482,20 +472,6 @@ Only `"Shared with your team"` is translated. `"Private"` is not wrapped in `t()
 > [!NOTE]
 > In runtime delivery, the lookup runs when the expression is evaluated. Keep `t()` calls inside a component or function, not at module level, so the active locale is known at render time.
 
-### Custom components
-
-```ts
-autoI18n({
-  locales: ["en", "de"],
-  componentProps: {
-    Button: ["aria-label", "title", "children"], // <Button>Save</Button> is translated
-    Tooltip: ["content"],
-  },
-});
-```
-
-With this config, `<Button title="Delete">Delete {count} files</Button>` extracts both the attribute and the text as a placeholder message.
-
 ### Writing your own provider
 
 Any object with a `translate` method works:
@@ -507,7 +483,6 @@ const deepl: TranslationProvider = {
   async translate({ sourceLocale, targetLocale, messages }) {
     const out: Record<string, string> = {};
     for (const m of messages) {
-      // Keep ICU arguments such as {count} intact; the plugin rejects translations that change them or are not valid ICU.
       out[m.id] = await callYourService(m.source, targetLocale);
     }
     return out;
@@ -515,7 +490,7 @@ const deepl: TranslationProvider = {
 };
 ```
 
-Return only the IDs you translated. Throw `PartialTranslationError` to keep a partial result.
+Return only the IDs you translated. Empty or non-string values are dropped. Throw `PartialTranslationError` to keep a partial result.
 
 ## 🚚 Delivery modes
 
@@ -541,7 +516,7 @@ Use `AUTOI18N_LOCALE=de vite build` (on Windows, `cross-env AUTOI18N_LOCALE=de v
 
 ### Runtime delivery
 
-JSX text and `t("...")` strings are wrapped in `lookup(id, source)` calls, and catalogues are fetched on demand. Import the API from the virtual module:
+Each `t("...")` string is replaced with a `lookup(id, source)` call, and catalogues are fetched on demand. Import the API from the virtual module:
 
 ```ts
 import { getLocale, locales, resolveSupported, setLocale, subscribe, t } from "virtual:autoi18n";
@@ -553,7 +528,6 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 - `subscribe(listener)` returns an unsubscribe function.
 - `getVersion()` changes whenever the locale or the catalogues change, so `useSyncExternalStore(subscribe, getVersion, getVersion)` re-renders components that read `t()` during render.
 - Components wrapped in `memo` must subscribe themselves, or they keep the old text until their props change.
-- List `autoI18n()` **before** `@vitejs/plugin-react` in `plugins`. The React plugin rewrites JSX in dev before other pre-transforms run, so the plugin must see the original JSX.
 - Add a type declaration for `virtual:autoi18n` (see [example/src/autoi18n-virtual.d.ts](/home/bogdan/git/vite-plugin-ai-i18n/example/src/autoi18n-virtual.d.ts)). The example app uses this mode with a locale switcher.
 
 ## 🔧 Configuration
@@ -563,7 +537,7 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 | Option                   | Type                                                                            | Default                                 | Description                                                                                                                                          |
 | ------------------------ | ------------------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `locales`                | `string[]`                                                                      | _required_                              | Locales the app ships, for example `["en", "de", "fr"]`. The source locale is never translated, so including it is harmless.                         |
-| `sourceLocale`           | `string`                                                                        | `"en"`                                  | Language the JSX is written in. Used as the fallback when a translation is missing.                                                                  |
+| `sourceLocale`           | `string`                                                                        | `"en"`                                  | Language the `t()` strings are written in. Used as the fallback when a translation is missing.                                                       |
 | `delivery`               | `"build" \| "runtime"`                                                          | `"build"`                               | `build` compiles one locale per build. `runtime` ships every catalogue and switches locale in the browser with `setLocale()`.                        |
 | `locale`                 | `string`                                                                        | `sourceLocale`                          | Locale to compile in `build` delivery. Also read from `AUTOI18N_LOCALE`; the option wins when both are set.                                          |
 | `include`                | `string[]`                                                                      | `["src/**/*.{tsx,jsx,ts,js}"]`          | Glob patterns of source files to scan, relative to the Vite root.                                                                                    |
@@ -575,16 +549,6 @@ setLocale(resolveSupported(navigator.languages)); // call before first render
 | `orphanRetentionMinutes` | `number`                                                                        | `43200` (30 days)                       | Minutes an orphaned message is kept before deletion. `0` deletes on the next build; `Infinity` keeps forever.                                        |
 | `localeConcurrency`      | `number`                                                                        | `2`                                     | Locales translated at the same time. Values below 1 are raised to 1, and fractions are rounded down.                                                 |
 | `debug`                  | `boolean`                                                                       | `false`                                 | Logs each message sent to the provider, each translation received, and each removed orphan, with timestamps.                                         |
-| `componentProps`         | `Record<string, string[]>`                                                      | `{}`                                    | Attributes of custom components whose string values are UI copy, for example `{ Button: ["aria-label", "title"] }`. See below.                       |
-
-**`componentProps`** tells the plugin which props of custom components hold UI copy. The pseudo-prop `children` makes text children translatable, including sentences with `{name}` expressions. Only the listed attributes are extracted from those components.
-
-```ts
-componentProps: {
-  Button: ["children", "aria-label"];
-}
-// extracts <Button>Save</Button> and <Button>Delete {count} files</Button>
-```
 
 <details>
 <summary><strong>Locale groups</strong>: ready-made lists for the <code>locales</code> option</summary>
@@ -736,7 +700,7 @@ DeepL and Google Translate return translations directly rather than model output
   - Set `GOOGLE_TRANSLATE_API_KEY`.
 
 > [!NOTE]
-> Placeholder protection covers simple `{name}` arguments only. Complex ICU `plural` and `select` blocks are not protected, so check those translations in the output.
+> Placeholder protection covers simple `{name}` arguments only. Plural and select blocks are not protected, so check those translations in the output.
 
 ### Helpers for named provider maps
 
@@ -812,9 +776,7 @@ interface TranslationProvider {
 interface TranslationRequest {
   id: string; // opaque ID to echo back in the result
   source: string; // English text
-  context: string; // for example "Toolbar > Save button"
-  kind: "text" | "attribute" | "mixed" | "string"; // text node, static attribute, JSX with expressions, or a marked string literal
-  placeholders?: string[]; // ICU argument names (for example "count") that must survive translation
+  context: string; // component the call sits in, or "<module>" at top level
 }
 ```
 
@@ -878,7 +840,7 @@ bun run stats -- --directory .autoi18n --source-locale en --verbose
 
 The report shows:
 
-- **Registry counts:** active and orphaned entries, by kind and component.
+- **Registry counts:** active and orphaned entries, by component.
 - **Per locale:** translated count, coverage percentage, **missing** (no translation), **outdated** (translated from a source that has since changed), and **orphaned** keys (what `prune` would remove).
 - **Orphaned registry entries.**
 
@@ -893,7 +855,7 @@ Set `debug: true` to print every translation exchange to the console. Each line 
 
 ### Upgrading from an earlier version
 
-The old flat locale files and `*.sources.json` sidecars are not read. Every message is re-translated once on the first build, and the sidecars are deleted.
+Message matching now uses a fingerprint of the source text alone, so every stored entry stops matching once and gets a new ID. The first build after upgrading re-translates every message and calls your provider again, which costs API spend. The old flat locale files and `*.sources.json` sidecars are not read and are deleted. Registry entries from before the upgrade become orphans and are pruned after `orphanRetentionMinutes`.
 
 ### 🔑 Provider requirement
 
@@ -935,19 +897,11 @@ No coverage threshold is enforced and no size limit is checked. A drop in covera
 This is a beta release. Review these before shipping to production:
 
 1. **Runtime loading.** Runtime delivery loads a catalogue per locale. A message's source text is used until its catalogue has loaded.
-2. **Mixed sentences.** Sentences with simple expressions (`You have {count} documents`, where `count` is an identifier or member path) are translated as ICU MessageFormat messages and formatted at runtime with `intl-messageformat`.
-   - Translations that are not valid ICU, or that change the set of argument names, are rejected.
-   - Argument names are sanitized to letters, digits and `_` (`doc.name` becomes `doc_name`). Translations stored under the old `{doc.name}` names fall back to the source until retranslated.
-   - Sentences with complex expressions (calls, JSX, computed access) stay entirely in the source language.
-3. **Duplicate identical strings.** Occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`, not resolved automatically.
-4. **Full scan on add or remove.** Saving a file re-reads only that file. Adding or removing a source file triggers a full project scan (debounced by 150 ms), which may be slow in very large projects.
-5. **What gets extracted.**
-   - JSX text, and these attributes on intrinsic (lowercase) elements: `alt`, `title`, `placeholder`, `label`, `summary`, `aria-label`, `aria-description`, `aria-placeholder`, `aria-roledescription`, `aria-valuetext`.
-   - String literals outside JSX, only when passed to `t("...")` imported from `virtual:autoi18n`.
-   - Text inside capitalised components (for example `<Button>Save</Button>`) only when the component lists `children` in `componentProps`. Their attributes only when listed there too.
-   - Other attributes such as `href` are not extracted. Unmarked JS string literals, template literals, Markdown, server-rendered content and rich-text components need explicit policies.
-6. **Example setup.** The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
-7. **Fingerprints are heuristic.** They exclude file and line position, but component names and nearby semantic signals can still change during refactors.
+2. **Duplicate identical strings.** Message IDs come from the source text alone, so identical text used in several places shares one ID. Occurrences are paired by stable source ordering. This handles ordinary line shifts, but cannot guarantee identity if indistinguishable duplicates are reordered or moved independently. Such cases are reported through `onAmbiguous`, not resolved automatically.
+3. **Full scan on add or remove.** Saving a file re-reads only that file. Adding or removing a source file triggers a full project scan (debounced by 150 ms), which may be slow in very large projects.
+4. **What gets extracted.** Only string literals passed to `t("...")` imported from `virtual:autoi18n`, with exactly one argument. JSX text, attributes, template literals, unmarked JS strings, Markdown, server-rendered content and rich-text components are not extracted and need `t()` or a separate policy.
+5. **Example setup.** The example uses a React plugin in its Vite config; install `@vitejs/plugin-react` in the consuming example.
+6. **Fingerprints are source-only.** Editing a message's text changes its ID and re-translates it. Changing its position or component does not.
 
 ## 🧭 Design rules
 

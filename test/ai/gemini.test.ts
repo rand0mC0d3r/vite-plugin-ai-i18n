@@ -4,7 +4,7 @@ import { GeminiProvider } from "../../src/ai/gemini.js";
 import type { PartialTranslationError } from "../../src/errors.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
+const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 
 type GeminiBody = {
@@ -43,7 +43,7 @@ describe("GeminiProvider", () => {
     const body = JSON.parse(init.body as string) as GeminiBody;
     expect(body.systemInstruction.parts[0].text).toContain("from en to de");
     expect(body.contents[0].role).toBe("user");
-    expect(JSON.parse(body.contents[0].parts[0].text)).toEqual([{ id: "a", text: "Save", context: "", kind: "text" }]);
+    expect(JSON.parse(body.contents[0].parts[0].text)).toEqual([{ id: "a", text: "Save", context: "" }]);
     expect(body.generationConfig).toEqual({ responseMimeType: "application/json", maxOutputTokens: 1000 });
   });
 

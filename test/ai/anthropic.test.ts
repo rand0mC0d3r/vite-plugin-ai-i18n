@@ -4,7 +4,7 @@ import { AnthropicProvider } from "../../src/ai/anthropic.js";
 import type { PartialTranslationError } from "../../src/errors.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
+const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 
 type AnthropicBody = {
@@ -44,7 +44,7 @@ describe("AnthropicProvider", () => {
     expect(body.max_tokens).toBe(1000);
     expect(body.system).toContain("from en to de");
     expect(body.messages[0].role).toBe("user");
-    expect(JSON.parse(body.messages[0].content)).toEqual([{ id: "a", text: "Save", context: "", kind: "text" }]);
+    expect(JSON.parse(body.messages[0].content)).toEqual([{ id: "a", text: "Save", context: "" }]);
   });
 
   it("uses a custom baseURL", async () => {

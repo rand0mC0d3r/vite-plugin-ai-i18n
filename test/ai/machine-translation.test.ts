@@ -4,7 +4,7 @@ import { DeepLProvider } from "../../src/ai/deepl.js";
 import { GoogleTranslateProvider } from "../../src/ai/google.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request = (id: string, source: string): TranslationRequest => ({ id, source, context: "", kind: "text" });
+const request = (id: string, source: string): TranslationRequest => ({ id, source, context: "" });
 const input = (messages: TranslationRequest[], targetLocale = "de") => ({ sourceLocale: "en", targetLocale, messages });
 const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
 

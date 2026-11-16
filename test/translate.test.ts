@@ -5,14 +5,7 @@ import { PartialTranslationError } from "../src/errors.js";
 import { emptyLocaleFile } from "../src/io/catalog.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
-const text = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
-const mixed = (id: string, source: string, placeholders: string[]): TranslationRequest => ({
-  id,
-  source,
-  context: "",
-  kind: "mixed",
-  placeholders,
-});
+const text = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "" });
 
 type Translate = TranslationProvider["translate"];
 
@@ -39,7 +32,7 @@ describe("translateLocale", () => {
       messages: [text("a"), text("b", "Cancel")],
     });
     expect(result.file).toEqual({ messages: { a: "Speichern", b: "Abbrechen" }, sources: { a: "Save", b: "Cancel" } });
-    expect(result).toMatchObject({ untranslated: 0, rejected: 0, requested: 2, failed: 0, failure: undefined });
+    expect(result).toMatchObject({ untranslated: 0, requested: 2, failed: 0, failure: undefined });
   });
 
   it("does not call the provider when every message is already translated from the same source", async () => {
@@ -89,42 +82,6 @@ describe("translateLocale", () => {
     });
     expect(result.file.messages).toEqual({});
     expect(result.untranslated).toBe(2);
-  });
-
-  it("rejects mixed-content translations that change placeholders", async () => {
-    const source = "You have {count} documents";
-    const p = provider({ a: "Viele Dokumente", b: "Du hast {count} Dokumente" });
-    const requests = [mixed("a", source, ["count"]), mixed("b", source, ["count"])];
-    const result = await translateLocale({ ...base, provider: p, requests, previous: emptyLocaleFile() });
-    expect(result.rejected).toBe(1);
-    expect(result.untranslated).toBe(1);
-    expect(result.file.messages).toEqual({ b: "Du hast {count} Dokumente" });
-  });
-
-  it("accepts mixed-content translations that repeat an argument, since each value is passed once", async () => {
-    const source = "{count} documents";
-    const p = provider({ a: "{count} Dokumente, {count} gesamt" });
-    const result = await translateLocale({
-      ...base,
-      provider: p,
-      requests: [mixed("a", source, ["count"])],
-      previous: emptyLocaleFile(),
-    });
-    expect(result.rejected).toBe(0);
-    expect(result.file.messages).toEqual({ a: "{count} Dokumente, {count} gesamt" });
-  });
-
-  it("rejects mixed-content translations that are not valid ICU", async () => {
-    const source = "{count} documents";
-    const p = provider({ a: "{count Dokumente" });
-    const result = await translateLocale({
-      ...base,
-      provider: p,
-      requests: [mixed("a", source, ["count"])],
-      previous: emptyLocaleFile(),
-    });
-    expect(result.rejected).toBe(1);
-    expect(result.file.messages).toEqual({});
   });
 
   it("keeps the partial translations and reports failed batches when the provider throws PartialTranslationError", async () => {

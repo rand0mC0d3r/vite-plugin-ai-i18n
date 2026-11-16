@@ -11,9 +11,9 @@ function must<T>(value: T | undefined): T {
 }
 
 const messages: TranslationRequest[] = [
-  { id: "a", source: "Save", context: "", kind: "string" },
-  { id: "b", source: "Open", context: "", kind: "string" },
-  { id: "c", source: "Close", context: "", kind: "string" },
+  { id: "a", source: "Save", context: "" },
+  { id: "b", source: "Open", context: "" },
+  { id: "c", source: "Close", context: "" },
 ];
 const input = { sourceLocale: "en", targetLocale: "de", messages };
 
@@ -54,7 +54,7 @@ describe("resolveProvider", () => {
 
 describe("FallbackProvider", () => {
   it("sends message IDs that match Object.prototype names to the fallback", async () => {
-    const requests: TranslationRequest[] = [{ id: "constructor", source: "Build", context: "", kind: "string" }];
+    const requests: TranslationRequest[] = [{ id: "constructor", source: "Build", context: "" }];
     const primary = fake(() => Promise.resolve({}));
     const secondary = fake(() => Promise.resolve({ constructor: "Bauen" }));
     const provider = resolveProvider({ primary: "anthropic", anthropic: primary, openai: secondary });

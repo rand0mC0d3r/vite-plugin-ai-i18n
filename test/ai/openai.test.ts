@@ -4,7 +4,7 @@ import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 import type { PartialTranslationError } from "../../src/errors.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "", kind: "text" });
+const request = (id: string, source = "Save"): TranslationRequest => ({ id, source, context: "" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 
 type ChatBody = {
@@ -47,7 +47,7 @@ describe("OpenAICompatibleProvider", () => {
     expect(body.messages[0].role).toBe("system");
     expect(body.messages[0].content).toContain("from en to de");
     expect(body.messages[1].role).toBe("user");
-    expect(JSON.parse(body.messages[1].content)).toEqual([{ id: "a", text: "Save", context: "", kind: "text" }]);
+    expect(JSON.parse(body.messages[1].content)).toEqual([{ id: "a", text: "Save", context: "" }]);
   });
 
   it("sends no Authorization header when no apiKey is set (for example Ollama)", async () => {

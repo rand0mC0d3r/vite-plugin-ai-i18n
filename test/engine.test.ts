@@ -8,13 +8,10 @@ import type { ExtractedMessage, Registry, TranslationProvider } from "../src/typ
 
 const message = (start: number, source = "Save", file = "App.tsx"): ExtractedMessage => ({
   source,
-  kind: "text",
   file,
   start,
   end: start + source.length,
-  tag: "button",
   component: "App",
-  context: "",
   fingerprint: `fp-${source}`,
 });
 

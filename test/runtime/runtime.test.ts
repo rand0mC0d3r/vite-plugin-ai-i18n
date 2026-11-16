@@ -1,55 +1,7 @@
-import { IntlMessageFormat } from "intl-messageformat";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { createLocaleLoader } from "../../src/runtime/loader.js";
 import { resolveLocale } from "../../src/runtime/resolve.js";
-import { createFormatModule, formatMessage } from "../../src/virtual/format.js";
-
-const format = (text: string, values: Record<string, unknown>, locale = "en") =>
-  formatMessage(IntlMessageFormat, new Map<string, IntlMessageFormat>(), text, values, locale);
-
-describe("formatMessage", () => {
-  afterEach(() => vi.restoreAllMocks());
-
-  it("keeps values as they are, so React nodes stay separate parts", () => {
-    const node = { $$typeof: "react-element" };
-    const parts = format("You have {count} documents, {doc} is ready", { count: 3, doc: node });
-    expect(parts).toContain(node);
-    expect(parts.filter((part) => typeof part === "string").join("")).toBe("You have 3 documents,  is ready");
-  });
-
-  it("supports plural and select arguments", () => {
-    expect(format("{n, plural, one {# file} other {# files}}", { n: 1 }).join("")).toBe("1 file");
-    expect(format("{n, plural, one {# file} other {# files}}", { n: 2 }).join("")).toBe("2 files");
-    expect(format("{g, select, female {She} other {They}} wrote it", { g: "female" }).join("")).toBe("She wrote it");
-  });
-
-  it("gives the same result when a cached formatter is reused", () => {
-    const cache = new Map<string, IntlMessageFormat>();
-    const text = "{n, plural, one {# file} other {# files}}";
-    expect(formatMessage(IntlMessageFormat, cache, text, { n: 3 }, "en").join("")).toBe("3 files");
-    expect(formatMessage(IntlMessageFormat, cache, text, { n: 1 }, "en").join("")).toBe("1 file");
-    expect(cache.size).toBe(1);
-  });
-
-  it("reads escaped apostrophes and braces as literal text", () => {
-    expect(format("Don''t delete '{'{count}'}' files", { count: 2 }).join("")).toBe("Don't delete {2} files");
-  });
-
-  it("returns the text unchanged when it cannot be parsed or a value is missing", () => {
-    vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(format("Unclosed {count", {})).toEqual(["Unclosed {count"]);
-    expect(format("Hi {name}", {})).toEqual(["Hi {name}"]);
-  });
-});
-
-describe("createFormatModule", () => {
-  it("imports the library and exports format(text, values, locale)", () => {
-    const code = createFormatModule();
-    expect(code).toContain('import { IntlMessageFormat } from "intl-messageformat";');
-    expect(code).toContain("export function format(text, values, locale)");
-  });
-});
 
 describe("resolveLocale", () => {
   it("matches an exact locale case-insensitively", () => {

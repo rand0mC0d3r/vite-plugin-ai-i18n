@@ -1,13 +1,11 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
-import { FORMAT_MODULE, RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
+import { RUNTIME_MODULE, transformSource } from "./compiler/transform.js";
 import { hashContent } from "./io/files.js";
 import { type AutoI18nOptions, validateOptions } from "./options.js";
 import { reporterFor, Syncer } from "./sync.js";
-import { createFormatModule, FORMAT_LIBRARY } from "./virtual/format.js";
 import { createRuntimeModule } from "./virtual/runtime.js";
 
 /** HMR event name that carries updated catalogues to the browser in dev. */
@@ -73,17 +71,12 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         );
       }
     },
-    resolveId(id, importer) {
+    resolveId(id) {
       if (id === RUNTIME_MODULE) return `\0${RUNTIME_MODULE}`;
-      if (id === FORMAT_MODULE) return `\0${FORMAT_MODULE}`;
-      // The app does not install the formatting library, so it is resolved from this plugin's dependencies.
-      if (importer === `\0${FORMAT_MODULE}` && id === FORMAT_LIBRARY)
-        return this.resolve(id, fileURLToPath(import.meta.url), { skipSelf: true });
       return undefined;
     },
     load(id) {
       if (id === `\0${RUNTIME_MODULE}`) return createRuntimeModule(state.catalogFiles, sourceLocale);
-      if (id === `\0${FORMAT_MODULE}`) return createFormatModule();
       return undefined;
     },
     configureServer(devServer) {
@@ -120,9 +113,6 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         return null;
       }
       const locale = syncer.isServing() ? sourceLocale : syncer.selectedLocale();
-      // The AST is only reused while the code still matches the indexed hash, so it describes the same text.
-      const parsed = state.parsedSources.get(file);
-      state.parsedSources.delete(file);
       const result = transformSource(
         code,
         file,
@@ -131,7 +121,6 @@ export default function autoI18n(options: AutoI18nOptions): Plugin {
         state.catalogs.get(locale) ?? {},
         syncer.delivery === "runtime",
         sourceLocale,
-        parsed,
       );
       return { code: result.code, map: result.map };
     },

@@ -7,14 +7,11 @@ function entry(id: string, overrides: Partial<RegistryEntry> = {}): RegistryEntr
   return {
     id,
     source: `text ${id}`,
-    kind: "text",
-    tag: "p",
     component: "App",
     location: "src/App.tsx:1",
     status: "active",
     firstSeen: "2020-01-01T00:00:00.000Z",
     lastSeen: "2020-01-01T00:00:00.000Z",
-    context: "",
     fingerprint: id,
     ...overrides,
   };
@@ -24,9 +21,9 @@ describe("computeStats", () => {
   const registry: Registry = {
     version: 1,
     entries: {
-      a: entry("a", { kind: "text", component: "Header" }),
-      b: entry("b", { kind: "attribute", component: "Header" }),
-      c: entry("c", { kind: "text", component: "Footer" }),
+      a: entry("a", { component: "Header" }),
+      b: entry("b", { component: "Header" }),
+      c: entry("c", { component: "Footer" }),
       old1: entry("old1", { status: "orphaned", lastSeen: "2021-01-01T00:00:00.000Z" }),
       old2: entry("old2", { status: "orphaned", lastSeen: "2020-06-01T00:00:00.000Z" }),
     },
@@ -43,12 +40,11 @@ describe("computeStats", () => {
     expect(computeStats(tied, {}).registry.orphans.map((orphan) => orphan.id)).toEqual(["m", "z"]);
   });
 
-  it("counts registry entries by status, kind and component, and lists orphans oldest first", () => {
+  it("counts registry entries by status and component, and lists orphans oldest first", () => {
     const report = computeStats(registry, {});
     expect(report.registry.total).toBe(5);
     expect(report.registry.active).toBe(3);
     expect(report.registry.orphaned).toBe(2);
-    expect(report.registry.byKind).toEqual({ text: 2, attribute: 1 });
     expect(report.registry.byComponent).toEqual({ Header: 2, Footer: 1 });
     expect(report.registry.orphans.map((orphan) => orphan.id)).toEqual(["old2", "old1"]);
   });

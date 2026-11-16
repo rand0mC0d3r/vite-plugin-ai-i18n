@@ -1,6 +1,5 @@
 import { debugLog } from "../debug.js";
 import { PartialTranslationError } from "../errors.js";
-import { isUsableTranslation } from "../icu.js";
 import { type LocaleFile, pruneLocaleFile } from "../io/catalog.js";
 import type { Catalog, TranslationProvider, TranslationRequest } from "../types.js";
 
@@ -26,8 +25,6 @@ export interface LocaleTranslation {
   file: LocaleFile;
   /** Messages that had no usable translation after this run, so they show the source text. */
   untranslated: number;
-  /** Messages whose translation was dropped for changing placeholders. */
-  rejected: number;
   /** Messages that needed a translation this run. */
   requested: number;
   /** Messages whose batch failed at the provider this run. They are requested again on the next build. */
@@ -38,8 +35,8 @@ export interface LocaleTranslation {
 
 /**
  * Brings one locale up to date. Messages are re-requested when they are new or when their source text changed under the
- * same ID. Unusable translations are dropped so they are requested again later, and keys for messages that are no
- * longer active are removed. A partially failed request keeps the translations that did succeed.
+ * same ID. Empty translations are dropped so they are requested again later, and keys for messages that are no longer
+ * active are removed. A partially failed request keeps the translations that did succeed.
  */
 export async function translateLocale(input: LocaleTranslationInput): Promise<LocaleTranslation> {
   const { provider, sourceLocale, locale, requests, previous, debug } = input;
@@ -75,19 +72,14 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
 
   const messages: Catalog = { ...previousMessages };
   const sources: Catalog = { ...previousSources };
-  let rejected = 0;
   for (const request of missing) {
     delete messages[request.id];
     delete sources[request.id];
     const text = translated[request.id];
     if (typeof text !== "string" || !text.trim()) continue;
-    if (request.kind === "mixed" && !isUsableTranslation(text, request.placeholders ?? [])) {
-      rejected++;
-      continue;
-    }
     messages[request.id] = text;
     sources[request.id] = request.source;
   }
   const untranslated = requests.filter((x) => !Object.hasOwn(messages, x.id)).length;
-  return { file: { messages, sources }, untranslated, rejected, requested: missing.length, failed, failure };
+  return { file: { messages, sources }, untranslated, requested: missing.length, failed, failure };
 }

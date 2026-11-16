@@ -484,10 +484,13 @@ export function DocumentDashboard() {
       <header>
         <h1>{t("Document library")}</h1>
         <p>
-          Showing <strong>{visible.length}</strong> of <strong>{docs.length}</strong> documents
+          {t("Showing")} <strong>{visible.length}</strong> {t("of")} <strong>{docs.length}</strong> {t("documents")}
           {selected.size > 0 && (
             <>
-              , <mark>{selected.size} selected</mark>
+              ,{" "}
+              <mark>
+                {selected.size} {t("selected")}
+              </mark>
             </>
           )}
           .

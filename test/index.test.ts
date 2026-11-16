@@ -4,53 +4,46 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { parseSource } from "../src/compiler/ast.js";
 import { extractMessages } from "../src/compiler/extract.js";
 import { transformSource } from "../src/compiler/transform.js";
-import { createFingerprint } from "../src/identity/fingerprint.js";
 import autoI18n, { OpenAICompatibleProvider } from "../src/index.js";
 import { createLocaleLoader, resolveLocale } from "../src/runtime/index.js";
-import type { ExtractedMessage, ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
-import { FORMAT_LIBRARY } from "../src/virtual/format.js";
+import type { ResolvedMessage, TranslationProvider, TranslationRequest } from "../src/types.js";
 import { createRuntimeModule } from "../src/virtual/runtime.js";
 
-const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
+const SOURCE = `import { t } from "virtual:autoi18n";\nexport function App() { return <button title={t("Save the file")}>{t("Save")}</button>; }\n`;
 
-function withIds(messages: ExtractedMessage[]): ResolvedMessage[] {
+function withIds(messages: ReturnType<typeof extractMessages>): ResolvedMessage[] {
   return messages.map((m, i) => ({ ...m, id: `msg_${i}` }));
 }
-
-type Button = {
-  declaration: {
-    body: {
-      body: {
-        argument: {
-          openingElement: { attributes: { name: { name: string }; value: { expression: { value: string } } }[] };
-        };
-      }[];
-    };
-  };
-};
 
 describe("transformSource", () => {
   const messages = withIds(extractMessages(SOURCE, "App.tsx"));
   const catalog = { msg_0: "Datei speichern", msg_1: "Speichern" };
 
-  it("keeps a translated attribute value containing quotes inside its own attribute in build mode", () => {
-    const payload = `x" onClick={alert(1)} a="b`;
-    const { code } = transformSource(SOURCE, "App.tsx", messages, "de", { msg_0: payload });
-    const button = (parseSource(code, "App.tsx").program as unknown as { body: Button[] }).body[0];
-    const attributes = button.declaration.body.body[0].argument.openingElement.attributes;
-    expect(attributes).toHaveLength(1);
-    expect(attributes[0].name.name).toBe("title");
-    expect(attributes[0].value.expression.value).toBe(payload);
-  });
-
   it("bakes the selected locale into the code in build mode", () => {
     const { code } = transformSource(SOURCE, "App.tsx", messages, "de", catalog);
     expect(code).toContain('"Datei speichern"');
     expect(code).toContain('"Speichern"');
-    expect(code).not.toContain("virtual:autoi18n");
+    expect(code).not.toContain("__autoI18nT(");
+  });
+
+  it("keeps the source text for messages without a translation in build mode", () => {
+    const { code } = transformSource(SOURCE, "App.tsx", messages, "de", { msg_0: "Datei speichern" });
+    expect(code).toContain('"Datei speichern"');
+    expect(code).toContain('"Save"');
+  });
+
+  it("emits the source text, ignoring catalogues, when building the source locale", () => {
+    const { code } = transformSource(SOURCE, "App.tsx", messages, "en", catalog);
+    expect(code).toContain('"Save the file"');
+    expect(code).not.toContain('"Datei speichern"');
+  });
+
+  it("escapes translated text so it cannot break out of its string literal in build mode", () => {
+    const payload = 'He said "hi" \\ </script>';
+    const { code } = transformSource(SOURCE, "App.tsx", messages, "de", { msg_0: payload });
+    expect(code).toContain(JSON.stringify(payload));
   });
 
   it("emits runtime lookups with the source as fallback in runtime mode", () => {
@@ -60,14 +53,20 @@ describe("transformSource", () => {
     expect(code).toContain('__autoI18nT("msg_1", "Save")');
     expect(code).not.toContain('"Datei speichern"');
   });
+
+  it("leaves the code untouched when there are no messages", () => {
+    const code = `export const x = 1;\n`;
+    const result = transformSource(code, "x.ts", [], "de", {}, true);
+    expect(result.code).toBe(code);
+  });
 });
 
-describe("t() calls outside JSX", () => {
+describe("t() call sites", () => {
   const CODE = `import { t } from "virtual:autoi18n";\nconst items = [{ label: t("Shared with your team"), size: "12 KB" }, { label: "Private" }];\nexport const App = () => <p>{items.length}</p>;\n`;
   const messages = withIds(extractMessages(CODE, "Items.tsx"));
 
   it("extracts only the string passed to t()", () => {
-    expect(messages.map((m) => [m.kind, m.source])).toEqual([["string", "Shared with your team"]]);
+    expect(messages.map((m) => m.source)).toEqual(["Shared with your team"]);
   });
 
   it("uses the catalogue translation in build mode", () => {
@@ -84,91 +83,6 @@ describe("t() calls outside JSX", () => {
   });
 });
 
-describe("mixed-content messages", () => {
-  const MIXED = `export function Dialog({ count, doc }) { return <p>You have {count} documents, {doc.name} is {count} selected.</p>; }\n`;
-  const messages = withIds(extractMessages(MIXED, "Dialog.tsx"));
-
-  it("extracts a sentence with simple expressions as one message with ICU argument names", () => {
-    expect(messages).toHaveLength(1);
-    expect(messages[0]).toMatchObject({
-      kind: "mixed",
-      source: "You have {count} documents, {doc_name} is {count_2} selected.",
-      placeholders: ["count", "doc_name", "count_2"],
-    });
-  });
-
-  it("escapes apostrophes and braces for ICU and keeps the identity of the unescaped text", () => {
-    const [message] = extractMessages(`export const A = ({ n }) => <p>Don't delete {n} files</p>;\n`, "A.tsx");
-    expect(message.source).toBe("Don''t delete {n} files");
-    expect(message.fingerprint).toBe(createFingerprint({ ...message, source: "Don't delete {n} files" }));
-  });
-
-  it("rebuilds the message from the translation in build mode, passing each value once", () => {
-    const catalog = { msg_0: "{doc_name} hat {count} Dokumente, {count_2} gewählt." };
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", catalog);
-    expect(code).toContain('import { format as __autoI18nFormat } from "virtual:autoi18n-format"');
-    expect(code).toContain(
-      '__autoI18nFormat("{doc_name} hat {count} Dokumente, {count_2} gewählt.", {"count": count, "doc_name": doc.name, "count_2": count}, "de")',
-    );
-    expect(code).not.toContain('from "virtual:autoi18n"');
-  });
-
-  it("falls back to the source when a translation changes the argument names", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{doc} hat {count}" });
-    expect(code).toContain('"You have {count} documents, {doc_name} is {count_2} selected."');
-  });
-
-  it("falls back to the source when a translation is not valid ICU", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", { msg_0: "{count Dokumente" });
-    expect(code).toContain('"You have {count} documents, {doc_name} is {count_2} selected."');
-  });
-
-  it("accepts a translation that repeats or reorders arguments, since each value is passed once", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", {
-      msg_0: "{doc_name}: {count} von {count}, {count_2}",
-    });
-    expect(code).toContain('"{doc_name}: {count} von {count}, {count_2}"');
-  });
-
-  it("formats runtime translations through the format module with the expression values and the current locale", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", messages, "de", {}, true);
-    expect(code).toContain('import { lookup as __autoI18nT, getLocale as __autoI18nLocale } from "virtual:autoi18n"');
-    expect(code).toContain('import { format as __autoI18nFormat } from "virtual:autoi18n-format"');
-    expect(code).toContain(
-      '__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected."), {',
-    );
-    expect(code).toContain('"doc_name": doc.name');
-    expect(code).toContain('"count_2": count');
-    expect(code).toContain("}, __autoI18nLocale())}");
-  });
-
-  it("does not extract sentences whose expressions are not plain references", () => {
-    const code = `export const A = () => <p>You have {getCount()} documents</p>;\n`;
-    expect(extractMessages(code, "A.tsx")).toEqual([]);
-  });
-});
-
-describe('translate="no" opt-out', () => {
-  it("skips text, mixed content and translatable attributes of the marked element", () => {
-    const code = `export const A = ({ n }) => <div>
-      <p translate="no">Keep this as is</p>
-      <button translate="no" title="Do not translate me">Save</button>
-      <p translate="no">Count {n} items here</p>
-    </div>;\n`;
-    expect(extractMessages(code, "A.tsx")).toEqual([]);
-  });
-
-  it("skips descendants of a marked element, like the HTML attribute", () => {
-    const code = `export const A = () => <section translate="no"><h2>Sample code</h2><span title="Hidden copy">x</span></section>;\n`;
-    expect(extractMessages(code, "A.tsx")).toEqual([]);
-  });
-
-  it("still extracts copy outside the marked element and ignores other translate values", () => {
-    const code = `export const A = () => <main><p translate="no">Skip</p><p translate="yes">Translate me</p><p>Also me</p></main>;\n`;
-    expect(extractMessages(code, "A.tsx").map((m) => m.source)).toEqual(["Translate me", "Also me"]);
-  });
-});
-
 describe("runtime module", () => {
   it("lists every catalogue and resolves unknown locales to the source", () => {
     const code = createRuntimeModule({ en: "/x/en.json", de: "/x/de.json" }, "en");
@@ -176,7 +90,6 @@ describe("runtime module", () => {
     expect(code).toContain('const sourceLocale = "en"');
     expect(code).toContain("export function lookup(id, source)");
     expect(code).toContain("export function t(source)");
-    expect(code).not.toContain("export function format");
   });
 });
 
@@ -214,7 +127,7 @@ describe("OpenAICompatibleProvider", () => {
     const result = await provider.translate({
       sourceLocale: "en",
       targetLocale: "de",
-      messages: [{ id: "msg_0", source: "Save", context: "", kind: "text" }],
+      messages: [{ id: "msg_0", source: "Save", context: "" }],
     });
     expect(result).toEqual({ msg_0: "Speichern" });
     const init = fetchMock.mock.calls[0]?.[1];
@@ -281,41 +194,26 @@ describe("autoI18n build hook", () => {
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
     expect(provider.calls).toHaveLength(1);
 
-    // Changing the text while keeping the same ID triggers a re-translation of just that message.
-    await writeFile(path.join(root, "src/App.tsx"), SOURCE.replace("Save the file", "Save the document"));
-    await runBuild(autoI18n({ locales: ["en", "de"], provider }));
-    expect(provider.calls).toHaveLength(2);
-    expect(provider.calls[1].map((m) => m.source)).toContain("Save the document");
-
     // Same ID with a source text that no longer matches the recorded source must be re-translated.
     const localePath = path.join(root, ".autoi18n/locales/de.json");
     const localeFile = await readLocale(".autoi18n/locales/de.json");
-    const staleId = provider.calls[1][0].id;
+    const staleId = provider.calls[0][0].id;
     localeFile.sources[staleId] = "Previously translated text";
     await writeFile(localePath, JSON.stringify(localeFile));
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
-    expect(provider.calls).toHaveLength(3);
-    expect(provider.calls[2].map((m) => m.id)).toEqual([staleId]);
+    expect(provider.calls).toHaveLength(2);
+    expect(provider.calls[1].map((m) => m.id)).toEqual([staleId]);
   });
 
-  it("does not store translations whose placeholders changed, and requests them again", async () => {
-    await writeFile(
-      path.join(root, "src/App.tsx"),
-      `export function App({ count }) { return <p>You have {count} documents</p>; }\n`,
-    );
-    const broken: TranslationProvider = {
-      translate: ({ messages }) => Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"]))),
-    };
-    await runBuild(autoI18n({ locales: ["en", "de"], provider: broken }));
-    const catalog = (await readLocale(".autoi18n/locales/de.json")).messages;
-    expect(catalog).toEqual({});
-
+  it("re-translates a message whose text changed in the source", async () => {
+    await writeFile(path.join(root, "src/App.tsx"), SOURCE);
     const provider = fakeProvider();
     await runBuild(autoI18n({ locales: ["en", "de"], provider }));
-    expect(provider.calls).toHaveLength(1);
-    expect(Object.values((await readLocale(".autoi18n/locales/de.json")).messages)).toEqual([
-      "DE:You have {count} documents",
-    ]);
+
+    await writeFile(path.join(root, "src/App.tsx"), SOURCE.replace("Save the file", "Save the document"));
+    await runBuild(autoI18n({ locales: ["en", "de"], provider }));
+    expect(provider.calls).toHaveLength(2);
+    expect(provider.calls[1].map((m) => m.source)).toEqual(["Save the document"]);
   });
 
   it("fails when translations are missing and no provider is configured", async () => {
@@ -326,7 +224,10 @@ describe("autoI18n build hook", () => {
 
   it("re-indexes only the changed file on a hot update and skips the provider when nothing changed", async () => {
     await writeFile(path.join(root, "src/App.tsx"), SOURCE);
-    await writeFile(path.join(root, "src/Other.tsx"), `export function Other() { return <p>Cancel</p>; }\n`);
+    await writeFile(
+      path.join(root, "src/Other.tsx"),
+      `import { t } from "virtual:autoi18n";\nexport function Other() { return <p>{t("Cancel")}</p>; }\n`,
+    );
     const provider = fakeProvider();
     const plugin = autoI18n({ locales: ["en", "de"], provider });
     const errors: string[] = [];
@@ -360,63 +261,20 @@ describe("autoI18n build hook", () => {
 
 describe("plugin hooks", () => {
   type Hooks = {
-    resolveId: (this: unknown, id: string, importer?: string) => unknown;
+    resolveId: (this: unknown, id: string) => unknown;
     load: (this: unknown, id: string) => unknown;
   };
   const noopProvider: TranslationProvider = { translate: () => Promise.resolve({}) };
 
-  it("resolves the format module and resolves its library from the plugin's own dependencies", async () => {
+  it("resolves and loads the runtime module, and leaves other ids alone", () => {
     const hooks = autoI18n({ locales: ["en", "de"], provider: noopProvider }) as unknown as Hooks;
-    expect(hooks.resolveId.call({}, "virtual:autoi18n-format")).toBe("\0virtual:autoi18n-format");
-
-    const resolve = vi.fn(() => Promise.resolve({ id: "/plugin/intl.js" }));
-    await expect(hooks.resolveId.call({ resolve }, FORMAT_LIBRARY, "\0virtual:autoi18n-format")).resolves.toEqual({
-      id: "/plugin/intl.js",
-    });
-    expect(resolve).toHaveBeenCalledWith(FORMAT_LIBRARY, expect.any(String), { skipSelf: true });
-    expect(hooks.resolveId.call({ resolve }, FORMAT_LIBRARY, "/app/src/App.tsx")).toBeUndefined();
-  });
-
-  it("loads the format module and the runtime module, and leaves other ids alone", () => {
-    const hooks = autoI18n({ locales: ["en", "de"], provider: noopProvider }) as unknown as Hooks;
-    expect(hooks.load.call({}, "\0virtual:autoi18n-format")).toContain(FORMAT_LIBRARY);
+    expect(hooks.resolveId.call({}, "virtual:autoi18n")).toBe("\0virtual:autoi18n");
+    expect(hooks.resolveId.call({}, "/app/src/App.tsx")).toBeUndefined();
     expect(hooks.load.call({}, "\0virtual:autoi18n")).toContain("export");
     expect(hooks.load.call({}, "/app/src/App.tsx")).toBeUndefined();
   });
 
   it("names the options path in the error when the whole options value is invalid", () => {
     expect(() => autoI18n("nope" as never)).toThrow(/invalid options \(options:/);
-  });
-});
-
-describe("mixed messages with whitespace around them", () => {
-  const MIXED = `export function Dialog({ count, doc }) { return <p>You have {count} documents, {doc.name} is {count} selected.</p>; }\n`;
-  const extracted = withIds(extractMessages(MIXED, "Dialog.tsx"));
-  const withAffixes = extracted.map((m) => ({ ...m, prefix: " ", suffix: " " })) as ResolvedMessage[];
-  const withoutAffixes = extracted.map(({ prefix, suffix, ...m }) => m) as ResolvedMessage[];
-
-  it("keeps the whitespace around a translated message in build mode", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", withAffixes, "de", {
-      msg_0: "{doc_name} hat {count} Dokumente, {count_2} gewählt.",
-    });
-    expect(code).toContain('__autoI18nFormat(" {doc_name} hat {count} Dokumente, {count_2} gewählt. ", ');
-  });
-
-  it("builds a message without affixes in build mode", () => {
-    const { code } = transformSource(MIXED, "Dialog.tsx", withoutAffixes, "de", {
-      msg_0: "{doc_name} hat {count}, {count_2}",
-    });
-    expect(code).toContain('__autoI18nFormat("{doc_name} hat {count}, {count_2}", ');
-  });
-
-  it("joins the whitespace around a runtime lookup, and omits it when the message has none", () => {
-    const withSpace = transformSource(MIXED, "Dialog.tsx", withAffixes, "de", {}, true).code;
-    expect(withSpace).toContain(
-      '" " + __autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected.") + " "',
-    );
-    const without = transformSource(MIXED, "Dialog.tsx", withoutAffixes, "de", {}, true).code;
-    expect(without).toContain(
-      '__autoI18nFormat(__autoI18nT("msg_0", "You have {count} documents, {doc_name} is {count_2} selected."), {',
-    );
   });
 });

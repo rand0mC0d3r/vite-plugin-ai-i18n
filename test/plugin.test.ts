@@ -9,9 +9,10 @@ import { RUNTIME_MODULE } from "../src/compiler/transform.js";
 import autoI18n, { type AutoI18nOptions, PartialTranslationError } from "../src/index.js";
 import type { TranslationProvider, TranslationRequest } from "../src/types.js";
 
-const SOURCE = `export function App() { return <button title="Save the file">Save</button>; }\n`;
-const TWO_SAVES = `export function App() { return <div><button>Save</button><button>Save</button></div>; }\n`;
-const ONE_SAVE = `export function App() { return <div><button>Save</button></div>; }\n`;
+const IMPORT = `import { t } from "virtual:autoi18n";\n`;
+const SOURCE = `${IMPORT}export function App() { return <button title={t("Save the file")}>{t("Save")}</button>; }\n`;
+const TWO_SAVES = `${IMPORT}export function App() { return <div><button>{t("Save")}</button><button>{t("Save")}</button></div>; }\n`;
+const ONE_SAVE = `${IMPORT}export function App() { return <div><button>{t("Save")}</button></div>; }\n`;
 
 interface Ctx {
   info: ReturnType<typeof vi.fn>;
@@ -98,7 +99,7 @@ describe("autoI18n plugin", () => {
     const result = await hooks.transform.call(ctx, SOURCE, srcFile());
     expect(result?.code).toContain('"DE:Save the file"');
     expect(result?.code).toContain('"DE:Save"');
-    expect(result?.code).not.toContain(RUNTIME_MODULE);
+    expect(result?.code).not.toContain("__autoI18nT(");
   });
 
   it("uses the source text in serve mode, even when another locale is selected", async () => {
@@ -225,20 +226,6 @@ describe("autoI18n plugin", () => {
     expect(ctx.warn).toHaveBeenCalledWith(expect.stringMatching(/2 de messages have no translation/));
   });
 
-  it("reports rejected translations that changed placeholders", async () => {
-    await writeFile(
-      srcFile("Dialog.tsx"),
-      `export function Dialog({ count }) { return <p>You have {count} documents</p>; }\n`,
-    );
-    const broken: TranslationProvider = {
-      translate: ({ messages }) => Promise.resolve(Object.fromEntries(messages.map((m) => [m.id, "Viele Dokumente"]))),
-    };
-    const hooks = start({ locales: ["en", "de"], provider: broken });
-    const ctx = context();
-    await hooks.buildStart.call(ctx);
-    expect(ctx.info).toHaveBeenCalledWith("autoi18n: rejected 1 de translations with changed placeholders.");
-  });
-
   it("throws the first locale failure and warns about the others, keeping the previous file", async () => {
     await writeFile(srcFile(), SOURCE);
     const failing: TranslationProvider = {
@@ -290,12 +277,15 @@ describe("autoI18n plugin", () => {
 
   it("removes orphans past their retention period and logs the removals in debug mode", async () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
-    await writeFile(srcFile(), `export function App() { return <div><p>Keep</p><p>Remove me</p></div>; }\n`);
+    await writeFile(
+      srcFile(),
+      `${IMPORT}export function App() { return <div><p>{t("Keep")}</p><p>{t("Remove me")}</p></div>; }\n`,
+    );
     await start({ locales: ["en", "de"], provider: fakeProvider(), orphanRetentionMinutes: 0 }).buildStart.call(
       context(),
     );
 
-    await writeFile(srcFile(), `export function App() { return <div><p>Keep</p></div>; }\n`);
+    await writeFile(srcFile(), `${IMPORT}export function App() { return <div><p>{t("Keep")}</p></div>; }\n`);
     const ctx = context();
     await start({
       locales: ["en", "de"],
@@ -351,7 +341,7 @@ describe("autoI18n plugin", () => {
       const dev = server();
       hooks.configureServer(dev);
 
-      await writeFile(srcFile("New.tsx"), `export function New() { return <p>Hello</p>; }\n`);
+      await writeFile(srcFile("New.tsx"), `${IMPORT}export function New() { return <p>{t("Hello")}</p>; }\n`);
       dev.handlers["add"](srcFile("New.tsx"));
       await vi.waitFor(() =>
         expect(dev.ws.send).toHaveBeenCalledWith(expect.objectContaining({ type: "custom", event: "autoi18n:update" })),

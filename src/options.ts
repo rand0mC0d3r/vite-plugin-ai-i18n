@@ -35,11 +35,6 @@ export interface AutoI18nOptions {
   localeConcurrency?: number;
   /** Log each message sent to the translation provider and each translation received, with timestamps. Default false. */
   debug?: boolean;
-  /**
-   * String attributes of custom components that hold UI copy, keyed by component name, for example `{ Button:
-   * ["aria-label", "title"] }`. Only these attributes are extracted from those components.
-   */
-  componentProps?: Record<string, string[]>;
 }
 
 /** Throws a single error listing every invalid option, so a misconfigured plugin fails at startup. */

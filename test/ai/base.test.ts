@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vite
 import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
 import type { TranslationRequest } from "../../src/types.js";
 
-const request = (id: string): TranslationRequest => ({ id, source: "Save", context: "", kind: "text" });
+const request = (id: string): TranslationRequest => ({ id, source: "Save", context: "" });
 const input = (messages: TranslationRequest[]) => ({ sourceLocale: "en", targetLocale: "de", messages });
 const chat = (content: unknown) =>
   new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(content) } }] }), { status: 200 });

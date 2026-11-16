@@ -1,11 +1,10 @@
 {
   "name": "vite-plugin-ai-auto-i18n",
-  "version": "0.9.17",
-  "description": "Implicit, build-time AI localization for JSX applications",
+  "version": "0.9.16",
+  "description": "Build-time AI localization for strings marked with t() in Vite applications",
   "keywords": [
     "ai",
     "i18n",
-    "jsx",
     "localization",
     "react",
     "translation",
@@ -56,7 +55,6 @@
   },
   "dependencies": {
     "arktype": "^2.2.9",
-    "intl-messageformat": "^12.1.5",
     "magic-string": "^1.4.5"
   },
   "devDependencies": {
