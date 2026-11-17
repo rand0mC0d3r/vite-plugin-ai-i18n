@@ -7,6 +7,51 @@ export type { MessageValues };
 
 const formatters = new Map<string, IntlMessageFormat<MessageValues>>();
 
+const EURO_COUNTRIES = new Set([
+  "AT",
+  "BE",
+  "CY",
+  "DE",
+  "EE",
+  "ES",
+  "FI",
+  "FR",
+  "GR",
+  "HR",
+  "IE",
+  "IT",
+  "LT",
+  "LU",
+  "LV",
+  "MT",
+  "NL",
+  "PT",
+  "SI",
+  "SK",
+]);
+
+function defaultCurrency(locale: string): string {
+  const region = new Intl.Locale(locale).maximize().region;
+  if (region !== undefined && EURO_COUNTRIES.has(region)) return "EUR";
+  if (region === "GB") return "GBP";
+  if (region === "JP") return "JPY";
+  if (region === "CA") return "CAD";
+  if (region === "AU") return "AUD";
+  if (region === "CN") return "CNY";
+  if (region === "IN") return "INR";
+  return "USD";
+}
+
+function numberFormats(message: string, locale: string): Record<string, Record<string, unknown>> {
+  const formats: Record<string, Record<string, unknown>> = {};
+  for (const match of message.matchAll(/\{[^,{}]+,\s*number,\s*([^{}]+)\}/g)) {
+    const style = match[1].trim();
+    if (style === "currency") formats["currency"] = { style: "currency", currency: defaultCurrency(locale) };
+    else if (/^[A-Z]{3}$/.test(style)) formats[style] = { style: "currency", currency: style };
+  }
+  return formats;
+}
+
 function singularWord(word: string): string {
   if (/[^aeiou]ies$/i.test(word)) return word.slice(0, -3) + (word.endsWith("IES") ? "Y" : "y");
   if (/sses$/i.test(word)) return word.slice(0, -2);
@@ -47,7 +92,9 @@ export function formatMessage(message: string, locale: string, values: MessageVa
   try {
     let formatter = formatters.get(key);
     if (!formatter) {
-      formatter = new IntlMessageFormat(message, locale, undefined, ICU_PARSER_OPTIONS);
+      const numberFormatsByStyle = numberFormats(message, locale);
+      const formats = Object.keys(numberFormatsByStyle).length ? { number: numberFormatsByStyle } : undefined;
+      formatter = new IntlMessageFormat(message, locale, formats, ICU_PARSER_OPTIONS);
       formatters.set(key, formatter);
     }
     // Without rich-text callbacks the result is a single string, but the type also allows an array of parts.

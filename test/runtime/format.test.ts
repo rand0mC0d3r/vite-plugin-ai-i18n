@@ -18,6 +18,23 @@ describe("formatMessage", () => {
     expect(formatMessage(FILES, "en", { count: 5 })).toBe("5 files");
   });
 
+  it("formats generic currency values using the locale's currency", () => {
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 })).toBe("Price: $129.99");
+    expect(formatMessage("Price: {price, number, currency}", "de", { price: 129.99 })).toBe("Price: 129,99 €");
+    expect(formatMessage("Price: {price, number, currency}", "en-GB", { price: 129.99 })).toBe("Price: £129.99");
+    expect(formatMessage("Price: {price, number, currency}", "ja-JP", { price: 129.99 })).toBe("Price: ￥130");
+    expect(formatMessage("Price: {price, number, currency}", "en-CA", { price: 129.99 })).toBe("Price: $129.99");
+    expect(formatMessage("Price: {price, number, currency}", "en-AU", { price: 129.99 })).toBe("Price: $129.99");
+    expect(formatMessage("Price: {price, number, currency}", "zh-CN", { price: 129.99 })).toBe("Price: ¥129.99");
+    expect(formatMessage("Price: {price, number, currency}", "en-IN", { price: 129.99 })).toBe("Price: ₹129.99");
+    expect(formatMessage("Price: {price, number, currency}", "es-MX", { price: 129.99 })).toBe("Price: USD 129.99");
+  });
+
+  it("formats explicit ISO currency codes", () => {
+    expect(formatMessage("Price: {price, number, EUR}", "en", { price: 129.99 })).toBe("Price: €129.99");
+    expect(formatMessage("Price: {price, number, EUR}", "de", { price: 129.99 })).toBe("Price: 129,99 €");
+  });
+
   it("creates singular, zero and plural fallbacks for tt() count templates", () => {
     expect(formatAutoPluralMessage("{count} items", "en", { count: 0 })).toBe("No items");
     expect(formatAutoPluralMessage("{count} items", "en", { count: 1 })).toBe("1 item");

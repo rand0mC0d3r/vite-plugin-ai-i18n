@@ -62,10 +62,9 @@ export function DocumentDashboard() {
         <Container>
           <div>{t("{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}", { count: 1 })}</div>
           <div>
-            {t(
-              "{count, plural, offset:1 =0 {Nobody} =1 {Only you} one {You and one other} other {You and # others}}",
-              { count: 0 },
-            )}
+            {t("{count, plural, offset:1 =0 {Nobody} =1 {Only you} one {You and one other} other {You and # others}}", {
+              count: 0,
+            })}
           </div>
           <div>{t("{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", { position: 33 })}</div>
         </Container>
@@ -74,24 +73,36 @@ export function DocumentDashboard() {
           <div>{t("{gender, select, male {He} female {She} other {They}}", { gender })}</div>
 
           <div>
-            {t(ts({ status }, {
-              online: "Online",
-              offline: "Offline",
-              busy: "Busy",
-              other: "Unknown",
-            }))}
+            {t(
+              ts(
+                { status },
+                {
+                  online: "Online",
+                  offline: "Offline",
+                  busy: "Busy",
+                  other: "Unknown",
+                },
+              ),
+            )}
           </div>
 
           <div>
-            {t(ts({ role }, {
-              admin: "Administrator",
-              editor: "Editor",
-              viewer: "Viewer",
-              other: "User",
-            }))}
+            {t(
+              ts(
+                { role },
+                {
+                  admin: "Administrator",
+                  editor: "Editor",
+                  viewer: "Viewer",
+                  other: "User",
+                },
+              ),
+            )}
           </div>
 
-          <div>{t("{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}", { platform })}</div>
+          <div>
+            {t("{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}", { platform })}
+          </div>
 
           <div>{t("{theme, select, dark {Dark mode} light {Light mode} other {System default}}", { theme })}</div>
         </Container>
