@@ -2,7 +2,7 @@
 import { t } from "virtual:autoi18n";
 
 export function DocumentDashboard() {
-  const count = 6;
+  const count = 1;
   const gender = "male";
   const status = "online";
   const role = "admin";

@@ -5,7 +5,6 @@
     "msg_2be0f00c7bc9407e": "Willkommen zurück, {name}.",
     "msg_e248a0412dd64f28": "{count, plural, =0 {Keine Dokumente} one {# Dokument} other {# Dokumente}}",
     "msg_8ec17a6d9ef04ee5": "Hallo",
-    "msg_3140a47f382a469a": "Hallo {name}",
     "msg_f05ca28a6b194273": "Willkommen zurück, {firstName} {lastName}",
     "msg_fd3aa8a9aaa64f5b": "{count} Elemente",
     "msg_452645107e774d05": "Gesamt: {amount} {currency}",
@@ -55,7 +54,8 @@
     "msg_a17de7cd9aae4baf": "{count, plural, =0 {Niemand bearbeitet dieses Dokument} one {{name} bearbeitet dieses Dokument} other {{name} und # weitere bearbeiten dieses Dokument}}",
     "msg_55ae2160cc084138": "{used, number} MB von {total, number} MB belegt ({percentage, number, percent})",
     "msg_8b5b252de7854661": "{role, select, owner {Du besitzt dieses Album} editor {Du kannst dieses Album bearbeiten} viewer {Du kannst dieses Album ansehen} other {Du hast keinen Zugriff auf dieses Album}}",
-    "msg_6c6f11b4d6b64bd6": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}"
+    "msg_6c6f11b4d6b64bd6": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}",
+    "msg_2f67eed9cbca48b9": "Hallo {name}"
   },
   "sources": {
     "msg_7f6cd5f3d7ce43ac": "Language",
@@ -63,7 +63,6 @@
     "msg_2be0f00c7bc9407e": "Welcome back, {name}.",
     "msg_e248a0412dd64f28": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
     "msg_8ec17a6d9ef04ee5": "Hello",
-    "msg_3140a47f382a469a": "Hello {name}",
     "msg_f05ca28a6b194273": "Welcome back, {firstName} {lastName}",
     "msg_fd3aa8a9aaa64f5b": "{count} items",
     "msg_452645107e774d05": "Total: {amount} {currency}",
@@ -113,6 +112,7 @@
     "msg_a17de7cd9aae4baf": "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
     "msg_55ae2160cc084138": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
     "msg_8b5b252de7854661": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
-    "msg_6c6f11b4d6b64bd6": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}"
+    "msg_6c6f11b4d6b64bd6": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
+    "msg_2f67eed9cbca48b9": "Hello {name}"
   }
 }
