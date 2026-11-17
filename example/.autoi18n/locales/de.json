@@ -8,11 +8,8 @@
     "msg_14a1b68096ca4d70": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
     "msg_68f42ac987a54df6": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
     "msg_920ea90fb6e143e0": "{count, plural, =0 {Leer} =1 {Genau eins} =2 {Ein Paar} other {# Elemente}}",
-    "msg_bbae372c807a4c82": "{count, plural, offset:1 =0 {Niemand} =1 {Nur du} one {Du und eine weitere Person} other {Du und # weitere}}",
     "msg_8ebc28c5dd274281": "{position, selectordinal, other {#.}}",
     "msg_a6b0030f47474fd0": "{gender, select, male {Er} female {Sie} other {Diese Person}}",
-    "msg_c110519db5984fa8": "{status, select, online {Online} offline {Offline} busy {Beschäftigt} other {Unbekannt}}",
-    "msg_f6a5eac57e524a5f": "{role, select, admin {Administrator} editor {Bearbeiter} viewer {Betrachter} other {Benutzer}}",
     "msg_0162c2a476b549dc": "{platform, select, ios {iOS} android {Android} web {Web} other {Unbekannte Plattform}}",
     "msg_69efe944c05e4c92": "{theme, select, dark {Dunkelmodus} light {Hellmodus} other {Systemstandard}}",
     "msg_57b5bd88b0b74e21": "{gender, select, male {Er hat {count, plural, one {# Datei} other {# Dateien}}} female {Sie hat {count, plural, one {# Datei} other {# Dateien}}} other {Diese Person hat {count, plural, one {# Datei} other {# Dateien}}}}",
@@ -50,7 +47,8 @@
     "msg_c3b605ae81a041b2": "{role, select, owner {Sie besitzen dieses Album} editor {Sie können dieses Album bearbeiten} viewer {Sie können dieses Album anzeigen} other {Sie haben keinen Zugriff auf dieses Album}}",
     "msg_45297ae55ee24847": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}",
     "msg_bbff41a76f644d14": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
-    "msg_8015753eb7d84e46": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}"
+    "msg_8015753eb7d84e46": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
+    "msg_3c02999784474834": "{count, plural, offset:1 =0 {Niemand} =1 {Nur du} one {Du und eine weitere Person} other {Du und # weitere Personen}}"
   },
   "sources": {
     "msg_7929c4a934624a5f": "Language",
@@ -61,11 +59,8 @@
     "msg_14a1b68096ca4d70": "{count} items",
     "msg_68f42ac987a54df6": "{count} items",
     "msg_920ea90fb6e143e0": "{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}",
-    "msg_bbae372c807a4c82": "{count, plural, offset:1 =0 {Nobody} =1 {You alone} one {You and one other} other {You and # others}}",
     "msg_8ebc28c5dd274281": "{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "msg_a6b0030f47474fd0": "{gender, select, male {He} female {She} other {They}}",
-    "msg_c110519db5984fa8": "{status, select, online {Online} offline {Offline} busy {Busy} other {Unknown}}",
-    "msg_f6a5eac57e524a5f": "{role, select, admin {Administrator} editor {Editor} viewer {Viewer} other {User}}",
     "msg_0162c2a476b549dc": "{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}",
     "msg_69efe944c05e4c92": "{theme, select, dark {Dark mode} light {Light mode} other {System default}}",
     "msg_57b5bd88b0b74e21": "{gender, select, male {He has {count, plural, one {# file} other {# files}}} female {She has {count, plural, one {# file} other {# files}}} other {They have {count, plural, one {# file} other {# files}}}}",
@@ -103,6 +98,7 @@
     "msg_c3b605ae81a041b2": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
     "msg_45297ae55ee24847": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
     "msg_bbff41a76f644d14": "{count} items",
-    "msg_8015753eb7d84e46": "{count} items"
+    "msg_8015753eb7d84e46": "{count} items",
+    "msg_3c02999784474834": "{count, plural, offset:1 =0 {Nobody} =1 {Only you} one {You and one other} other {You and # others}}"
   }
 }

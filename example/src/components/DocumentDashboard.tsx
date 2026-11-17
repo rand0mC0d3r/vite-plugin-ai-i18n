@@ -3,20 +3,12 @@ import { t, tt } from "virtual:autoi18n";
 
 type SelectOptions = Record<string, string>;
 
-export function ts(
-  variable: string,
-  options: SelectOptions,
-  fallback = 'other'
-) {
-  const variants = Object.entries(options)
-    .map(([key, value]) => `${key} {${value}}`)
-    .join(' ');
+export function ts(variable: Record<string, string | number>, options: SelectOptions, fallback = "other") {
+  const [key] = Object.keys(variable);
+  const value = String(variable[key] ?? "");
 
-  const fallbackVariant = options[fallback]
-    ? ''
-    : ` ${fallback} {Unknown}`;
-
-  return `{${variable}, select, ${variants}${fallbackVariant}}`;
+  if (Object.hasOwn(options, value)) return options[value];
+  return Object.hasOwn(options, fallback) ? options[fallback] : "Unknown";
 }
 
 export const Divider = () => <div style={{ margin: "1rem 0rem", borderTop: "1px solid #d6d6d6" }} />;
@@ -38,177 +30,236 @@ export function DocumentDashboard() {
 
   return (
     <main style={{ maxWidth: 1280, margin: "3rem auto", padding: "0 1.25rem" }}>
-
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: "0rem 2rem",
-        border: "1px solid #d6d6d6", borderRadius: 10, padding: "1rem" }}>
-
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "0rem 2rem",
+          border: "1px solid #d6d6d6",
+          borderRadius: 10,
+          padding: "1rem",
+        }}
+      >
         <Container>
-          <div>{t('Hello')}</div>
-          <div>{t('Hello {name}', { name: 'John' })}</div>
-          <div>{t('Welcome back, {firstName} {lastName}', {
-            firstName: 'John',
-            lastName: 'Doe',
-          })}</div>
+          <div>{t("Hello")}</div>
+          <div>{t("Hello {name}", { name: "John" })}</div>
+          <div>
+            {t("Welcome back, {firstName} {lastName}", {
+              firstName: "John",
+              lastName: "Doe",
+            })}
+          </div>
         </Container>
 
         <Container>
-          <div>{tt('{count} items', { count: 5 })}</div>
-          <div>{tt('{count} items', { count: 0 })}</div>
-          <div>{tt('{count} items', { count: 1 })}</div>
-          <div>{tt('{count} items', { count: -1 })}</div>
-          <div>{tt('{count} items', { count: -3 })}</div>
+          <div>{tt("{count} items", { count: 5 })}</div>
+          <div>{tt("{count} items", { count: 0 })}</div>
+          <div>{tt("{count} items", { count: 1 })}</div>
+          <div>{tt("{count} items", { count: -1 })}</div>
+          <div>{tt("{count} items", { count: -3 })}</div>
         </Container>
 
         <Container>
-          {/* // Multiple explicit values */}
-          <div>{t('{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}', { count: 1 })}</div>
-          {/* // Offset */}
-          <div>{t('{count, plural, offset:1 =0 {Nobody} =1 {You alone} one {You and one other} other {You and # others}}', { count: 0 })}</div>
-          {/* // Ordinal */}
-          <div>{t('{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}', { position: 33 })}</div>
+          <div>{t("{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}", { count: 1 })}</div>
+          <div>
+            {t(
+              "{count, plural, offset:1 =0 {Nobody} =1 {Only you} one {You and one other} other {You and # others}}",
+              { count: 0 },
+            )}
+          </div>
+          <div>{t("{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", { position: 33 })}</div>
         </Container>
 
         <Container>
-          <div>{t('{gender, select, male {He} female {She} other {They}}', { gender })}</div>
+          <div>{t("{gender, select, male {He} female {She} other {They}}", { gender })}</div>
 
-          <div>{t('{status, select, online {Online} offline {Offline} busy {Busy} other {Unknown}}', { status })}</div>
-          <div>{t(ts('status', {
-            online: 'Online',
-            offline: 'Offline',
-            busy: 'Busy',
-            other: 'Unknown' }),
-          { status })}</div>
+          <div>
+            {t(ts({ status }, {
+              online: "Online",
+              offline: "Offline",
+              busy: "Busy",
+              other: "Unknown",
+            }))}
+          </div>
 
-          <div>{t('{role, select, admin {Administrator} editor {Editor} viewer {Viewer} other {User}}', { role })}</div>
+          <div>
+            {t(ts({ role }, {
+              admin: "Administrator",
+              editor: "Editor",
+              viewer: "Viewer",
+              other: "User",
+            }))}
+          </div>
 
-          <div>{t('{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}', { platform })}</div>
+          <div>{t("{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}", { platform })}</div>
 
-          <div>{t('{theme, select, dark {Dark mode} light {Light mode} other {System default}}', { theme })}</div>
+          <div>{t("{theme, select, dark {Dark mode} light {Light mode} other {System default}}", { theme })}</div>
         </Container>
 
         <Container>
           {/* // Gender + plural */}
-          <div>{t('{gender, select, male {He has {count, plural, one {# file} other {# files}}} female {She has {count, plural, one {# file} other {# files}}} other {They have {count, plural, one {# file} other {# files}}}}', {
-          gender: 'female',
-          count: 3,
-          })}</div>
-
-          // Select inside plural
-          <div>{t('{count, plural, one {{gender, select, male {He has one file} female {She has one file} other {They have one file}}} other {{gender, select, male {He has # files} female {She has # files} other {They have # files}}}}', {
-          count: 3,
-          gender: 'male',
-          })}</div>
-
-          <div>{t('{user} uploaded {count, plural, one {# file} other {# files}} to {folder}', {
-          user: 'John',
-          count: 5,
-          folder: 'Documents',
-          })}</div>
-
-          <div>{t('{name} has {unread, plural, =0 {no unread messages} one {# unread message} other {# unread messages}} and {total} total messages', {
-          name: 'John',
-          unread: 3,
-          total: 12,
-          })}</div>
-
-          <div>{t('{count, plural, one {# item costs {price} EUR} other {# items cost {price} EUR each}}', {
-          count: 4,
-          price: 9.99,
-          })}</div>
+          <div>
+            {t(
+              "{gender, select, male {He has {count, plural, one {# file} other {# files}}} female {She has {count, plural, one {# file} other {# files}}} other {They have {count, plural, one {# file} other {# files}}}}",
+              {
+                gender: "female",
+                count: 3,
+              },
+            )}
+          </div>
+          {/* // Select inside plural */}
+          <div>
+            {t(
+              "{count, plural, one {{gender, select, male {He has one file} female {She has one file} other {They have one file}}} other {{gender, select, male {He has # files} female {She has # files} other {They have # files}}}}",
+              {
+                count: 3,
+                gender: "male",
+              },
+            )}
+          </div>
+          <div>
+            {t("{user} uploaded {count, plural, one {# file} other {# files}} to {folder}", {
+              user: "John",
+              count: 5,
+              folder: "Documents",
+            })}
+          </div>
+          <div>
+            {t(
+              "{name} has {unread, plural, =0 {no unread messages} one {# unread message} other {# unread messages}} and {total} total messages",
+              {
+                name: "John",
+                unread: 3,
+                total: 12,
+              },
+            )}
+          </div>
+          <div>
+            {t("{count, plural, one {# item costs {price} EUR} other {# items cost {price} EUR each}}", {
+              count: 4,
+              price: 9.99,
+            })}
+          </div>
         </Container>
 
         <Container>
-          <div>{t('Balance: {amount, number}', { amount: 123456.789 })}</div>
+          <div>{t("Balance: {amount, number}", { amount: 123456.789 })}</div>
 
-          <div>{t('Balance: {amount, number, integer}', { amount: 123456.789 })}</div>
+          <div>{t("Balance: {amount, number, integer}", { amount: 123456.789 })}</div>
 
-          <div>{t('Discount: {discount, number, percent}', { discount: 0.25 })}</div>
+          <div>{t("Discount: {discount, number, percent}", { discount: 0.25 })}</div>
 
-          <div>{t('Price: {price, number, currency}', { price: 129.99 })}</div>
+          <div>{t("Price: {price, number, currency}", { price: 129.99 })}</div>
 
-          <div>{t('Price: {price, number, EUR}', { price: 129.99 })}</div>
+          <div>{t("Price: {price, number, EUR}", { price: 129.99 })}</div>
 
-          <div>{t('Scientific: {value, number, scientific}', { value: 123456 })}</div>
+          <div>{t("Scientific: {value, number, scientific}", { value: 123456 })}</div>
         </Container>
 
         <Container>
-          <div>{t('Today is {date, date}', { date: new Date() })}</div>
+          <div>{t("Today is {date, date}", { date: new Date() })}</div>
 
-          <div>{t('Date: {date, date, short}', { date: new Date() })}</div>
+          <div>{t("Date: {date, date, short}", { date: new Date() })}</div>
 
-          <div>{t('Date: {date, date, medium}', { date: new Date() })}</div>
+          <div>{t("Date: {date, date, medium}", { date: new Date() })}</div>
 
-          <div>{t('Date: {date, date, long}', { date: new Date() })}</div>
+          <div>{t("Date: {date, date, long}", { date: new Date() })}</div>
 
-          <div>{t('Date: {date, date, full}', { date: new Date() })}</div>
+          <div>{t("Date: {date, date, full}", { date: new Date() })}</div>
 
-          <div>{t('Time: {time, time, short}', { time: new Date() })}</div>
+          <div>{t("Time: {time, time, short}", { time: new Date() })}</div>
 
-          <div>{t('Updated {date, date, short} at {time, time, short}', {
-          date: new Date(),
-          time: new Date(),
-          })}</div>
+          <div>
+            {t("Updated {date, date, short} at {time, time, short}", {
+              date: new Date(),
+              time: new Date(),
+            })}
+          </div>
         </Container>
 
         <Container>
-          <div>{t('{count, plural, one {# second ago} other {# seconds ago}}', { count })}</div>
+          <div>{t("{count, plural, one {# second ago} other {# seconds ago}}", { count })}</div>
 
-          <div>{t('{count, plural, one {# minute remaining} other {# minutes remaining}}', { count })}</div>
+          <div>{t("{count, plural, one {# minute remaining} other {# minutes remaining}}", { count })}</div>
 
-          <div>{t('{count, plural, =0 {Never} one {Once} other {# times}}', { count })}</div>
+          <div>{t("{count, plural, =0 {Never} one {Once} other {# times}}", { count })}</div>
 
-          <div>{t('{count, plural, one {# person online} other {# people online}}', { count })}</div>
+          <div>{t("{count, plural, one {# person online} other {# people online}}", { count })}</div>
 
-          <div>{t('{count, plural, one {# result found} other {# results found}}', { count })}</div>
+          <div>{t("{count, plural, one {# result found} other {# results found}}", { count })}</div>
         </Container>
 
         <Container>
           // Literal braces
           <div>{t("This is '{not a variable}'")}</div>
-
           // Apostrophes
           <div>{t("You're viewing {count} documents", { count })}</div>
-
           // Special characters
           <div>{t("Your balance is '{' {amount} '}'", { amount: 100 })}</div>
-
-          // Literal #
-          <div>{t("There are {count, plural, one {# file} other {# files}}", { count })}</div>
+          // Literal #<div>{t("There are {count, plural, one {# file} other {# files}}", { count })}</div>
         </Container>
 
         <Container>
-          <div>{t('{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}', { count })}</div>
+          <div>
+            {t("{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}", {
+              count,
+            })}
+          </div>
 
-          <div>{t('{name} {gender, select, male {uploaded} female {uploaded} other {uploaded}} {count, plural, one {# photo} other {# photos}}', {
-          name: 'John',
-          gender: 'male',
-          count: 12,
-          })}</div>
+          <div>
+            {t(
+              "{name} {gender, select, male {uploaded} female {uploaded} other {uploaded}} {count, plural, one {# photo} other {# photos}}",
+              {
+                name: "John",
+                gender: "male",
+                count: 12,
+              },
+            )}
+          </div>
 
-          <div>{t('{count, plural, =0 {You have no notifications} one {You have # notification} other {You have # notifications}}', { count })}</div>
+          <div>
+            {t(
+              "{count, plural, =0 {You have no notifications} one {You have # notification} other {You have # notifications}}",
+              { count },
+            )}
+          </div>
 
-          <div>{t('{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}', {
-          count: 3,
-          name: 'John',
-          })}</div>
+          <div>
+            {t(
+              "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
+              {
+                count: 3,
+                name: "John",
+              },
+            )}
+          </div>
 
-          <div>{t('{used, number} MB used out of {total, number} MB ({percentage, number, percent})', {
-          used: 750,
-          total: 1000,
-          percentage: 0.75,
-          })}</div>
+          <div>
+            {t("{used, number} MB used out of {total, number} MB ({percentage, number, percent})", {
+              used: 750,
+              total: 1000,
+              percentage: 0.75,
+            })}
+          </div>
 
-          <div>{t('{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}', {
-          role: 'editor',
-          })}</div>
+          <div>
+            {t(
+              "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
+              {
+                role: "editor",
+              },
+            )}
+          </div>
 
-          <div>{t('{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}', {
-          role: 'admin',
-          count: 4,
-          })}</div>
+          <div>
+            {t(
+              "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
+              {
+                role: "admin",
+                count: 4,
+              },
+            )}
+          </div>
         </Container>
       </div>
     </main>
