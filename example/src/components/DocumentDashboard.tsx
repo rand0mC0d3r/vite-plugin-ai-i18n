@@ -164,6 +164,8 @@ export function DocumentDashboard() {
 
           <div>{t("Price: {price, number, EUR}", { price: 129.99 })}</div>
 
+          <div>{t("Price: {price, number, GBP}", { price: 129.99 })}</div>
+
           <div>{t("Scientific: {value, number, scientific}", { value: 123456 })}</div>
         </Container>
 
