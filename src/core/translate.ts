@@ -78,6 +78,11 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
     delete messages[request.id];
     delete sources[request.id];
     const text = translated[request.id];
+    if (request.autoPlural === true) {
+      const valid =
+        typeof text === "string" && text.includes("{count") && text.includes(", plural,") && text.includes("other");
+      if (!valid) continue;
+    }
     // A translation that drops or renames an argument would format wrongly, so it is requested again instead.
     if (typeof text !== "string" || !text.trim() || !keepsArguments(request.source, text)) continue;
     messages[request.id] = text;

@@ -10,6 +10,8 @@ export const FORMAT_MODULE = "vite-plugin-ai-auto-i18n/runtime";
 const RUNTIME_LOOKUP = "__autoI18nT";
 /** Global name of the ICU formatter injected into build output for calls with values. */
 const FORMAT_FN = "__autoI18nFormat";
+/** Global name of the fallback ICU generator injected for `tt()` calls. */
+const FORMAT_AUTO_FN = "__autoI18nFormatAutoPlural";
 
 /**
  * Build mode bakes the catalogue for `locale` into the code. Runtime mode emits `lookup(id, source)` calls that resolve
@@ -52,16 +54,27 @@ export function transformSource(
       s.overwrite(message.start, message.end, replacement);
       continue;
     }
-    const head = runtime
-      ? `${RUNTIME_LOOKUP}(${JSON.stringify(message.id)}, ${JSON.stringify(message.source)}, `
-      : `${FORMAT_FN}(${JSON.stringify(textFor(message))}, ${JSON.stringify(locale)}, `;
+    let head: string;
+    if (runtime && message.autoPlural === true) {
+      head = `__autoI18nLookupAutoPlural(${JSON.stringify(message.id)}, ${JSON.stringify(message.source)}, `;
+    } else if (runtime) {
+      head = `${RUNTIME_LOOKUP}(${JSON.stringify(message.id)}, ${JSON.stringify(message.source)}, `;
+    } else if (message.autoPlural === true) {
+      head = `${FORMAT_AUTO_FN}(${JSON.stringify(textFor(message))}, ${JSON.stringify(locale)}, `;
+    } else {
+      head = `${FORMAT_FN}(${JSON.stringify(textFor(message))}, ${JSON.stringify(locale)}, `;
+    }
     s.overwrite(message.start, message.valuesStart, head);
   }
 
   const imports: string[] = [];
   if (runtime && messages.length) imports.push(`import { lookup as ${RUNTIME_LOOKUP} } from "${RUNTIME_MODULE}";`);
+  if (runtime && messages.some((message) => message.autoPlural === true))
+    imports.push(`import { lookupAutoPlural as __autoI18nLookupAutoPlural } from "${RUNTIME_MODULE}";`);
   if (!runtime && messages.some((message) => message.valuesStart !== undefined))
     imports.push(`import { formatMessage as ${FORMAT_FN} } from "${FORMAT_MODULE}";`);
+  if (!runtime && messages.some((message) => message.autoPlural === true))
+    imports.push(`import { formatAutoPluralMessage as ${FORMAT_AUTO_FN} } from "${FORMAT_MODULE}";`);
   if (imports.length) s.prepend(`${imports.join("\n")}\n`);
 
   return { code: s.toString(), map: s.generateMap({ source: filename, hires: true, includeContent: true }) };

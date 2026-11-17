@@ -69,6 +69,19 @@ describe("translateLocale", () => {
     expect(result.untranslated).toBe(1);
   });
 
+  it("rejects an auto-plural translation that is not an ICU count plural", async () => {
+    const p = provider({ a: "{anzahl} Elemente" });
+    const request = { ...text("a", "{count} items"), autoPlural: true };
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [request],
+      previous: emptyLocaleFile(),
+    });
+    expect(result.file.messages).toEqual({});
+    expect(result.untranslated).toBe(1);
+  });
+
   it("prunes keys for messages that are no longer active", async () => {
     const previous = { messages: { keep: "Behalten", gone: "Weg" }, sources: { keep: "Keep", gone: "Gone" } };
     const result = await translateLocale({

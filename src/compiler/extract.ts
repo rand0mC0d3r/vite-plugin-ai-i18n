@@ -4,8 +4,9 @@ import type { ExtractedMessage } from "../types.js";
 import { isStringLiteral, type Node, type ParsedSource, parseSource, walk } from "./ast.js";
 import { RUNTIME_MODULE } from "./transform.js";
 
-// `t("...")` imported from the runtime module marks a string for translation.
+// `t("...")` and `tt("...", values)` imported from the runtime module mark strings for translation.
 const TRANSLATE_FN = "t";
+const AUTO_PLURAL_FN = "tt";
 
 const hasLetter = (text: string): boolean => /[A-Za-z]/.test(text);
 
@@ -24,15 +25,16 @@ function checkIcu(source: string, filename: string): void {
  * Local names bound to `t` by imports from the runtime module. Only calls through these bindings are extracted, so an
  * unrelated `t()` from another library is left alone.
  */
-function translateBindings(program: Node): Set<string> {
-  const names = new Set<string>();
+function translateBindings(program: Node): { t: Set<string>; tt: Set<string> } {
+  const names = { t: new Set<string>(), tt: new Set<string>() };
   if (program.type !== "Program") return names;
   for (const statement of program.body) {
     if (statement.type !== "ImportDeclaration" || statement.source.value !== RUNTIME_MODULE) continue;
     for (const specifier of statement.specifiers) {
       if (specifier.type !== "ImportSpecifier") continue;
       const imported = specifier.imported.type === "Identifier" ? specifier.imported.name : specifier.imported.value;
-      if (imported === TRANSLATE_FN) names.add(specifier.local.name);
+      if (imported === TRANSLATE_FN) names.t.add(specifier.local.name);
+      if (imported === AUTO_PLURAL_FN) names.tt.add(specifier.local.name);
     }
   }
   return names;
@@ -85,7 +87,8 @@ export function extractMessages(
   const found: ExtractedMessage[] = [];
   walk(program, (node, ancestors) => {
     if (node.type !== "CallExpression" || node.callee.type !== "Identifier") return;
-    if (!translateNames.has(node.callee.name) || node.arguments.length > 2) return;
+    const autoPlural = translateNames.tt.has(node.callee.name);
+    if ((!translateNames.t.has(node.callee.name) && !autoPlural) || node.arguments.length > 2) return;
     const [argument] = node.arguments;
     const values = node.arguments.at(1);
     if (!isStringLiteral(argument) || values?.type === "SpreadElement") return;
@@ -98,8 +101,9 @@ export function extractMessages(
       start: node.start,
       end: node.end,
       valuesStart: values?.start,
+      autoPlural: autoPlural || undefined,
       component: componentName(ancestors),
-      fingerprint: createFingerprint({ source }),
+      fingerprint: createFingerprint({ source, autoPlural }),
     });
   });
   return found.sort((a, b) => a.start - b.start);

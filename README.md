@@ -117,6 +117,14 @@ Each `t()` call takes one string literal. Keep variables outside the call and le
 <span>{t("Hello {name}", { name: user.name })}</span>
 ```
 
+For count templates where the target language should choose natural singular, zero and plural wording automatically, use `tt()`:
+
+```tsx
+<span>{tt("{count} items", { count })}</span>
+```
+
+AI providers convert `tt()` sources into ICU plural messages for each target locale. For example, English fallback output is `No items`, `1 item` or `5 items`, while another language receives its own locale-specific categories and wording. The source text is shown as a simple count fallback when no provider or translation is available yet.
+
 Plurals, `select` and simple `{name}` placeholders all work. Messages are checked at build time, so an invalid ICU string fails the build and names the file. At runtime the values are formatted for the active locale with [`intl-messageformat`](https://formatjs.io/docs/intl-messageformat/). That library is bundled only when a build uses values with `delivery: "build"`, but `delivery: "runtime"` always includes it, since the shared runtime module formats values. A missing value is logged and the message is shown unformatted.
 
 ### Phase 1: extract

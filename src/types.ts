@@ -9,6 +9,8 @@ export interface ExtractedMessage {
   end: number;
   /** Offset of the values argument in `t("...", values)`. Undefined when the call has no values. */
   valuesStart?: number | undefined;
+  /** True for `tt()`, which asks providers to generate natural-language ICU plural defaults. */
+  autoPlural?: boolean | undefined;
   /** Enclosing component name. Used with `fingerprint` to match a message to its registry entry. */
   component: string;
   /** Hash of the normalized source, used to match registry entries. */
@@ -19,6 +21,7 @@ export type ResolvedMessage = ExtractedMessage & { id: string };
 /** One message remembered in the registry. Entries are kept across builds so stable IDs survive edits. */
 export type RegistryEntry = Pick<ExtractedMessage, "source" | "component" | "fingerprint"> & {
   id: string;
+  autoPlural?: boolean | undefined;
   location: string;
   status: "active" | "orphaned";
   firstSeen: string;
@@ -37,6 +40,8 @@ export interface TranslationRequest {
   source: string;
   /** Enclosing component name, so providers can pick the right UI wording. */
   context: string;
+  /** Generate language-specific ICU plural branches for this natural-language count template. */
+  autoPlural?: boolean | undefined;
 }
 /** One translation call: the locale pair and the messages to translate between them. */
 export interface TranslateInput {

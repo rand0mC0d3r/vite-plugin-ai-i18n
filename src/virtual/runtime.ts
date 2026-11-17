@@ -26,7 +26,7 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
     .join(",\n");
   return (
     [
-      `import { formatMessage } from ${toJsStringLiteral(FORMAT_MODULE)};`,
+      `import { formatAutoPluralMessage, formatMessage } from ${toJsStringLiteral(FORMAT_MODULE)};`,
       `const unwrapDefault = ${unwrapDefault.toString()};`,
       `const loaders = {\n${loaders}\n};`,
       `const sourceLocale = ${toJsStringLiteral(sourceLocale)};`,
@@ -74,9 +74,16 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
       `  const text = messages[id] ?? source;`,
       `  return values === undefined ? text : formatMessage(text, currentLocale, values);`,
       `}`,
+      `export function lookupAutoPlural(id, source, values) {`,
+      `  const text = messages[id] ?? source;`,
+      `  return values === undefined ? text : formatAutoPluralMessage(text, currentLocale, values);`,
+      `}`,
       `// Only literal t("...") calls are translated at build time. Any other call returns its argument unchanged, formatted with values when given.`,
       `export function t(source, values) {`,
       `  return values === undefined ? source : formatMessage(source, currentLocale, values);`,
+      `}`,
+      `export function tt(source, values) {`,
+      `  return values === undefined ? source : formatAutoPluralMessage(source, currentLocale, values);`,
       `}`,
       `// Dev server pushes the catalogues that changed after a source change; no page reload is needed.`,
       `if (import.meta.hot) {`,

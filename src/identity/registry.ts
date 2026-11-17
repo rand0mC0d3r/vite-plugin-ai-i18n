@@ -101,6 +101,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
         candidate.lastSeen = now;
         candidate.source = message.source;
         candidate.component = message.component;
+        candidate.autoPlural = message.autoPlural;
         candidate.location = `${message.file}:${message.start}`;
         seen.add(candidate.id);
       } else {
@@ -111,6 +112,7 @@ export function reconcile(registry: Registry, messages: ExtractedMessage[]): Rec
           source: message.source,
           component: message.component,
           fingerprint: message.fingerprint,
+          autoPlural: message.autoPlural,
           location: `${message.file}:${message.start}`,
           status: "active",
           firstSeen: now,

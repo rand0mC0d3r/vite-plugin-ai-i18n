@@ -53,12 +53,18 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Builds the system instruction that tells the model the locale pair and to reply with a bare JSON ID-to-text object. */
 export function systemPrompt(input: TranslateInput): string {
-  return `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Some messages use ICU MessageFormat, such as {name}, {count, plural, one {# file} other {# files}} or {gender, select, ...}. Keep argument names, the keywords (one, other, select, plural, ...) and the # symbol unchanged, translate only the text inside the branches, and write the plural branches the target language needs. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.`;
+  return `You are a professional software localization engine. Translate UI messages from ${input.sourceLocale} to ${input.targetLocale}. Preserve placeholders exactly. Some messages use ICU MessageFormat, such as {name}, {count, plural, one {# file} other {# files}} or {gender, select, ...}. Keep argument names, the keywords (one, other, select, plural, ...) and the # symbol unchanged, translate only the text inside the branches, and write the plural branches the target language needs. Messages marked "autoPlural" are natural-language count templates: convert their source to valid ICU plural syntax using the count argument, include language-appropriate categories (zero, one, two, few, many, other as needed), and include an explicit =0 branch when natural UI wording is different. Preserve {count} semantics and translate only the words inside branches. Respect context and UI conventions. Return ONLY a JSON object mapping message IDs to translated strings. Do not translate product names or code.`;
 }
 
 /** Serializes messages as a JSON array of `{ id, text, context }` for the user turn of the prompt. */
 export function userContent(messages: TranslationRequest[]): string {
-  return JSON.stringify(messages.map((m) => ({ id: m.id, text: m.source, context: m.context })));
+  return JSON.stringify(
+    messages.map((m) =>
+      m.autoPlural === true
+        ? { id: m.id, text: m.source, context: m.context, autoPlural: true }
+        : { id: m.id, text: m.source, context: m.context },
+    ),
+  );
 }
 
 /**

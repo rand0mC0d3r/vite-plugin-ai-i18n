@@ -61,6 +61,23 @@ describe("OpenAICompatibleProvider", () => {
     expect((init.headers as Record<string, string>)["Authorization"]).toBeUndefined();
   });
 
+  it("marks auto-plural count templates in the provider request", async () => {
+    fetchMock.mockResolvedValue(
+      chatResponse(
+        JSON.stringify({
+          a: "{count, plural, =0 {No items} one {# item} other {# items}}",
+        }),
+      ),
+    );
+    await provider().translate(input([{ id: "a", source: "{count} items", context: "Items", autoPlural: true }]));
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(init.body as string) as ChatBody;
+    expect(body.messages[0].content).toContain("autoPlural");
+    expect(JSON.parse(body.messages[1].content)).toEqual([
+      { id: "a", text: "{count} items", context: "Items", autoPlural: true },
+    ]);
+  });
+
   it("uses a custom baseURL", async () => {
     fetchMock.mockResolvedValue(chatResponse(JSON.stringify({ a: "x" })));
     await provider({ baseURL: "https://x.example/v1" }).translate(input([request("a")]));

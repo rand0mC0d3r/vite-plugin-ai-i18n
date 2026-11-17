@@ -40,6 +40,7 @@ export const registryEntrySchema = type({
   source: "string",
   component: "string",
   fingerprint: "string",
+  "autoPlural?": "boolean | undefined",
   location: "string",
   status: "'active' | 'orphaned'",
   firstSeen: "string",

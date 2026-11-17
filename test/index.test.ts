@@ -102,6 +102,25 @@ describe("t() calls with values", () => {
   });
 });
 
+describe("tt() calls", () => {
+  const CODE = `import { tt } from "virtual:autoi18n";\nexport const App = ({ count }) => <p>{tt("{count} items", { count })}</p>;\n`;
+  const messages = withIds(extractMessages(CODE, "Items.tsx"));
+
+  it("formats build-mode auto-plural fallbacks with the target locale", () => {
+    const { code } = transformSource(CODE, "Items.tsx", messages, "de", {
+      msg_0: "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
+    });
+    expect(code).toContain("formatAutoPluralMessage");
+    expect(code).toContain("__autoI18nFormatAutoPlural");
+  });
+
+  it("uses the auto-plural runtime lookup in runtime mode", () => {
+    const { code } = transformSource(CODE, "Items.tsx", messages, "de", {}, true);
+    expect(code).toContain("lookupAutoPlural");
+    expect(code).toContain("__autoI18nLookupAutoPlural");
+  });
+});
+
 describe("runtime module", () => {
   it("lists every catalogue and resolves unknown locales to the source", () => {
     const code = createRuntimeModule({ en: "/x/en.json", de: "/x/de.json" }, "en");

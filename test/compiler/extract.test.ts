@@ -55,6 +55,13 @@ describe("t() calls", () => {
     expect(message.valuesStart).toBe(code.indexOf("{ count"));
   });
 
+  it("extracts aliased tt() calls as auto-plural messages", () => {
+    const code = `import { tt as countItems } from "virtual:autoi18n";\nexport const A = () => countItems("{count} items", { count: 5 });`;
+    const [message] = extract(code);
+    expect(message.source).toBe("{count} items");
+    expect(message.autoPlural).toBe(true);
+  });
+
   it("skips a call whose values are a spread, since its arguments are not known statically", () => {
     expect(sources(`${RUNTIME}export const A = (v) => t("Hello {name}", ...[v]);`)).toEqual([]);
   });

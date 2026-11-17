@@ -13,6 +13,7 @@ type RuntimeModule = {
   getVersion(): number;
   lookup(id: string, source: string, values?: Record<string, unknown>): string;
   t(source: string, values?: Record<string, unknown>): string;
+  tt(source: string, values?: Record<string, unknown>): string;
 };
 
 describe("createRuntimeModule escaping", () => {
@@ -71,6 +72,13 @@ describe("generated setLocale", () => {
     await runtime.setLocale("de");
     expect(runtime.lookup("a", "unused", { count: 2 })).toBe("2 Dateien");
     expect(runtime.t("{count, plural, one {# Datei} other {# Dateien}}", { count: 1 })).toBe("1 Datei");
+  });
+
+  it("formats tt() plural fallbacks in the active source locale", async () => {
+    const runtime = await load({ en: `{}` });
+    expect(runtime.tt("{count} items", { count: 0 })).toBe("No items");
+    expect(runtime.tt("{count} items", { count: 1 })).toBe("1 item");
+    expect(runtime.tt("{count} items", { count: 5 })).toBe("5 items");
   });
 
   it("returns the source unformatted when a value is missing", async () => {

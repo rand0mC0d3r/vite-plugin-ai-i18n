@@ -70,6 +70,7 @@ export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBu
     id: m.id,
     source: m.source,
     context: m.component,
+    autoPlural: m.autoPlural,
   }));
 
   const outcomes = await mapWithConcurrency(input.locales, input.localeConcurrency, (locale) =>
