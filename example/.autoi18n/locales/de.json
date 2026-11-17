@@ -7,13 +7,7 @@
     "msg_7ef62643a069428a": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
     "msg_14a1b68096ca4d70": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
     "msg_68f42ac987a54df6": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
-    "msg_e895b1d8f24748eb": "{count, plural, =0 {Keine Dokumente} one {# Dokument} other {# Dokumente}}",
-    "msg_bfa390c477214bee": "{count, plural, =0 {Keine Dokumente} one {# Dokument} other {# Dokumente}}",
-    "msg_b24a5dd73f6a4dfd": "{count, plural, =0 {Keine Dokumente} one {# Dokument} other {# Dokumente}}",
-    "msg_c7bfc87bd7794d3c": "{count, plural, one {# Dokument} other {# Dokumente}}",
-    "msg_3d5593a390194eb2": "{count, plural, =0 {Keine Dokumente} one {# Dokument} other {# Dokumente}}",
     "msg_920ea90fb6e143e0": "{count, plural, =0 {Leer} =1 {Genau eins} =2 {Ein Paar} other {# Elemente}}",
-    "msg_2d4557c64d644fd6": "{count, plural, one {# Datei} other {# Dateien}}",
     "msg_bbae372c807a4c82": "{count, plural, offset:1 =0 {Niemand} =1 {Nur du} one {Du und eine weitere Person} other {Du und # weitere}}",
     "msg_8ebc28c5dd274281": "{position, selectordinal, other {#.}}",
     "msg_a6b0030f47474fd0": "{gender, select, male {Er} female {Sie} other {Diese Person}}",
@@ -54,7 +48,9 @@
     "msg_31ecbee58ee24776": "{count, plural, =0 {Niemand bearbeitet dieses Dokument} one {{name} bearbeitet dieses Dokument} other {{name} und # weitere bearbeiten dieses Dokument}}",
     "msg_be7452ecec714292": "{used, number} MB von {total, number} MB verwendet ({percentage, number, percent})",
     "msg_c3b605ae81a041b2": "{role, select, owner {Sie besitzen dieses Album} editor {Sie können dieses Album bearbeiten} viewer {Sie können dieses Album anzeigen} other {Sie haben keinen Zugriff auf dieses Album}}",
-    "msg_45297ae55ee24847": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}"
+    "msg_45297ae55ee24847": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}",
+    "msg_bbff41a76f644d14": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}",
+    "msg_8015753eb7d84e46": "{count, plural, =0 {Keine Elemente} one {# Element} other {# Elemente}}"
   },
   "sources": {
     "msg_7929c4a934624a5f": "Language",
@@ -64,13 +60,7 @@
     "msg_7ef62643a069428a": "{count} items",
     "msg_14a1b68096ca4d70": "{count} items",
     "msg_68f42ac987a54df6": "{count} items",
-    "msg_e895b1d8f24748eb": "{count} documents",
-    "msg_bfa390c477214bee": "{count} documents",
-    "msg_b24a5dd73f6a4dfd": "{count} documents",
-    "msg_c7bfc87bd7794d3c": "{count, plural, one {# document} other {# documents}}",
-    "msg_3d5593a390194eb2": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
     "msg_920ea90fb6e143e0": "{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}",
-    "msg_2d4557c64d644fd6": "{count, plural, one {# file} other {# files}}",
     "msg_bbae372c807a4c82": "{count, plural, offset:1 =0 {Nobody} =1 {You alone} one {You and one other} other {You and # others}}",
     "msg_8ebc28c5dd274281": "{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
     "msg_a6b0030f47474fd0": "{gender, select, male {He} female {She} other {They}}",
@@ -111,6 +101,8 @@
     "msg_31ecbee58ee24776": "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
     "msg_be7452ecec714292": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
     "msg_c3b605ae81a041b2": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
-    "msg_45297ae55ee24847": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}"
+    "msg_45297ae55ee24847": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
+    "msg_bbff41a76f644d14": "{count} items",
+    "msg_8015753eb7d84e46": "{count} items"
   }
 }
