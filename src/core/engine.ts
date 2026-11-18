@@ -19,9 +19,9 @@ export interface CatalogBuildInput {
   registry: Registry;
   /** Minutes an orphaned registry entry is kept before it is pruned. */
   orphanRetentionMinutes: number;
-  /** Language of the source strings. It is never translated. */
+  /** Language of the source strings. Hinted `tt()` messages may receive a source-language AI catalogue entry. */
   sourceLocale: string;
-  /** Locales to translate in this run. The source locale is never translated. */
+  /** Locales to translate in this run. */
   locales: string[];
   /** Locales translated in parallel. */
   localeConcurrency: number;
@@ -71,14 +71,21 @@ export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBu
     source: m.source,
     context: m.component,
     autoPlural: m.autoPlural,
+    hint: m.hint,
   }));
 
-  const outcomes = await mapWithConcurrency(input.locales, input.localeConcurrency, (locale) =>
+  const hasHintedRequests = requests.some((m) => m.hint !== undefined);
+  const localesToTranslate =
+    hasHintedRequests && !input.locales.includes(input.sourceLocale)
+      ? [...input.locales, input.sourceLocale]
+      : input.locales;
+
+  const outcomes = await mapWithConcurrency(localesToTranslate, input.localeConcurrency, (locale) =>
     translateLocale({
       provider: input.provider,
       sourceLocale: input.sourceLocale,
       locale,
-      requests,
+      requests: locale === input.sourceLocale ? requests.filter((m) => m.hint !== undefined) : requests,
       previous: input.previous.get(locale) ?? emptyLocaleFile(),
       debug: input.debug,
     }),
@@ -87,9 +94,13 @@ export async function buildCatalogs(input: CatalogBuildInput): Promise<CatalogBu
   const locales = new Map<string, LocaleTranslation>();
   const failures = new Map<string, unknown>();
   outcomes.forEach((outcome, index) => {
-    const locale = input.locales[index];
-    if (outcome.status === "fulfilled") locales.set(locale, outcome.value);
-    else failures.set(locale, outcome.reason);
+    const locale = localesToTranslate[index];
+    if (outcome.status === "fulfilled") {
+      locales.set(locale, outcome.value);
+      if (locale === input.sourceLocale) {
+        for (const [id, text] of Object.entries(outcome.value.file.messages)) sourceCatalog[id] = text;
+      }
+    } else failures.set(locale, outcome.reason);
   });
 
   return {

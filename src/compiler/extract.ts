@@ -68,8 +68,8 @@ function componentName(ancestors: Node[]): string {
 /**
  * Finds `t("...")` calls in a module, where `t` is imported from the runtime module and the first argument is a string
  * literal containing letters. An optional second argument holds values for ICU placeholders, such as `t("{count}
- * files", { count })`; the source is then validated as ICU. The calls stay in the source; the transform replaces them
- * later.
+ * files", { count })`; the source is then validated as ICU. `tt()` accepts an optional third string hint describing
+ * special count wording for providers. The calls stay in the source; the transform replaces them later.
  *
  * @param code Source text of the module.
  * @param filename Used for parsing and recorded on each message.
@@ -88,13 +88,17 @@ export function extractMessages(
   walk(program, (node, ancestors) => {
     if (node.type !== "CallExpression" || node.callee.type !== "Identifier") return;
     const autoPlural = translateNames.tt.has(node.callee.name);
-    if ((!translateNames.t.has(node.callee.name) && !autoPlural) || node.arguments.length > 2) return;
+    if ((!translateNames.t.has(node.callee.name) && !autoPlural) || node.arguments.length > (autoPlural ? 3 : 2))
+      return;
     const [argument] = node.arguments;
     const values = node.arguments.at(1);
+    const hintArgument = autoPlural ? node.arguments.at(2) : undefined;
     if (!isStringLiteral(argument) || values?.type === "SpreadElement") return;
+    if (hintArgument !== undefined && !isStringLiteral(hintArgument)) return;
     const source = normalizeSource(argument.value);
     if (!source || !hasLetter(source)) return;
     if (values) checkIcu(source, filename);
+    const hint = isStringLiteral(hintArgument) ? normalizeSource(hintArgument.value) : undefined;
     found.push({
       source,
       file: filename,
@@ -102,8 +106,9 @@ export function extractMessages(
       end: node.end,
       valuesStart: values?.start,
       autoPlural: autoPlural || undefined,
+      hint: hint !== undefined && hint.length > 0 ? hint : undefined,
       component: componentName(ancestors),
-      fingerprint: createFingerprint({ source, autoPlural }),
+      fingerprint: createFingerprint({ source, autoPlural, hint }),
     });
   });
   return found.sort((a, b) => a.start - b.start);

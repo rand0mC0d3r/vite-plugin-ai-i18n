@@ -182,6 +182,7 @@ export class Syncer {
     const outDir = this.localesDir();
     const locales = this.localesToTranslate();
     const previous = new Map<string, LocaleFile>();
+    previous.set(sourceLocale, await state.readLocale(localeFilePath(outDir, sourceLocale), report.warn));
     for (const locale of locales)
       previous.set(locale, await state.readLocale(localeFilePath(outDir, locale), report.warn));
 

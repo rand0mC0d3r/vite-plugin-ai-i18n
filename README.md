@@ -123,6 +123,14 @@ For count templates where the target language should choose natural singular, ze
 <span>{tt("{count} items", { count })}</span>
 ```
 
+An optional third argument adds free-form guidance for the AI provider:
+
+```tsx
+<span>{tt("{count} seconds ago", { count }, "Use 'Now' when count is zero; use 'Later' above five")}</span>
+```
+
+The hint is kept with the message and sent to LLM translation providers as extra context. It does not alter the runtime fallback formatter directly; providers use it to generate richer, locale-specific ICU branches. Hinted `tt()` messages can also receive a source-locale ICU catalogue entry, while other source text remains unchanged.
+
 AI providers convert `tt()` sources into ICU plural messages for each target locale. For example, English fallback output is `No items`, `1 item` or `5 items`, while another language receives its own locale-specific categories and wording. The source text is shown as a simple count fallback when no provider or translation is available yet.
 
 Plurals, `select` and simple `{name}` placeholders all work. Messages are checked at build time, so an invalid ICU string fails the build and names the file. At runtime the values are formatted for the active locale with [`intl-messageformat`](https://formatjs.io/docs/intl-messageformat/). That library is bundled only when a build uses values with `delivery: "build"`, but `delivery: "runtime"` always includes it, since the shared runtime module formats values. A missing value is logged and the message is shown unformatted.

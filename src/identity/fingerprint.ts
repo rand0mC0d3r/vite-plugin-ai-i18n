@@ -14,10 +14,10 @@ export function normalizeSource(value: string): string {
  * Hashes a message's normalized source text into a stable 24-character hex ID. Component, file and position are
  * deliberately excluded, so moving or renaming code does not change the identity of its copy.
  */
-export function createFingerprint(message: Pick<ExtractedMessage, "source" | "autoPlural">): string {
+export function createFingerprint(message: Pick<ExtractedMessage, "source" | "autoPlural" | "hint">): string {
   const mode = message.autoPlural === true ? "tt" : "t";
   return createHash("sha256")
-    .update(`${mode}\u0000${normalizeSource(message.source)}`)
+    .update(`${mode}\u0000${normalizeSource(message.source)}\u0000${normalizeSource(message.hint ?? "")}`)
     .digest("hex")
     .slice(0, 24);
 }

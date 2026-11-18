@@ -82,7 +82,7 @@ export function createRuntimeModule(catalogFiles: Record<string, string>, source
       `export function t(source, values) {`,
       `  return values === undefined ? source : formatMessage(source, currentLocale, values);`,
       `}`,
-      `export function tt(source, values) {`,
+      `export function tt(source, values, hint) {`,
       `  return values === undefined ? source : formatAutoPluralMessage(source, currentLocale, values);`,
       `}`,
       `// Dev server pushes the catalogues that changed after a source change; no page reload is needed.`,

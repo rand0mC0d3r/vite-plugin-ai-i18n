@@ -62,6 +62,13 @@ describe("t() calls", () => {
     expect(message.autoPlural).toBe(true);
   });
 
+  it("extracts a third-argument hint from tt() calls", () => {
+    const code = `import { tt } from "virtual:autoi18n";\nexport const A = () => tt("{count} seconds ago", { count }, "Use Now when count is 0");`;
+    const [message] = extract(code);
+    expect(message.autoPlural).toBe(true);
+    expect(message.hint).toBe("Use Now when count is 0");
+  });
+
   it("skips a call whose values are a spread, since its arguments are not known statically", () => {
     expect(sources(`${RUNTIME}export const A = (v) => t("Hello {name}", ...[v]);`)).toEqual([]);
   });

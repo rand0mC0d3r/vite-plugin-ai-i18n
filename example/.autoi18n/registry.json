@@ -1,2953 +1,718 @@
 {
   "version": 1,
   "entries": {
-    "msg_32699d2ebc984740": {
-      "id": "msg_32699d2ebc984740",
+    "msg_5d1301ca4d85426b": {
+      "id": "msg_5d1301ca4d85426b",
       "source": "Language",
       "component": "App",
-      "fingerprint": "db3a8d23b4c510d959b28332",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/main.tsx:663",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_974973c274b541b4": {
-      "id": "msg_974973c274b541b4",
-      "source": "Save the current document",
-      "component": "DocumentToolbar",
-      "fingerprint": "277f32acf9635229f670b4f9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:432",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_bc02133e81c24f8b": {
-      "id": "msg_bc02133e81c24f8b",
-      "source": "Save",
-      "component": "DocumentToolbar",
-      "fingerprint": "5f6dd3a312e218b22bf55a6a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:460",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_b808c88265034998": {
-      "id": "msg_b808c88265034998",
-      "source": "Save a copy under another name",
-      "component": "DocumentToolbar",
-      "fingerprint": "031cc2d3fbd7ace342c44fd6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:529",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_d238e7e6553d4986": {
-      "id": "msg_d238e7e6553d4986",
-      "source": "Save as...",
-      "component": "DocumentToolbar",
-      "fingerprint": "8698431716c18745ceb5add7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:562",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_162f7006603c48a6": {
-      "id": "msg_162f7006603c48a6",
-      "source": "Cancel",
-      "component": "DocumentToolbar",
-      "fingerprint": "bce440f86f0ca9559a6466e0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:631",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_1b4ff35d1e544efb": {
-      "id": "msg_1b4ff35d1e544efb",
-      "source": "Cancel",
-      "component": "DeleteDialog",
-      "fingerprint": "bce440f86f0ca9559a6466e0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1438",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_ad1db964ae9d4684": {
-      "id": "msg_ad1db964ae9d4684",
-      "source": "Filters and pets and household items, cows, bears, bees",
-      "component": "FilterPanel",
-      "fingerprint": "a56bc921eba38c2454ab94b3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:761",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_343b6a51b31e4101": {
-      "id": "msg_343b6a51b31e4101",
-      "source": "Document name",
-      "component": "FilterPanel",
-      "fingerprint": "f4d3090cb8dd8fb48071d13c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:835",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_f02991dbf4fb4bc5": {
-      "id": "msg_f02991dbf4fb4bc5",
-      "source": "Search documents",
-      "component": "FilterPanel",
-      "fingerprint": "3679bb2b2c3716ad694d3002",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:877",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_33da9171aaeb4b09": {
-      "id": "msg_33da9171aaeb4b09",
-      "source": "Save these filter settings",
-      "component": "FilterPanel",
-      "fingerprint": "b3c379743b84074b8e6206cb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:956",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_4d6e91d0eff84ac1": {
-      "id": "msg_4d6e91d0eff84ac1",
-      "source": "Save",
-      "component": "FilterPanel",
-      "fingerprint": "a8835aa969ace78287d35e17",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:985",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_13d939809eb24c1a": {
-      "id": "msg_13d939809eb24c1a",
-      "source": "Delete documents",
-      "component": "DeleteDialog",
-      "fingerprint": "8940defe316d7f660e52838a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1219",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_831f58f97635490f": {
-      "id": "msg_831f58f97635490f",
-      "source": "Are you sure you want to delete {count} selected documents?",
-      "component": "DeleteDialog",
-      "fingerprint": "401c1d80540bc3b7cc43c6ed",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1245",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_343dacc3205947f9": {
-      "id": "msg_343dacc3205947f9",
-      "source": "Delete documents",
-      "component": "DeleteDialog",
-      "fingerprint": "d476e70f55a3fba503c90e94",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1322",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_38dba54f5db74c39": {
-      "id": "msg_38dba54f5db74c39",
-      "source": "This action cannot be undone.",
-      "component": "DeleteDialog",
-      "fingerprint": "f803a68e380075e3828751bb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1353",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_8922be2e1e82434f": {
-      "id": "msg_8922be2e1e82434f",
-      "source": "Permanently delete selected documents",
-      "component": "DeleteDialog",
-      "fingerprint": "9bf015a403730747e457096c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1509",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_436b22da8992439f": {
-      "id": "msg_436b22da8992439f",
-      "source": "Delete",
-      "component": "DeleteDialog",
-      "fingerprint": "4b303de05220bf35fb78f1a0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1549",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_c86effc4b91546ae": {
-      "id": "msg_c86effc4b91546ae",
-      "source": "Quarterly report.pdf",
-      "component": "createDocuments",
-      "fingerprint": "debd710103d296f88da5e395",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1879",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T21:59:21.256Z"
-    },
-    "msg_336cb5a099184967": {
-      "id": "msg_336cb5a099184967",
-      "source": "Quarterly report.pdf",
-      "component": "DocumentDashboard",
-      "fingerprint": "debd710103d296f88da5e395",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2465",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_04b10e6847be4bc0": {
-      "id": "msg_04b10e6847be4bc0",
-      "source": "Shared with your team",
-      "component": "createDocuments",
-      "fingerprint": "ab16e048bb27fa2d007e6b1d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1925",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T21:59:21.256Z"
-    },
-    "msg_d2d9d9134f334bf1": {
-      "id": "msg_d2d9d9134f334bf1",
-      "source": "Shared with your team",
-      "component": "createDocuments",
-      "fingerprint": "ab16e048bb27fa2d007e6b1d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2100",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T21:59:21.256Z"
-    },
-    "msg_b740792f3ec443b5": {
-      "id": "msg_b740792f3ec443b5",
-      "source": "Shared with your team",
-      "component": "DocumentDashboard",
-      "fingerprint": "ab16e048bb27fa2d007e6b1d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2511",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_158a29dd46294044": {
-      "id": "msg_158a29dd46294044",
-      "source": "Shared with your team",
-      "component": "DocumentDashboard",
-      "fingerprint": "ab16e048bb27fa2d007e6b1d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2686",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_bf2965a65bfb45c1": {
-      "id": "msg_bf2965a65bfb45c1",
-      "source": "Onboarding checklist.docx",
-      "component": "createDocuments",
-      "fingerprint": "360fafd088699e2f7a447d23",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1974",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T21:59:21.256Z"
-    },
-    "msg_14c3e046488c4a1f": {
-      "id": "msg_14c3e046488c4a1f",
-      "source": "Onboarding checklist.docx",
-      "component": "DocumentDashboard",
-      "fingerprint": "360fafd088699e2f7a447d23",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2560",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_bfec27af73c34173": {
-      "id": "msg_bfec27af73c34173",
-      "source": "Private",
-      "component": "createDocuments",
-      "fingerprint": "4f269f9f347109fd165ff4f0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2024",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T21:59:21.256Z"
-    },
-    "msg_8211b64543634f61": {
-      "id": "msg_8211b64543634f61",
-      "source": "Private",
-      "component": "DocumentDashboard",
-      "fingerprint": "4f269f9f347109fd165ff4f0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2610",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_11b34bc5b8984cd8": {
-      "id": "msg_11b34bc5b8984cd8",
-      "source": "Budget 2027.xlsx",
-      "component": "createDocuments",
-      "fingerprint": "fd8bb5839d24719911326f26",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2059",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T21:59:21.256Z"
-    },
-    "msg_6b06876d9e3248b2": {
-      "id": "msg_6b06876d9e3248b2",
-      "source": "Budget 2027.xlsx",
-      "component": "DocumentDashboard",
-      "fingerprint": "fd8bb5839d24719911326f26",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2645",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_2f6d1e20e07244f7": {
-      "id": "msg_2f6d1e20e07244f7",
-      "source": "Document list",
-      "component": "DocumentList",
-      "fingerprint": "38c079620324285c74ce6933",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1931",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_f8fcc9ab1e0949ed": {
-      "id": "msg_f8fcc9ab1e0949ed",
-      "source": "Recent documents",
-      "component": "DocumentList",
-      "fingerprint": "4ac3a88154321fe24acd667c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1958",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_b7879dd8bc2f4c62": {
-      "id": "msg_b7879dd8bc2f4c62",
-      "source": "New Document Agent Routine",
-      "component": "DocumentList",
-      "fingerprint": "3986e9a2f0d6109dd7057a40",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1994",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_a0c4e400f03847e5": {
-      "id": "msg_a0c4e400f03847e5",
-      "source": "New Images for you",
-      "component": "DocumentList",
-      "fingerprint": "9646f111e55473baf71b5a1f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2044",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_1f22a343aaed468c": {
-      "id": "msg_1f22a343aaed468c",
-      "source": "{doc_pages} pages",
-      "component": "<anonymous>",
-      "fingerprint": "4dabc188e3df0cc800bec1ab",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2181",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_f3e0659816164310": {
-      "id": "msg_f3e0659816164310",
-      "source": "Document library",
-      "component": "DocumentDashboard",
-      "fingerprint": "0ce21a57d1c23002dbca4f3d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2754",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_43bd53a93ded43db": {
-      "id": "msg_43bd53a93ded43db",
-      "source": "Files for every occasion selected",
-      "component": "DocumentDashboard",
-      "fingerprint": "81cb9e5a6a6b2660ce374080",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2786",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_d2197213cc4b487c": {
-      "id": "msg_d2197213cc4b487c",
-      "source": "Sample code for people and animals",
-      "component": "DocumentDashboard",
-      "fingerprint": "a854ed0ecff42b2c8aaafa43",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2835",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_5c83430dc9bf4158": {
-      "id": "msg_5c83430dc9bf4158",
-      "source": "You have {selected} documents selected.",
-      "component": "DocumentDashboard",
-      "fingerprint": "949049f7d6186fff45935b38",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2881",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_5fdcaeee19ac44c3": {
-      "id": "msg_5fdcaeee19ac44c3",
-      "source": "Changes saved successfully.",
-      "component": "DocumentDashboard",
-      "fingerprint": "0cd541f5303b461a0b6a0548",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3170",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T21:59:21.256Z",
-      "lastSeen": "2026-11-16T22:02:08.789Z"
-    },
-    "msg_7f6cd5f3d7ce43ac": {
-      "id": "msg_7f6cd5f3d7ce43ac",
-      "source": "Language",
-      "component": "App",
-      "fingerprint": "a4fe65264ef7dbb38d104b1e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/main.tsx:667",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_d4449a1d69ad411f": {
-      "id": "msg_d4449a1d69ad411f",
-      "source": "Quarterly report.pdf",
-      "component": "<module>",
-      "fingerprint": "802920ded8bf661db506755f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:446",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:35:25.087Z"
-    },
-    "msg_d80444c91a3942da": {
-      "id": "msg_d80444c91a3942da",
-      "source": "Onboarding checklist.docx",
-      "component": "<module>",
-      "fingerprint": "c27b6763ca2d3bf979ca94fb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:632",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:35:25.087Z"
-    },
-    "msg_53a57734ef524308": {
-      "id": "msg_53a57734ef524308",
-      "source": "Budget 2027.xlsx",
-      "component": "buildDocuments",
-      "fingerprint": "34fa0d9b7bdc681d63db20ba",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1487",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_d92fafac3af74aa8": {
-      "id": "msg_d92fafac3af74aa8",
-      "source": "Vendor contracts (2025).pdf",
-      "component": "<module>",
-      "fingerprint": "ef90be7f0ba5a2a9289231ef",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:820",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:35:25.087Z"
-    },
-    "msg_ef65de3e68de435f": {
-      "id": "msg_ef65de3e68de435f",
-      "source": "Product roadmap Q1.pptx",
-      "component": "buildDocuments",
-      "fingerprint": "37d04851cea372dfc7570e74",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1857",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_51f8f1d2b1db4b6a": {
-      "id": "msg_51f8f1d2b1db4b6a",
-      "source": "Incident postmortem #482.md",
-      "component": "buildDocuments",
-      "fingerprint": "5d2a99f78e4f6117d5d3a687",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2043",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_ad55fe57fca5435b": {
-      "id": "msg_ad55fe57fca5435b",
-      "source": "A name is required.",
-      "component": "validateName",
-      "fingerprint": "54d33a418d049a922952457e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2501",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_a049399d007f48bb": {
-      "id": "msg_a049399d007f48bb",
-      "source": "Keep names under 60 characters.",
-      "component": "validateName",
-      "fingerprint": "6a5c177e3d4f5252a1ee6cd6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2571",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_9b702e91de3147b7": {
-      "id": "msg_9b702e91de3147b7",
-      "source": "Shared with your team",
-      "component": "StatusBadge",
-      "fingerprint": "1fbd98b8717af91f82c1b2ee",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2741",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_1669259be7bf43ad": {
-      "id": "msg_1669259be7bf43ad",
-      "source": "Private",
-      "component": "DocumentDashboard",
-      "fingerprint": "c63eb6720c6e88493897548d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5415",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_f0c75f9a719e4a11": {
-      "id": "msg_f0c75f9a719e4a11",
-      "source": "Private",
-      "component": "FilterTabs",
-      "fingerprint": "c63eb6720c6e88493897548d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3521",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_c8c19842f58a4913": {
-      "id": "msg_c8c19842f58a4913",
-      "source": "Archived",
-      "component": "DocumentDashboard",
-      "fingerprint": "bdb86505f8062d15f152cef7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5474",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_d624fc2394d54c20": {
-      "id": "msg_d624fc2394d54c20",
-      "source": "Archived",
-      "component": "FilterTabs",
-      "fingerprint": "bdb86505f8062d15f152cef7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3549",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_a936c906eb9e428b": {
-      "id": "msg_a936c906eb9e428b",
-      "source": "Storage",
-      "component": "UsageMeter",
-      "fingerprint": "a69c4dece144a46e40d43072",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3088",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_2de61aac8ba34c15": {
-      "id": "msg_2de61aac8ba34c15",
-      "source": "All documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "68a6651b1e9b7aff9e2d6e5c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5295",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_a00e83ce78e5413d": {
-      "id": "msg_a00e83ce78e5413d",
-      "source": "Shared",
-      "component": "DocumentDashboard",
-      "fingerprint": "e3c4b39d6d5013477c98cd58",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5358",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_940ed0e9a0e549af": {
-      "id": "msg_940ed0e9a0e549af",
-      "source": "Filter documents by status",
-      "component": "FilterTabs",
-      "fingerprint": "3517a0f6480c681163a8c67f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3616",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_675ffed9360141ce": {
-      "id": "msg_675ffed9360141ce",
-      "source": "Bulk actions",
-      "component": "BulkBar",
-      "fingerprint": "19f0dd9ac4068a49d3614f21",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4241",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_ab54e93d27fb4df9": {
-      "id": "msg_ab54e93d27fb4df9",
-      "source": "document selected",
-      "component": "BulkBar",
-      "fingerprint": "b6adca9f6259b58e5350b0b2",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4326",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-16T22:44:43.614Z"
-    },
-    "msg_7b1ad7c4842b4a2d": {
-      "id": "msg_7b1ad7c4842b4a2d",
-      "source": "documents selected",
-      "component": "BulkBar",
-      "fingerprint": "1004c0315d7a2c4064818b15",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4351",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-16T22:44:43.614Z"
-    },
-    "msg_2ed607087d244f4a": {
-      "id": "msg_2ed607087d244f4a",
-      "source": "Archive",
-      "component": "BulkBar",
-      "fingerprint": "66f4804ee23ddc092d1bae43",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4449",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_d7110bcf1762423d": {
-      "id": "msg_d7110bcf1762423d",
-      "source": "Permanently delete selected documents",
-      "component": "BulkBar",
-      "fingerprint": "0125b9ddb032e1857c3029d5",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4552",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_8e3a9efbe8de4ec5": {
-      "id": "msg_8e3a9efbe8de4ec5",
-      "source": "Delete",
-      "component": "BulkBar",
-      "fingerprint": "e2d0a54968ead24efc0dffa6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4606",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_6255f0bbfef948c0": {
-      "id": "msg_6255f0bbfef948c0",
-      "source": "Delete",
-      "component": "ConfirmDialog",
-      "fingerprint": "e2d0a54968ead24efc0dffa6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9317",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_9ebc0962faee40bf": {
-      "id": "msg_9ebc0962faee40bf",
-      "source": "Clear selection",
-      "component": "BulkBar",
-      "fingerprint": "cea4d2e010b8fd52bc28a66e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4691",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_6cb44364782f4b2f": {
-      "id": "msg_6cb44364782f4b2f",
-      "source": "Documents you can access",
-      "component": "DocumentTable",
-      "fingerprint": "de0849a9232e64f45e24f604",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5905",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_af9d3e283d174f75": {
-      "id": "msg_af9d3e283d174f75",
-      "source": "Select all visible documents",
-      "component": "DocumentTable",
-      "fingerprint": "0144a463957092b6ba10326c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6178",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_c2b2c136b0f94312": {
-      "id": "msg_c2b2c136b0f94312",
-      "source": "Name",
-      "component": "DocumentTable",
-      "fingerprint": "dcd1d5223f73b3a965c07e3f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6273",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_2e6859b64a4c420e": {
-      "id": "msg_2e6859b64a4c420e",
-      "source": "Pages",
-      "component": "DocumentTable",
-      "fingerprint": "9046da16aea909ba75a36cec",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6345",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_b40f5ee022734182": {
-      "id": "msg_b40f5ee022734182",
-      "source": "Size",
-      "component": "DocumentTable",
-      "fingerprint": "1af851907331c0ed99e7c63b",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6417",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_0bfb6ec032df4534": {
-      "id": "msg_0bfb6ec032df4534",
-      "source": "Last edited",
-      "component": "DocumentTable",
-      "fingerprint": "43c314d49d49336b7ca97945",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6462",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_51abdc34885a4f05": {
-      "id": "msg_51abdc34885a4f05",
-      "source": "Owner",
-      "component": "DocumentTable",
-      "fingerprint": "4b1b8aa3608a26da451ae063",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6542",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_7ba23898519a4da5": {
-      "id": "msg_7ba23898519a4da5",
-      "source": "Status",
-      "component": "DocumentTable",
-      "fingerprint": "920e413c7d411b61ef3e8c63",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6586",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_a7b3ca8bd3b140d1": {
-      "id": "msg_a7b3ca8bd3b140d1",
-      "source": "Select",
-      "component": "<anonymous>",
-      "fingerprint": "2a78025de6aae5e7ff88e5a9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7047",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_669ff1a19eba480a": {
-      "id": "msg_669ff1a19eba480a",
-      "source": "No documents match this filter.",
-      "component": "DocumentTable",
-      "fingerprint": "2bd6739594beb2d3953751ab",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7574",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_7c4a7612a7994026": {
-      "id": "msg_7c4a7612a7994026",
-      "source": "Rename",
-      "component": "RenameForm",
-      "fingerprint": "3064d79a295cefe4b384b8fe",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8093",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_93bb45ff348d4a21": {
-      "id": "msg_93bb45ff348d4a21",
-      "source": "Apply name",
-      "component": "RenameForm",
-      "fingerprint": "7528a48f4f69486f294cfa01",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8511",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_84297d18eea64692": {
-      "id": "msg_84297d18eea64692",
-      "source": "Delete documents",
-      "component": "ConfirmDialog",
-      "fingerprint": "7e7d03036c53b88e6847fdc4",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8876",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_0b44b7bf8ab2483c": {
-      "id": "msg_0b44b7bf8ab2483c",
-      "source": "You are about to delete",
-      "component": "ConfirmDialog",
-      "fingerprint": "ad107264db4ed991f67b0e20",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8945",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_61886b46f9df40c6": {
-      "id": "msg_61886b46f9df40c6",
-      "source": "document",
-      "component": "ConfirmDialog",
-      "fingerprint": "43cc23fa52b87b4cc1d02b5b",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9015",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_350b84f9d0ab46fa": {
-      "id": "msg_350b84f9d0ab46fa",
-      "source": "documents",
-      "component": "ConfirmDialog",
-      "fingerprint": "9b16b44d0e0a5cac4f968bef",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9031",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_049c8d82345e4cce": {
-      "id": "msg_049c8d82345e4cce",
-      "source": "documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "9b16b44d0e0a5cac4f968bef",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13415",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_6b011a18ddf94c99": {
-      "id": "msg_6b011a18ddf94c99",
-      "source": "This action cannot be undone.",
-      "component": "ConfirmDialog",
-      "fingerprint": "3d6a45267218977eeda4988a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9076",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_63e45c36dd574a9a": {
-      "id": "msg_63e45c36dd574a9a",
-      "source": "Cancel",
-      "component": "ConfirmDialog",
-      "fingerprint": "19766ed6ccb2f4a32778eed8",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9205",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_38a1630177f547ea": {
-      "id": "msg_38a1630177f547ea",
-      "source": "Documents archived.",
-      "component": "archiveSelected",
-      "fingerprint": "6b0f9a91a308eddf8b743094",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:12978",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_f90bb5711c384623": {
-      "id": "msg_f90bb5711c384623",
-      "source": "Documents deleted.",
-      "component": "deleteSelected",
-      "fingerprint": "4a066b026c7c53c26fa549f2",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13170",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_d66bb792a33944a7": {
-      "id": "msg_d66bb792a33944a7",
-      "source": "Document library",
-      "component": "DocumentDashboard",
-      "fingerprint": "65718d027007579502f064d9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:447",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_1c48b995ccc84d1d": {
-      "id": "msg_1c48b995ccc84d1d",
-      "source": "Showing",
-      "component": "DocumentDashboard",
-      "fingerprint": "d604310a789a184844490cf4",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13325",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_7e9fec9ea23043d4": {
-      "id": "msg_7e9fec9ea23043d4",
-      "source": "of",
-      "component": "DocumentDashboard",
-      "fingerprint": "28391d3bc64ec15cbb090426",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13374",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_39c17d32da9d4d5c": {
-      "id": "msg_39c17d32da9d4d5c",
-      "source": "selected",
-      "component": "DocumentDashboard",
-      "fingerprint": "d7cbbb688b2e506c022e95ce",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13555",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_6be433ff2046454c": {
-      "id": "msg_6be433ff2046454c",
-      "source": "Tip: press",
-      "component": "DocumentDashboard",
-      "fingerprint": "91adb8b6dd0d1ef2f40b1e9e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13686",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_5dad2b4020b44d77": {
-      "id": "msg_5dad2b4020b44d77",
-      "source": "to dismiss a dialog.",
-      "component": "DocumentDashboard",
-      "fingerprint": "ed85e6f1f8a67533d40123e6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:13800",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_3f0840ff73e546af": {
-      "id": "msg_3f0840ff73e546af",
-      "source": "Search by name or owner",
-      "component": "DocumentDashboard",
-      "fingerprint": "e0845e2ae37b60a26a666828",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14198",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_718f33d251384370": {
-      "id": "msg_718f33d251384370",
-      "source": "Search documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "62706a35ade9fe429268fc51",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4979",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_1fce6dae7044452c": {
-      "id": "msg_1fce6dae7044452c",
-      "source": "Recent activity",
-      "component": "DocumentDashboard",
-      "fingerprint": "6cb44b56336af70b050861cb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14335",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_394f9f2778b0418b": {
-      "id": "msg_394f9f2778b0418b",
-      "source": "shared",
-      "component": "DocumentDashboard",
-      "fingerprint": "a4d26868017c0ccffe2efe50",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14449",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_381b7700bc1f42a3": {
-      "id": "msg_381b7700bc1f42a3",
-      "source": "with the design team",
-      "component": "DocumentDashboard",
-      "fingerprint": "85c8a9e0c5096065e3eb3c83",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14497",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_7102b5884ca646d0": {
-      "id": "msg_7102b5884ca646d0",
-      "source": "published",
-      "component": "DocumentDashboard",
-      "fingerprint": "b04e5ea201bb040cae53f693",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14608",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_cd058db9a0254d8c": {
-      "id": "msg_cd058db9a0254d8c",
-      "source": "Incident postmortem #482",
-      "component": "DocumentDashboard",
-      "fingerprint": "d7861da18fded26727f70104",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14647",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_5cb83f2a737b435b": {
-      "id": "msg_5cb83f2a737b435b",
-      "source": "Auto-archive ran at 02:00",
-      "component": "DocumentDashboard",
-      "fingerprint": "7444865367065aee94e33d39",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14738",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_92673cac00bb4e9e": {
-      "id": "msg_92673cac00bb4e9e",
-      "source": "3 files moved",
-      "component": "DocumentDashboard",
-      "fingerprint": "bda728e05d1aef9b482e1610",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:14783",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_4081b1dc279e4182": {
-      "id": "msg_4081b1dc279e4182",
-      "source": "Documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "b4e929d8bcfe04189801a8ed",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5557",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_90696104bf7b404a": {
-      "id": "msg_90696104bf7b404a",
-      "source": "Changes saved successfully.",
-      "component": "<anonymous>",
-      "fingerprint": "35c09389e41adb1bb2bf8991",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:15809",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T22:41:02.954Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_f3782aceddcd4197": {
-      "id": "msg_f3782aceddcd4197",
-      "source": "{count, plural, one {# document selected} other {# documents selected}}",
-      "component": "BulkBar",
-      "fingerprint": "05b678c14b9a1e1ba5ff97f7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4295",
-      "status": "orphaned",
-      "firstSeen": "2026-11-16T23:04:08.142Z",
-      "lastSeen": "2026-11-17T21:21:35.836Z"
-    },
-    "msg_8d22d2108e354f44": {
-      "id": "msg_8d22d2108e354f44",
-      "source": "{status, select, shared {Shared} private {Private} archived {Archived} other {Unknown}}",
-      "component": "statusLabel",
-      "fingerprint": "8fc4ad1b38fa7ae0d527ab92",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1051",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:35:25.087Z"
-    },
-    "msg_2be0f00c7bc9407e": {
-      "id": "msg_2be0f00c7bc9407e",
-      "source": "Welcome back, {name}.",
-      "component": "DocumentDashboard",
-      "fingerprint": "87bc4ebbdeee20d071f2ea56",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:487",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_e248a0412dd64f28": {
-      "id": "msg_e248a0412dd64f28",
-      "source": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e153852b8c94312083b404f6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:556",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_ce5235fb244f44a4": {
-      "id": "msg_ce5235fb244f44a4",
-      "source": "Search documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "62706a35ade9fe429268fc51",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5024",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_051b0cfa355d4881": {
-      "id": "msg_051b0cfa355d4881",
-      "source": "Filter by status",
-      "component": "DocumentDashboard",
-      "fingerprint": "94d5a7703a8250de4c9e24b2",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5231",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_37e51557c5f84cdb": {
-      "id": "msg_37e51557c5f84cdb",
-      "source": "{count, plural, one {One page} other {# pages}}",
-      "component": "<anonymous>",
-      "fingerprint": "11b2ea5159f73309af39b4d2",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5899",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_d342d119c7784466": {
-      "id": "msg_d342d119c7784466",
-      "source": "Updated {date}",
-      "component": "<anonymous>",
-      "fingerprint": "328a4d4c6ba2b1acfac3808c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6074",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_4ba18ef798b84bd0": {
-      "id": "msg_4ba18ef798b84bd0",
-      "source": "{name} is a {role}.",
-      "component": "<anonymous>",
-      "fingerprint": "448ac026fbce17683b1c2f84",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6204",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_0807782a33814c2e": {
-      "id": "msg_0807782a33814c2e",
-      "source": "{role, select, designer {Designer} writer {Writer} reviewer {Reviewer} other {Contributor}}",
-      "component": "<anonymous>",
-      "fingerprint": "a2b0c0794883e262ca5497e3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6291",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_b348736608d842a7": {
-      "id": "msg_b348736608d842a7",
-      "source": "No documents match {filter}.",
-      "component": "DocumentDashboard",
-      "fingerprint": "72995ef8206ac56dd8465101",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6649",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:31:54.184Z"
-    },
-    "msg_390c18dab8ba418e": {
-      "id": "msg_390c18dab8ba418e",
-      "source": "your search",
-      "component": "emptyFilterLabel",
-      "fingerprint": "d83a2f09ce0513231eb8d395",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1255",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:07.050Z",
-      "lastSeen": "2026-11-17T21:35:25.087Z"
-    },
-    "msg_084c06f7cbb14ce4": {
-      "id": "msg_084c06f7cbb14ce4",
-      "source": "this filter",
-      "component": "emptyFilterLabel",
-      "fingerprint": "4e280e1b224667e6b2021710",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1304",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:23:15.251Z",
-      "lastSeen": "2026-11-17T21:35:25.087Z"
-    },
-    "msg_8ec17a6d9ef04ee5": {
-      "id": "msg_8ec17a6d9ef04ee5",
-      "source": "Hello",
-      "component": "DocumentDashboard",
-      "fingerprint": "185f8db32271fe25f561a6fc",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:825",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:26:52.043Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_3140a47f382a469a": {
-      "id": "msg_3140a47f382a469a",
-      "source": "Hello {name}",
-      "component": "DocumentDashboard",
-      "fingerprint": "833583c574131c1ec81313e9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:858",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:26:52.043Z",
-      "lastSeen": "2026-11-17T21:36:46.556Z"
-    },
-    "msg_f05ca28a6b194273": {
-      "id": "msg_f05ca28a6b194273",
-      "source": "Welcome back, {firstName} {lastName}",
-      "component": "DocumentDashboard",
-      "fingerprint": "c88c7853cd9d368c41deb52d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:916",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:26:52.043Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_fd3aa8a9aaa64f5b": {
-      "id": "msg_fd3aa8a9aaa64f5b",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "f65216b3ac8c5249886b8526",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1045",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:26:52.043Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_452645107e774d05": {
-      "id": "msg_452645107e774d05",
-      "source": "Total: {amount} {currency}",
-      "component": "DocumentDashboard",
-      "fingerprint": "f610a0070138845a493e4f65",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1155",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:26:52.043Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_0cfcdf02a7e24850": {
-      "id": "msg_0cfcdf02a7e24850",
-      "source": "Last updated: {date}",
-      "component": "DocumentDashboard",
-      "fingerprint": "9f8c977a7c7ab57aa5f120c4",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1268",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:26:52.043Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_8b8b8bb64af3426e": {
-      "id": "msg_8b8b8bb64af3426e",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "f65216b3ac8c5249886b8526",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1100",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:28:19.732Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_5cf5c2ad6c78434b": {
-      "id": "msg_5cf5c2ad6c78434b",
-      "source": "{count, plural, =0 {No documents} one {# document} other {# documents}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e153852b8c94312083b404f6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1496",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:29:00.365Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_1147fe80d0954b43": {
-      "id": "msg_1147fe80d0954b43",
-      "source": "{count, plural, one {# document} other {# documents}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "7c870eab9eb7312f57aed9c9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1369",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:29:00.365Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_883cf6d60131465a": {
-      "id": "msg_883cf6d60131465a",
-      "source": "{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e3b0b650544c31e3236f5bf3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1650",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:29:00.365Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_effd9d086c714085": {
-      "id": "msg_effd9d086c714085",
-      "source": "{count, plural, one {# file} other {# files}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e60f4a2107671f011fe859e6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1794",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:29:00.365Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_5108aff1268540dc": {
-      "id": "msg_5108aff1268540dc",
-      "source": "{count, plural, offset:1 =0 {Nobody} =1 {You alone} one {You and one other} other {You and # others}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "32b91b39b5465b64ffad5e53",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1908",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:29:00.365Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_3e2018ff01274907": {
-      "id": "msg_3e2018ff01274907",
-      "source": "{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "65b9b87cc9fab149aac78cfe",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2075",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:29:00.365Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_7f41e9632cb14372": {
-      "id": "msg_7f41e9632cb14372",
-      "source": "{gender, select, male {He} female {She} other {They}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "0c23d6c3936897d7e273683e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2194",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:31:38.847Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_1edb003811084b71": {
-      "id": "msg_1edb003811084b71",
-      "source": "{status, select, online {Online} offline {Offline} busy {Busy} other {Unknown}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "6f8f1a8dd3fb71d360ee17d7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2287",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:31:38.847Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_c2571837a9de47a1": {
-      "id": "msg_c2571837a9de47a1",
-      "source": "{role, select, admin {Administrator} editor {Editor} viewer {Viewer} other {User}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e6749106d6eaad266d57ebfd",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2406",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:31:38.847Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_f0fe03e30ee04b6f": {
-      "id": "msg_f0fe03e30ee04b6f",
-      "source": "{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "a06ec8a651ea5140646df917",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2526",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:31:38.847Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_59280507184b42a9": {
-      "id": "msg_59280507184b42a9",
-      "source": "{theme, select, dark {Dark mode} light {Light mode} other {System default}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "cb9ae02a2151edb19136a099",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2650",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:31:38.847Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_fcd58af3f08f47d4": {
-      "id": "msg_fcd58af3f08f47d4",
-      "source": "{gender, select, male {He has {count, plural, one {# file} other {# files}}} female {She has {count, plural, one {# file} other {# files}}} other {They have {count, plural, one {# file} other {# files}}}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "6d441ec76d7e076ed9632387",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2797",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:32:54.239Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_6560fe5609974f5e": {
-      "id": "msg_6560fe5609974f5e",
-      "source": "{count, plural, one {{gender, select, male {He has one file} female {She has one file} other {They have one file}}} other {{gender, select, male {He has # files} female {She has # files} other {They have # files}}}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "8621913b25229d83b4288ac6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3118",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:32:54.239Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_62aea41c6aad4e08": {
-      "id": "msg_62aea41c6aad4e08",
-      "source": "{user} uploaded {count, plural, one {# file} other {# files}} to {folder}",
-      "component": "DocumentDashboard",
-      "fingerprint": "5f3219c59bb1ee777ae1b773",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3416",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:08.882Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_3c50772163f94197": {
-      "id": "msg_3c50772163f94197",
-      "source": "{name} has {unread, plural, =0 {no unread messages} one {# unread message} other {# unread messages}} and {total} total messages",
-      "component": "DocumentDashboard",
-      "fingerprint": "d8e46355e11d98c175cf0c19",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3599",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:08.882Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_fc9bd420c37644ba": {
-      "id": "msg_fc9bd420c37644ba",
-      "source": "{count, plural, one {# item costs {price} EUR} other {# items cost {price} EUR each}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "8504471030b41bb69bdd6245",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3828",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:08.882Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_894ee001cb244898": {
-      "id": "msg_894ee001cb244898",
-      "source": "Balance: {amount, number}",
-      "component": "DocumentDashboard",
-      "fingerprint": "765434d19a6e4cfcf72bdc7c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3999",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:20.054Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_328f238c866c4937": {
-      "id": "msg_328f238c866c4937",
-      "source": "Balance: {amount, number, integer}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e0fbc9347fb0ec0cff5abf1e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4076",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:20.054Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_48808f6325dd4e9c": {
-      "id": "msg_48808f6325dd4e9c",
-      "source": "Discount: {discount, number, percent}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e9257acaea58634510f7b72d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4162",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:20.054Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_58e1a5380d29418b": {
-      "id": "msg_58e1a5380d29418b",
-      "source": "Price: {price, number, currency}",
-      "component": "DocumentDashboard",
-      "fingerprint": "07381fa5f6747eeba9d5c30f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4247",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:20.054Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_8784841c74aa461c": {
-      "id": "msg_8784841c74aa461c",
-      "source": "Price: {price, number, EUR}",
-      "component": "DocumentDashboard",
-      "fingerprint": "bae1b213fd3961e8ce6da90b",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4326",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:20.054Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_6c0696e1b6de4752": {
-      "id": "msg_6c0696e1b6de4752",
-      "source": "Scientific: {value, number, scientific}",
-      "component": "DocumentDashboard",
-      "fingerprint": "4f972970579945474a19cd39",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4400",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:20.054Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_e120b535542b41af": {
-      "id": "msg_e120b535542b41af",
-      "source": "Today is {date, date}",
-      "component": "DocumentDashboard",
-      "fingerprint": "0e4cab3aae363e90cf301bdc",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4500",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_23b20207f9f54142": {
-      "id": "msg_23b20207f9f54142",
-      "source": "Date: {date, date, short}",
-      "component": "DocumentDashboard",
-      "fingerprint": "bd894dda58ee458535e07580",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4571",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_7bc71924a2ed4448": {
-      "id": "msg_7bc71924a2ed4448",
-      "source": "Date: {date, date, medium}",
-      "component": "DocumentDashboard",
-      "fingerprint": "a7db1f01e109cd026d204430",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4646",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_b58dc122e3ce4b6b": {
-      "id": "msg_b58dc122e3ce4b6b",
-      "source": "Date: {date, date, long}",
-      "component": "DocumentDashboard",
-      "fingerprint": "94eefd0bbee944c75b87ff2e",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4722",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_5215d8dd7a1f4419": {
-      "id": "msg_5215d8dd7a1f4419",
-      "source": "Date: {date, date, full}",
-      "component": "DocumentDashboard",
-      "fingerprint": "cb5e4aa1bf6becbd7b27f76b",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4796",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_507fc15285b24785": {
-      "id": "msg_507fc15285b24785",
-      "source": "Time: {time, time, short}",
-      "component": "DocumentDashboard",
-      "fingerprint": "42339494e80f44af37dfd17a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4870",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_37cd29adda2447f8": {
-      "id": "msg_37cd29adda2447f8",
-      "source": "Updated {date, date, short} at {time, time, short}",
-      "component": "DocumentDashboard",
-      "fingerprint": "bb709c7cb241f453f4cd2fe0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4945",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:32.426Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_e2ed64f0241643f0": {
-      "id": "msg_e2ed64f0241643f0",
-      "source": "{count, plural, one {# second ago} other {# seconds ago}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "893dd30da957b125d9c979b2",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5094",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:43.827Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_d7df127d62ba460a": {
-      "id": "msg_d7df127d62ba460a",
-      "source": "{count, plural, one {# minute remaining} other {# minutes remaining}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "2005fc2d76cd7e7c551beff6",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5190",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:43.827Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_9a2b26a55b5b453f": {
-      "id": "msg_9a2b26a55b5b453f",
-      "source": "{count, plural, =0 {Never} one {Once} other {# times}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "8ebdced48ba19fec4cd1b576",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5298",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:43.827Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_a0321e53dbd94da3": {
-      "id": "msg_a0321e53dbd94da3",
-      "source": "{count, plural, one {# person online} other {# people online}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "f1e196b17e1aa55d9cd7aa91",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5391",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:43.827Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_5df2711ddb3e48bb": {
-      "id": "msg_5df2711ddb3e48bb",
-      "source": "{count, plural, one {# result found} other {# results found}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "1f6c1117aefcceec8fbd74dd",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5492",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:43.827Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_16d79563453842b9": {
-      "id": "msg_16d79563453842b9",
-      "source": "This is '{not a variable}'",
-      "component": "DocumentDashboard",
-      "fingerprint": "37fd3eb649b6256e16e75429",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5624",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:57.957Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_0b80d6a86b974495": {
-      "id": "msg_0b80d6a86b974495",
-      "source": "You're viewing {count} documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "75d86110e0ca82a249168630",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5701",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:57.957Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_4cab7fdd51c1422d": {
-      "id": "msg_4cab7fdd51c1422d",
-      "source": "Your balance is '{' {amount} '}'",
-      "component": "DocumentDashboard",
-      "fingerprint": "5bc9b29edd484b61e68d7c42",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5802",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:57.957Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_3548e48626ce4b25": {
-      "id": "msg_3548e48626ce4b25",
-      "source": "There are {count, plural, one {# file} other {# files}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "bc04662da011822fda64ebe4",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5900",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:33:57.957Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_8a175f1f0d314beb": {
-      "id": "msg_8a175f1f0d314beb",
-      "source": "{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "07776a947cada4505928c25b",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6000",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:34:10.656Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_f1cc894230354487": {
-      "id": "msg_f1cc894230354487",
-      "source": "{name} {gender, select, male {uploaded} female {uploaded} other {uploaded}} {count, plural, one {# photo} other {# photos}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "fa2927b016e6510df009e877",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6137",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:34:16.923Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_ac02a78c3b254a40": {
-      "id": "msg_ac02a78c3b254a40",
-      "source": "{count, plural, =0 {You have no notifications} one {You have # notification} other {You have # notifications}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "5ed47c59fc710b433a49c051",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6366",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:34:24.163Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_a17de7cd9aae4baf": {
-      "id": "msg_a17de7cd9aae4baf",
-      "source": "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "da903428cfdf565e19d941b1",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6515",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:34:34.679Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_55ae2160cc084138": {
-      "id": "msg_55ae2160cc084138",
-      "source": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
-      "component": "DocumentDashboard",
-      "fingerprint": "b4913bb21fef87386b07f0f9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6741",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:34:45.158Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_8b5b252de7854661": {
-      "id": "msg_8b5b252de7854661",
-      "source": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e662122b757f8a27ea44216d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6928",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:34:54.220Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_6c6f11b4d6b64bd6": {
-      "id": "msg_6c6f11b4d6b64bd6",
-      "source": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "31d0ae66bbdffa8f97ca27fb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7142",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:35:07.011Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_8276369138d947d9": {
-      "id": "msg_8276369138d947d9",
-      "source": "Hello <strong>{name}</strong>",
-      "component": "DocumentDashboard",
-      "fingerprint": "a9f82026f975b904c6aab674",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:858",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:37:40.868Z",
-      "lastSeen": "2026-11-17T21:37:40.868Z"
-    },
-    "msg_2f67eed9cbca48b9": {
-      "id": "msg_2f67eed9cbca48b9",
-      "source": "Hello {name}",
-      "component": "DocumentDashboard",
-      "fingerprint": "833583c574131c1ec81313e9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:858",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T21:37:51.096Z",
-      "lastSeen": "2026-11-17T21:39:33.073Z"
-    },
-    "msg_a806b7cd62474626": {
-      "id": "msg_a806b7cd62474626",
-      "source": "Language",
-      "component": "App",
-      "fingerprint": "e7194410a1a1751e3682e675",
+      "fingerprint": "07d063673ec09451f1364e37",
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/main.tsx:667",
       "status": "active",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_9b36fc14490f4b59": {
-      "id": "msg_9b36fc14490f4b59",
+    "msg_33924be409244c36": {
+      "id": "msg_33924be409244c36",
       "source": "Hello",
       "component": "DocumentDashboard",
-      "fingerprint": "ba6c6c5568857655c3b8c928",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1669",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_4ee4eef8d3554ed3": {
-      "id": "msg_4ee4eef8d3554ed3",
-      "source": "Hello {name}",
-      "component": "DocumentDashboard",
-      "fingerprint": "f150682176301cee36300717",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1703",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_137afc9474684b5c": {
-      "id": "msg_137afc9474684b5c",
-      "source": "Welcome back, {firstName} {lastName}",
-      "component": "DocumentDashboard",
-      "fingerprint": "857e49a49512b1e1f0a99f22",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1775",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_01e3d02812394fa2": {
-      "id": "msg_01e3d02812394fa2",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1974",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_f236a0b1147e40c8": {
-      "id": "msg_f236a0b1147e40c8",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2039",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_4f631337ebc2403b": {
-      "id": "msg_4f631337ebc2403b",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2096",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_89ee10093e734443": {
-      "id": "msg_89ee10093e734443",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2153",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_fa05519d4dc6414a": {
-      "id": "msg_fa05519d4dc6414a",
-      "source": "{count} items",
-      "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2219",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:06:37.781Z"
-    },
-    "msg_71a15cd73f5840bb": {
-      "id": "msg_71a15cd73f5840bb",
-      "source": "{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "8c5e72f9503080b88fb362a0",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2261",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_6856037aed754b7d": {
-      "id": "msg_6856037aed754b7d",
-      "source": "{count, plural, offset:1 =0 {Nobody} =1 {Only you} one {You and one other} other {You and # others}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "808d260a1cc6c2e57eb156da",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2386",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_ff4f80ae7d204947": {
-      "id": "msg_ff4f80ae7d204947",
-      "source": "{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "93266411cca16e205460a443",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2567",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_88aa11c5f195420f": {
-      "id": "msg_88aa11c5f195420f",
-      "source": "{gender, select, male {He} female {She} other {They}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "001c670aff2b3125f3786416",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2754",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_3b1b72a6cbad4f9a": {
-      "id": "msg_3b1b72a6cbad4f9a",
-      "source": "{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "8ccd0330aaa61597311ff6fd",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3479",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_abbf6a857052487d": {
-      "id": "msg_abbf6a857052487d",
-      "source": "{theme, select, dark {Dark mode} light {Light mode} other {System default}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "d5f133407dbfed50f3b11b8a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3616",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_c8fd4e90be4f4de0": {
-      "id": "msg_c8fd4e90be4f4de0",
-      "source": "{gender, select, male {He has {count, plural, one {# file} other {# files}}} female {She has {count, plural, one {# file} other {# files}}} other {They have {count, plural, one {# file} other {# files}}}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "5f9ac8901016d47da2f11b9a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3823",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_07915af4bd534f08": {
-      "id": "msg_07915af4bd534f08",
-      "source": "{count, plural, one {{gender, select, male {He has one file} female {She has one file} other {They have one file}}} other {{gender, select, male {He has # files} female {She has # files} other {They have # files}}}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e5e25a8e5c15440c3d271e6d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4244",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_fc48a196f01f455c": {
-      "id": "msg_fc48a196f01f455c",
-      "source": "{user} uploaded {count, plural, one {# file} other {# files}} to {folder}",
-      "component": "DocumentDashboard",
-      "fingerprint": "708413870cc2a36913b78f56",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4632",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_78b0dc1d88714451": {
-      "id": "msg_78b0dc1d88714451",
-      "source": "{name} has {unread, plural, =0 {no unread messages} one {# unread message} other {# unread messages}} and {total} total messages",
-      "component": "DocumentDashboard",
-      "fingerprint": "81387bbdd9527f5cd0bd1e77",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4862",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_2f0e352e20fe430b": {
-      "id": "msg_2f0e352e20fe430b",
-      "source": "{count, plural, one {# item costs {price} EUR} other {# items cost {price} EUR each}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "03c7aa8349178c0df84534f3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5189",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_2511fccf21d544a1": {
-      "id": "msg_2511fccf21d544a1",
-      "source": "Balance: {amount, number}",
-      "component": "DocumentDashboard",
-      "fingerprint": "9179366d277bff1d99c49ef9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5424",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_2b4d2e58840942a6": {
-      "id": "msg_2b4d2e58840942a6",
-      "source": "Balance: {amount, number, integer}",
-      "component": "DocumentDashboard",
-      "fingerprint": "7f0664bd3085fb2d199c383d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5503",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_280d6e06899e46fe": {
-      "id": "msg_280d6e06899e46fe",
-      "source": "Discount: {discount, number, percent}",
-      "component": "DocumentDashboard",
-      "fingerprint": "de8317dae30b8613a5647ed1",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5591",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_2586f05698d34d4e": {
-      "id": "msg_2586f05698d34d4e",
-      "source": "Price: {price, number, currency}",
-      "component": "DocumentDashboard",
-      "fingerprint": "91c3ce816aafd3d34d671260",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5678",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_2eeda1d67a4a447f": {
-      "id": "msg_2eeda1d67a4a447f",
-      "source": "Price: {price, number, EUR}",
-      "component": "DocumentDashboard",
-      "fingerprint": "411391f6cc6e08aaeacdb048",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5759",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_ac47a43b9d1e44c3": {
-      "id": "msg_ac47a43b9d1e44c3",
-      "source": "Scientific: {value, number, scientific}",
-      "component": "DocumentDashboard",
-      "fingerprint": "4a3afc254a2c455ca5704260",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5911",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_ca1935a33a464862": {
-      "id": "msg_ca1935a33a464862",
-      "source": "Today is {date, date}",
-      "component": "DocumentDashboard",
-      "fingerprint": "663ae80260c199af79cbba6a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6040",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_dbf5648ad4c34bb0": {
-      "id": "msg_dbf5648ad4c34bb0",
-      "source": "Date: {date, date, short}",
-      "component": "DocumentDashboard",
-      "fingerprint": "c9e1021ceab14321bb29c0cb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6113",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_fd85c6b6bc194ea0": {
-      "id": "msg_fd85c6b6bc194ea0",
-      "source": "Date: {date, date, medium}",
-      "component": "DocumentDashboard",
-      "fingerprint": "bb1d630df6be43635fd887f7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6190",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_fbb1204d2d174e1f": {
-      "id": "msg_fbb1204d2d174e1f",
-      "source": "Date: {date, date, long}",
-      "component": "DocumentDashboard",
-      "fingerprint": "f89af8304f5b896c913f6103",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6268",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_8ae6fd3942f14023": {
-      "id": "msg_8ae6fd3942f14023",
-      "source": "Date: {date, date, full}",
-      "component": "DocumentDashboard",
-      "fingerprint": "20acd90a2038fb7a74da7286",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6344",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_bf80b456d1b4479a": {
-      "id": "msg_bf80b456d1b4479a",
-      "source": "Time: {time, time, short}",
-      "component": "DocumentDashboard",
-      "fingerprint": "3786dd036564789f2e035838",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6420",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_f93bd1f33d524400": {
-      "id": "msg_f93bd1f33d524400",
-      "source": "Updated {date, date, short} at {time, time, short}",
-      "component": "DocumentDashboard",
-      "fingerprint": "1a84d8f69316585b2902b5e8",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6510",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_803164bce7574237": {
-      "id": "msg_803164bce7574237",
-      "source": "{count, plural, one {# second ago} other {# seconds ago}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "d77f03405782deefa9ff979c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6723",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_0f0bc3a9d5c64034": {
-      "id": "msg_0f0bc3a9d5c64034",
-      "source": "{count, plural, one {# minute remaining} other {# minutes remaining}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "95be92b0e4d9205eec172ada",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7010",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_eaac2c6b339049af": {
-      "id": "msg_eaac2c6b339049af",
-      "source": "{count, plural, =0 {Never} one {Once} other {# times}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "baac5f55a4cb9c975dd4a70c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7120",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_c3817af32b824b9e": {
-      "id": "msg_c3817af32b824b9e",
-      "source": "{count, plural, one {# person online} other {# people online}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "67da043ecc35b49ed3c18992",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7215",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_b4763f6e0cc44e4a": {
-      "id": "msg_b4763f6e0cc44e4a",
-      "source": "{count, plural, one {# result found} other {# results found}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "773d564ef1e7e8e0477fae25",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7318",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_6be1f5988f4c4233": {
-      "id": "msg_6be1f5988f4c4233",
-      "source": "This is '{not a variable}'",
-      "component": "DocumentDashboard",
-      "fingerprint": "d3fa94d671b5f0124137c9cd",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7461",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_a331d93ad37747a0": {
-      "id": "msg_a331d93ad37747a0",
-      "source": "You're viewing {count} documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "543e10b676791d582fefa244",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7232",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T21:57:08.203Z"
-    },
-    "msg_d13b18c373004394": {
-      "id": "msg_d13b18c373004394",
-      "source": "Your balance is '{' {amount} '}'",
-      "component": "DocumentDashboard",
-      "fingerprint": "6b22e1974cefae135cc6829c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7589",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_5ac5bf8e3be2495f": {
-      "id": "msg_5ac5bf8e3be2495f",
-      "source": "There are {count, plural, one {# file} other {# files}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "537f370287962bf445abcc03",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7383",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:02:52.501Z"
-    },
-    "msg_e743638b695d4bdd": {
-      "id": "msg_e743638b695d4bdd",
-      "source": "{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "2699eb559a3ce163526a4d82",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7784",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_339a2d8976fe49c5": {
-      "id": "msg_339a2d8976fe49c5",
-      "source": "{name} {gender, select, male {uploaded} female {uploaded} other {uploaded}} {count, plural, one {# photo} other {# photos}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "07db228fae77885b686b33df",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7974",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_cb2bd9c0753a4580": {
-      "id": "msg_cb2bd9c0753a4580",
-      "source": "{count, plural, =0 {You have no notifications} one {You have # notification} other {You have # notifications}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "4eb68814d5365d574bf9f7e3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8302",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_e444f695393e425d": {
-      "id": "msg_e444f695393e425d",
-      "source": "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "f31bcd99b783d25d759635ea",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8520",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_ec3cc0f633d64632": {
-      "id": "msg_ec3cc0f633d64632",
-      "source": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
-      "component": "DocumentDashboard",
-      "fingerprint": "d891e1a198e0b6e1a23af62a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8837",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_5dfe8b0f91274195": {
-      "id": "msg_5dfe8b0f91274195",
-      "source": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e9744644d20c17305b2f0c19",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9072",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_b7f64afff9c142b6": {
-      "id": "msg_b7f64afff9c142b6",
-      "source": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "dd55720948fbeaf3e936706f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9369",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:35.542Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_e0f90513e13045cd": {
-      "id": "msg_e0f90513e13045cd",
-      "source": "Price: {price, number, EUR}",
-      "component": "DocumentDashboard",
-      "fingerprint": "411391f6cc6e08aaeacdb048",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5550",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:50:52.769Z",
-      "lastSeen": "2026-11-17T22:50:54.405Z"
-    },
-    "msg_a703deba5f644804": {
-      "id": "msg_a703deba5f644804",
-      "source": "Price: {price, number, GBP}",
-      "component": "DocumentDashboard",
-      "fingerprint": "92e1743d4dd602898195ed8f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5835",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:51:20.916Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_ec3a4bff0cc24457": {
-      "id": "msg_ec3a4bff0cc24457",
-      "source": "{count} seconds ago",
-      "component": "DocumentDashboard",
-      "fingerprint": "6c14746f99e8361f7432f59d",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6820",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:58:56.172Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_ecfbaed928ea4211": {
-      "id": "msg_ecfbaed928ea4211",
-      "source": "{count} seconds ago",
-      "component": "DocumentDashboard",
-      "fingerprint": "6c14746f99e8361f7432f59d",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6883",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:59:21.192Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_be8c391b4251405e": {
-      "id": "msg_be8c391b4251405e",
-      "source": "{count} seconds ago",
-      "component": "DocumentDashboard",
-      "fingerprint": "6c14746f99e8361f7432f59d",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6946",
-      "status": "orphaned",
-      "firstSeen": "2026-11-17T22:59:21.192Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_43e6f3f11bf145f3": {
-      "id": "msg_43e6f3f11bf145f3",
-      "source": "You're viewing {count} documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "90813d7c9a8d43ccb6794256",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7516",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T21:57:31.646Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_a31b864297c148b0": {
-      "id": "msg_a31b864297c148b0",
-      "source": "There are {count, plural, one {# file} other {# files}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "537f370287962bf445abcc03",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7478",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T21:57:51.796Z",
-      "lastSeen": "2026-11-18T21:57:51.796Z"
-    },
-    "msg_2e58f9e6359a4679": {
-      "id": "msg_2e58f9e6359a4679",
-      "source": "There are {count} files",
-      "component": "DocumentDashboard",
-      "fingerprint": "ecf38fdccdac596d198a7e40",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7478",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T21:58:28.450Z",
-      "lastSeen": "2026-11-18T21:58:28.450Z"
-    },
-    "msg_b0bdcf1138c74299": {
-      "id": "msg_b0bdcf1138c74299",
-      "source": "There is {count} file",
-      "component": "DocumentDashboard",
-      "fingerprint": "a8d9824441d1a75805a0a804",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7667",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T21:58:40.196Z",
-      "lastSeen": "2026-11-18T22:08:36.111Z"
-    },
-    "msg_5683f9d5487649fc": {
-      "id": "msg_5683f9d5487649fc",
-      "source": "There is {count} file",
-      "component": "DocumentDashboard",
-      "fingerprint": "a8d9824441d1a75805a0a804",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7543",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T22:02:52.501Z",
-      "lastSeen": "2026-11-18T22:02:52.501Z"
-    },
-    "msg_390b11e5532741ae": {
-      "id": "msg_390b11e5532741ae",
-      "source": "There is {count} file",
-      "component": "DocumentDashboard",
-      "fingerprint": "a8d9824441d1a75805a0a804",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7608",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T22:02:52.501Z",
-      "lastSeen": "2026-11-18T22:02:52.501Z"
-    },
-    "msg_c059259118ef4f16": {
-      "id": "msg_c059259118ef4f16",
-      "source": "There is {count} file",
-      "component": "DocumentDashboard",
-      "fingerprint": "a8d9824441d1a75805a0a804",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7673",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T22:02:52.501Z",
-      "lastSeen": "2026-11-18T22:02:52.501Z"
-    },
-    "msg_60f52cc84b1f4841": {
-      "id": "msg_60f52cc84b1f4841",
-      "source": "Hello",
-      "component": "DocumentDashboard",
-      "fingerprint": "ba6c6c5568857655c3b8c928",
+      "fingerprint": "db840709dd6e9017c17423f5",
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1669",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_7f1cc9f1116f4e08": {
-      "id": "msg_7f1cc9f1116f4e08",
+    "msg_0cbe38558d49465c": {
+      "id": "msg_0cbe38558d49465c",
       "source": "Hello {name}",
       "component": "DocumentDashboard",
-      "fingerprint": "f150682176301cee36300717",
+      "fingerprint": "a0edd07f68b11dbac2ba3da6",
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1703",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_c4792c4e06164d93": {
-      "id": "msg_c4792c4e06164d93",
+    "msg_f001e5623252420f": {
+      "id": "msg_f001e5623252420f",
       "source": "Welcome back, {firstName} {lastName}",
       "component": "DocumentDashboard",
-      "fingerprint": "857e49a49512b1e1f0a99f22",
+      "fingerprint": "c09c9958e7bf1061064b999b",
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1775",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_fd98011ca9c9484d": {
-      "id": "msg_fd98011ca9c9484d",
+    "msg_ea56006d2c1b4f58": {
+      "id": "msg_ea56006d2c1b4f58",
       "source": "{count} items",
       "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
+      "fingerprint": "f5c0ffe545d23b0dc53ea73b",
       "autoPlural": true,
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:1974",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_f355c9c339cf4d7f": {
-      "id": "msg_f355c9c339cf4d7f",
+    "msg_e324e110304842db": {
+      "id": "msg_e324e110304842db",
       "source": "{count} items",
       "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
+      "fingerprint": "f5c0ffe545d23b0dc53ea73b",
       "autoPlural": true,
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2039",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_1e9d3d90bda64b84": {
-      "id": "msg_1e9d3d90bda64b84",
+    "msg_1d54c67862fb41a5": {
+      "id": "msg_1d54c67862fb41a5",
       "source": "{count} items",
       "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
+      "fingerprint": "f5c0ffe545d23b0dc53ea73b",
       "autoPlural": true,
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2096",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_dd639acdb46b4b8d": {
-      "id": "msg_dd639acdb46b4b8d",
+    "msg_e3ab96b126454dff": {
+      "id": "msg_e3ab96b126454dff",
       "source": "{count} items",
       "component": "DocumentDashboard",
-      "fingerprint": "823d01fe6874f1b2af398f04",
+      "fingerprint": "f5c0ffe545d23b0dc53ea73b",
       "autoPlural": true,
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2153",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_42b620f022aa437a": {
-      "id": "msg_42b620f022aa437a",
+    "msg_3162b164a8fe4f9b": {
+      "id": "msg_3162b164a8fe4f9b",
       "source": "{count, plural, =0 {Empty} =1 {Just one} =2 {A pair} other {# items}}",
       "component": "DocumentDashboard",
-      "fingerprint": "8c5e72f9503080b88fb362a0",
+      "fingerprint": "9aa66d497104168bf82f8b20",
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2261",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_6cfe6c7f70c44757": {
-      "id": "msg_6cfe6c7f70c44757",
+    "msg_058a72f888294d22": {
+      "id": "msg_058a72f888294d22",
       "source": "{count, plural, offset:1 =0 {Nobody} =1 {Only you} one {You and one other} other {You and # others}}",
       "component": "DocumentDashboard",
-      "fingerprint": "808d260a1cc6c2e57eb156da",
+      "fingerprint": "24e643a7bb99e1b20fd780ea",
       "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2383",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_e810e1f2a4574115": {
-      "id": "msg_e810e1f2a4574115",
+    "msg_8a062086e9f64f14": {
+      "id": "msg_8a062086e9f64f14",
       "source": "{position, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
       "component": "DocumentDashboard",
-      "fingerprint": "93266411cca16e205460a443",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2561",
+      "fingerprint": "e70f2183dc8dcf79f715fcf4",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2574",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_99ea1a0b413c4fbd": {
-      "id": "msg_99ea1a0b413c4fbd",
+    "msg_be563cd0eec34cb1": {
+      "id": "msg_be563cd0eec34cb1",
       "source": "{gender, select, male {He} female {She} other {They}}",
       "component": "DocumentDashboard",
-      "fingerprint": "001c670aff2b3125f3786416",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2756",
+      "fingerprint": "2269ab472153e1cc43fc8eaf",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:2806",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_9269b63636ba4273": {
-      "id": "msg_9269b63636ba4273",
+    "msg_13b8a149dbdd48a7": {
+      "id": "msg_13b8a149dbdd48a7",
       "source": "{platform, select, ios {iOS} android {Android} web {Web} other {Unknown platform}}",
       "component": "DocumentDashboard",
-      "fingerprint": "8ccd0330aaa61597311ff6fd",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3481",
+      "fingerprint": "814729fa4c1f5cf02f3e035c",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3531",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_c767224041e94b8f": {
-      "id": "msg_c767224041e94b8f",
+    "msg_22ceb6066fdc4f14": {
+      "id": "msg_22ceb6066fdc4f14",
       "source": "{theme, select, dark {Dark mode} light {Light mode} other {System default}}",
       "component": "DocumentDashboard",
-      "fingerprint": "d5f133407dbfed50f3b11b8a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3618",
+      "fingerprint": "043af0928b3e4cd6ca875d61",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3668",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_66f76c43efe74ea9": {
-      "id": "msg_66f76c43efe74ea9",
+    "msg_448f0377111a496a": {
+      "id": "msg_448f0377111a496a",
       "source": "{gender, select, male {He has {count, plural, one {# file} other {# files}}} female {She has {count, plural, one {# file} other {# files}}} other {They have {count, plural, one {# file} other {# files}}}}",
       "component": "DocumentDashboard",
-      "fingerprint": "5f9ac8901016d47da2f11b9a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3825",
+      "fingerprint": "a5cb894a816e0a855ac80028",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:3875",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_c08e75ef72a24e61": {
-      "id": "msg_c08e75ef72a24e61",
+    "msg_bb4595f7d03341c5": {
+      "id": "msg_bb4595f7d03341c5",
       "source": "{count, plural, one {{gender, select, male {He has one file} female {She has one file} other {They have one file}}} other {{gender, select, male {He has # files} female {She has # files} other {They have # files}}}}",
       "component": "DocumentDashboard",
-      "fingerprint": "e5e25a8e5c15440c3d271e6d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4246",
+      "fingerprint": "391d24a46768f981c41625d9",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4296",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_80b72f2a330a4698": {
-      "id": "msg_80b72f2a330a4698",
+    "msg_47d5579daaeb4135": {
+      "id": "msg_47d5579daaeb4135",
       "source": "{user} uploaded {count, plural, one {# file} other {# files}} to {folder}",
       "component": "DocumentDashboard",
-      "fingerprint": "708413870cc2a36913b78f56",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4634",
+      "fingerprint": "5ce618724f61e4790b42f45d",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4684",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_224a49e5791a4145": {
-      "id": "msg_224a49e5791a4145",
+    "msg_3d67b91211ad4128": {
+      "id": "msg_3d67b91211ad4128",
       "source": "{name} has {unread, plural, =0 {no unread messages} one {# unread message} other {# unread messages}} and {total} total messages",
       "component": "DocumentDashboard",
-      "fingerprint": "81387bbdd9527f5cd0bd1e77",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4864",
+      "fingerprint": "e686e1f3a35def801b3e39e2",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:4914",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_93b36153c0bd4937": {
-      "id": "msg_93b36153c0bd4937",
+    "msg_2d3073b2b43e474e": {
+      "id": "msg_2d3073b2b43e474e",
       "source": "{count, plural, one {# item costs {price} EUR} other {# items cost {price} EUR each}}",
       "component": "DocumentDashboard",
-      "fingerprint": "03c7aa8349178c0df84534f3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5191",
+      "fingerprint": "605f2d8815182f30439f0ede",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5241",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_e9f2784a3e8149b1": {
-      "id": "msg_e9f2784a3e8149b1",
+    "msg_d340ff979ff8466a": {
+      "id": "msg_d340ff979ff8466a",
       "source": "Balance: {amount, number}",
       "component": "DocumentDashboard",
-      "fingerprint": "9179366d277bff1d99c49ef9",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5426",
+      "fingerprint": "06cedc2dc733de866332fc05",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5476",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_5584538b1647495f": {
-      "id": "msg_5584538b1647495f",
+    "msg_e99cc533c8a64066": {
+      "id": "msg_e99cc533c8a64066",
       "source": "Balance: {amount, number, integer}",
       "component": "DocumentDashboard",
-      "fingerprint": "7f0664bd3085fb2d199c383d",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5505",
+      "fingerprint": "97a552b4d05dc44df9f07648",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5555",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_5c9a2dd533ed4b0f": {
-      "id": "msg_5c9a2dd533ed4b0f",
+    "msg_7967c14dcb114a92": {
+      "id": "msg_7967c14dcb114a92",
       "source": "Discount: {discount, number, percent}",
       "component": "DocumentDashboard",
-      "fingerprint": "de8317dae30b8613a5647ed1",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5593",
+      "fingerprint": "72620678cd34442192863f08",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5643",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_887bff4274914d29": {
-      "id": "msg_887bff4274914d29",
+    "msg_0326759f3f6c48ae": {
+      "id": "msg_0326759f3f6c48ae",
       "source": "Price: {price, number, currency}",
       "component": "DocumentDashboard",
-      "fingerprint": "91c3ce816aafd3d34d671260",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5680",
+      "fingerprint": "f19a2ff959f768a4facbf577",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5730",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_271dd92ac5c7480b": {
-      "id": "msg_271dd92ac5c7480b",
+    "msg_5c21dc32a4694dda": {
+      "id": "msg_5c21dc32a4694dda",
       "source": "Price: {price, number, EUR}",
       "component": "DocumentDashboard",
-      "fingerprint": "411391f6cc6e08aaeacdb048",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5761",
+      "fingerprint": "a966828a9a87068e9a7ac9e2",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5811",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_23c229199c024cb2": {
-      "id": "msg_23c229199c024cb2",
+    "msg_5110f3060fc44f9f": {
+      "id": "msg_5110f3060fc44f9f",
       "source": "Price: {price, number, GBP}",
       "component": "DocumentDashboard",
-      "fingerprint": "92e1743d4dd602898195ed8f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5837",
+      "fingerprint": "41c8f868bb6b72e810ae371f",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5887",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_f4fe8539d6cf474c": {
-      "id": "msg_f4fe8539d6cf474c",
+    "msg_1fed45b950c642de": {
+      "id": "msg_1fed45b950c642de",
       "source": "Scientific: {value, number, scientific}",
       "component": "DocumentDashboard",
-      "fingerprint": "4a3afc254a2c455ca5704260",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5913",
+      "fingerprint": "b08d47923bd90a2ffba3d05e",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:5963",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_98a8b6338ffa4a99": {
-      "id": "msg_98a8b6338ffa4a99",
+    "msg_02f69f3a1a4142e9": {
+      "id": "msg_02f69f3a1a4142e9",
       "source": "Today is {date, date}",
       "component": "DocumentDashboard",
-      "fingerprint": "663ae80260c199af79cbba6a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6042",
+      "fingerprint": "14916a771ec9b36051ff1a12",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6092",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_416cf80e07d942cc": {
-      "id": "msg_416cf80e07d942cc",
+    "msg_1cf680fdc2244c2c": {
+      "id": "msg_1cf680fdc2244c2c",
       "source": "Date: {date, date, short}",
       "component": "DocumentDashboard",
-      "fingerprint": "c9e1021ceab14321bb29c0cb",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6115",
+      "fingerprint": "2f779e190602b2e60e2a8994",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6165",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_cb5dcaefbb194c15": {
-      "id": "msg_cb5dcaefbb194c15",
+    "msg_92beeff6f77849ab": {
+      "id": "msg_92beeff6f77849ab",
       "source": "Date: {date, date, medium}",
       "component": "DocumentDashboard",
-      "fingerprint": "bb1d630df6be43635fd887f7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6192",
+      "fingerprint": "983566c4a4751c581ff8243f",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6242",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_497ea32f26594ac3": {
-      "id": "msg_497ea32f26594ac3",
+    "msg_ff8e15ad33874d04": {
+      "id": "msg_ff8e15ad33874d04",
       "source": "Date: {date, date, long}",
       "component": "DocumentDashboard",
-      "fingerprint": "f89af8304f5b896c913f6103",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6270",
+      "fingerprint": "ab45f78bbf3a33dd293b0966",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6320",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_eba72be7f00d455f": {
-      "id": "msg_eba72be7f00d455f",
+    "msg_db25a93a15f34ea6": {
+      "id": "msg_db25a93a15f34ea6",
       "source": "Date: {date, date, full}",
       "component": "DocumentDashboard",
-      "fingerprint": "20acd90a2038fb7a74da7286",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6346",
+      "fingerprint": "950c2fbf650958b22ded2d5e",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6396",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_ecfb15f5bf254625": {
-      "id": "msg_ecfb15f5bf254625",
+    "msg_0a9a141f1e8b497d": {
+      "id": "msg_0a9a141f1e8b497d",
       "source": "Time: {time, time, short}",
       "component": "DocumentDashboard",
-      "fingerprint": "3786dd036564789f2e035838",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6422",
+      "fingerprint": "78184c5430c675b7dbd6635e",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6472",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_8fec78c8bb584e5c": {
-      "id": "msg_8fec78c8bb584e5c",
+    "msg_30909d8ae60d44b6": {
+      "id": "msg_30909d8ae60d44b6",
       "source": "Updated {date, date, short} at {time, time, short}",
       "component": "DocumentDashboard",
-      "fingerprint": "1a84d8f69316585b2902b5e8",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6512",
+      "fingerprint": "81c43f23ecec092295674eea",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6562",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_9957084238864bd6": {
-      "id": "msg_9957084238864bd6",
+    "msg_e2755d9841f54242": {
+      "id": "msg_e2755d9841f54242",
       "source": "{count, plural, one {# second ago} other {# seconds ago}}",
       "component": "DocumentDashboard",
-      "fingerprint": "d77f03405782deefa9ff979c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6725",
+      "fingerprint": "c54e95b7bcdc09e46b55ca4b",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6775",
       "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_4f496e02d38c4270": {
-      "id": "msg_4f496e02d38c4270",
-      "source": "{count} seconds ago",
-      "component": "DocumentDashboard",
-      "fingerprint": "6c14746f99e8361f7432f59d",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6928",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_4bffe69da08c4bdc": {
-      "id": "msg_4bffe69da08c4bdc",
-      "source": "{count} seconds ago",
-      "component": "DocumentDashboard",
-      "fingerprint": "6c14746f99e8361f7432f59d",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6989",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_0373ba145fbf4acd": {
-      "id": "msg_0373ba145fbf4acd",
-      "source": "{count} seconds ago",
-      "component": "DocumentDashboard",
-      "fingerprint": "6c14746f99e8361f7432f59d",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7060",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:11:42.639Z"
-    },
-    "msg_8f46357a7562407a": {
-      "id": "msg_8f46357a7562407a",
-      "source": "{count, plural, one {# minute remaining} other {# minutes remaining}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "95be92b0e4d9205eec172ada",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7061",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_b531f2ebbfb947d9": {
-      "id": "msg_b531f2ebbfb947d9",
-      "source": "{count, plural, =0 {Never} one {Once} other {# times}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "baac5f55a4cb9c975dd4a70c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7236",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_e738066966e24c9c": {
-      "id": "msg_e738066966e24c9c",
-      "source": "{count, plural, one {# person online} other {# people online}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "67da043ecc35b49ed3c18992",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7331",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_22a03ed2b50d4cd5": {
-      "id": "msg_22a03ed2b50d4cd5",
-      "source": "{count, plural, one {# result found} other {# results found}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "773d564ef1e7e8e0477fae25",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7496",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_47a6aa9b49594a11": {
-      "id": "msg_47a6aa9b49594a11",
-      "source": "This is '{not a variable}'",
-      "component": "DocumentDashboard",
-      "fingerprint": "d3fa94d671b5f0124137c9cd",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7700",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_a4a705606a89443e": {
-      "id": "msg_a4a705606a89443e",
-      "source": "You're viewing {count} documents",
-      "component": "DocumentDashboard",
-      "fingerprint": "90813d7c9a8d43ccb6794256",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7755",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_6f3ee5a68b4a4700": {
-      "id": "msg_6f3ee5a68b4a4700",
-      "source": "Your balance is '{' {amount} '}'",
-      "component": "DocumentDashboard",
-      "fingerprint": "6b22e1974cefae135cc6829c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7828",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_014801b3ca674a0d": {
-      "id": "msg_014801b3ca674a0d",
-      "source": "There is {count} file",
-      "component": "DocumentDashboard",
-      "fingerprint": "a8d9824441d1a75805a0a804",
-      "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7906",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_f8c0b5fa086d46d5": {
-      "id": "msg_f8c0b5fa086d46d5",
-      "source": "{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "2699eb559a3ce163526a4d82",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8023",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_15c593ab3f4b47a4": {
-      "id": "msg_15c593ab3f4b47a4",
-      "source": "{name} {gender, select, male {uploaded} female {uploaded} other {uploaded}} {count, plural, one {# photo} other {# photos}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "07db228fae77885b686b33df",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8303",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_799d7bdde80b4b72": {
-      "id": "msg_799d7bdde80b4b72",
-      "source": "{count, plural, =0 {You have no notifications} one {You have # notification} other {You have # notifications}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "4eb68814d5365d574bf9f7e3",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8861",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_1bcce5fb1d614c99": {
-      "id": "msg_1bcce5fb1d614c99",
-      "source": "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "f31bcd99b783d25d759635ea",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9079",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_4ea4106ed2f34ea0": {
-      "id": "msg_4ea4106ed2f34ea0",
-      "source": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
-      "component": "DocumentDashboard",
-      "fingerprint": "d891e1a198e0b6e1a23af62a",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9396",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_55a6944311464738": {
-      "id": "msg_55a6944311464738",
-      "source": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "e9744644d20c17305b2f0c19",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9631",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_23e8b5e574b1407c": {
-      "id": "msg_23e8b5e574b1407c",
-      "source": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
-      "component": "DocumentDashboard",
-      "fingerprint": "dd55720948fbeaf3e936706f",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9928",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:08:46.216Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_9e29d3d372c2411b": {
-      "id": "msg_9e29d3d372c2411b",
+    "msg_483aaed452364b24": {
+      "id": "msg_483aaed452364b24",
       "source": "{count, plural, =0 {Now} one {# second ago} other {# seconds ago}}",
       "component": "DocumentDashboard",
-      "fingerprint": "822d1eebadd51eef364c77af",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6822",
+      "fingerprint": "c8d25940e5b3a70333d2ae7d",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6872",
       "status": "active",
-      "firstSeen": "2026-11-18T22:11:42.639Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_f4925fb74ebd49dd": {
-      "id": "msg_f4925fb74ebd49dd",
+    "msg_ccbbc70335e9466a": {
+      "id": "msg_ccbbc70335e9466a",
+      "source": "{count} seconds ago",
+      "component": "DocumentDashboard",
+      "fingerprint": "bff9b86a1dd0dde35e7c2088",
+      "autoPlural": true,
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7072",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_93e38faefc2343a2": {
+      "id": "msg_93e38faefc2343a2",
+      "source": "{count, plural, one {# minute remaining} other {# minutes remaining}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "d5868456357b49e3c76df441",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7144",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_78afedece8974494": {
+      "id": "msg_78afedece8974494",
       "source": "{count} minute remaining",
       "component": "DocumentDashboard",
-      "fingerprint": "0fb8f7acf255cbcbd1c651c2",
+      "fingerprint": "bcb56c5697967a9164ba6244",
       "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7170",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:12:28.190Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7253",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:46:08.057Z"
     },
-    "msg_6619e4881f0242ab": {
-      "id": "msg_6619e4881f0242ab",
+    "msg_b2e8b63b44ab40a2": {
+      "id": "msg_b2e8b63b44ab40a2",
+      "source": "{count, plural, =0 {Never} one {Once} other {# times}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "23415ffa2a2f03f83c37c197",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7253",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_73026bd8b8554557": {
+      "id": "msg_73026bd8b8554557",
+      "source": "{count, plural, one {# person online} other {# people online}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "4afdbfff2df505018557b249",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7347",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_3b40b0d2b51f4f42": {
+      "id": "msg_3b40b0d2b51f4f42",
       "source": "{count} person online",
       "component": "DocumentDashboard",
-      "fingerprint": "b8139ba8adfe046cd23aba9e",
+      "fingerprint": "d3093d8a5a93c0b86d5a01dd",
       "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7433",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:13:34.887Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
-    },
-    "msg_5de10d2f04a344a9": {
-      "id": "msg_5de10d2f04a344a9",
-      "source": "{count} result found",
-      "component": "DocumentDashboard",
-      "fingerprint": "6659bec95372ae825cbc140c",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7597",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7512",
       "status": "orphaned",
-      "firstSeen": "2026-11-18T22:14:06.251Z",
-      "lastSeen": "2026-11-18T22:14:06.251Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:47:09.118Z"
     },
-    "msg_506c6f5f58aa4f78": {
-      "id": "msg_506c6f5f58aa4f78",
+    "msg_f963fc52a2224646": {
+      "id": "msg_f963fc52a2224646",
+      "source": "{count, plural, one {# result found} other {# results found}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "756c6a813460d6d0d75f5b69",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7575",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:47:09.118Z"
+    },
+    "msg_c7a1d964f0f246e3": {
+      "id": "msg_c7a1d964f0f246e3",
       "source": "{count} result found",
       "component": "DocumentDashboard",
-      "fingerprint": "95d80cd23514299c33d014f9",
+      "fingerprint": "65ec46e91e438e62b0cc37b0",
       "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7597",
-      "status": "active",
-      "firstSeen": "2026-11-18T22:16:12.043Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7676",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:47:09.118Z"
     },
-    "msg_20447ddbb9c4408f": {
-      "id": "msg_20447ddbb9c4408f",
+    "msg_c2c411a0419141da": {
+      "id": "msg_c2c411a0419141da",
+      "source": "This is '{not a variable}'",
+      "component": "DocumentDashboard",
+      "fingerprint": "0f4b26a07e97e00c5d17eb66",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7491",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_58155cb97d684249": {
+      "id": "msg_58155cb97d684249",
+      "source": "You're viewing {count} documents",
+      "component": "DocumentDashboard",
+      "fingerprint": "df31ea28eab02b13dfedcda7",
+      "autoPlural": true,
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7546",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_2cd056bb7bf04d94": {
+      "id": "msg_2cd056bb7bf04d94",
+      "source": "Your balance is '{' {amount} '}'",
+      "component": "DocumentDashboard",
+      "fingerprint": "746dd2541ce548d3b2a4c748",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7619",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_0adc9e9d13624f59": {
+      "id": "msg_0adc9e9d13624f59",
+      "source": "There is {count} file",
+      "component": "DocumentDashboard",
+      "fingerprint": "10ad5f6f526267e303e3331b",
+      "autoPlural": true,
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7697",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_5474d39e8f0c49bf": {
+      "id": "msg_5474d39e8f0c49bf",
       "source": "{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}",
       "component": "DocumentDashboard",
-      "fingerprint": "2699eb559a3ce163526a4d82",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8212",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T22:16:54.709Z",
-      "lastSeen": "2026-11-18T22:16:58.655Z"
+      "fingerprint": "3b13e899c016653a9492497e",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7814",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_10f89abe18ca4f4a": {
-      "id": "msg_10f89abe18ca4f4a",
-      "source": "{count} document selected}",
-      "component": "DocumentDashboard",
-      "fingerprint": "d29caea0e0a08a8fb92fa1f7",
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8212",
-      "status": "orphaned",
-      "firstSeen": "2026-11-18T22:17:19.686Z",
-      "lastSeen": "2026-11-18T22:17:19.686Z"
-    },
-    "msg_2407ce7aea0c4262": {
-      "id": "msg_2407ce7aea0c4262",
+    "msg_1f86377f74674451": {
+      "id": "msg_1f86377f74674451",
       "source": "{count} document selected",
       "component": "DocumentDashboard",
-      "fingerprint": "a771a66ec8fbe98d87af3701",
+      "fingerprint": "60f871b626c1a5804581884f",
       "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8212",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7990",
       "status": "active",
-      "firstSeen": "2026-11-18T22:17:32.411Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     },
-    "msg_921cd605b1364f27": {
-      "id": "msg_921cd605b1364f27",
+    "msg_21372dc77d6244ed": {
+      "id": "msg_21372dc77d6244ed",
+      "source": "{name} {gender, select, male {uploaded} female {uploaded} other {uploaded}} {count, plural, one {# photo} other {# photos}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "189939fd876294036960b8fe",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8070",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_f9db6d4bb80046fd": {
+      "id": "msg_f9db6d4bb80046fd",
       "source": "{name} uploaded {count} photo",
       "component": "DocumentDashboard",
-      "fingerprint": "4c1958b9f41adfff4cc4970d",
+      "fingerprint": "3b8a78f757f18b19a3c7172c",
       "autoPlural": true,
-      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8630",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8393",
       "status": "active",
-      "firstSeen": "2026-11-18T22:19:21.852Z",
-      "lastSeen": "2026-11-18T22:19:44.767Z"
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_c5661fd802f84f92": {
+      "id": "msg_c5661fd802f84f92",
+      "source": "{count, plural, =0 {You have no notifications} one {You have # notification} other {You have # notifications}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "0e3f47590b6fe49e0246c853",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8573",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_6cf5b5d99ecb41b4": {
+      "id": "msg_6cf5b5d99ecb41b4",
+      "source": "{count, plural, =0 {Nobody is editing this document} one {{name} is editing this document} other {{name} and # others are editing this document}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "e44dc70b9b943234f0a345fc",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8886",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_8307101aecdd4f5c": {
+      "id": "msg_8307101aecdd4f5c",
+      "source": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
+      "component": "DocumentDashboard",
+      "fingerprint": "58a7fc9a6ca4fdd1f9398241",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9623",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_3e0b9e5ab7c94908": {
+      "id": "msg_3e0b9e5ab7c94908",
+      "source": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "eb0ea036c976d91953381064",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9858",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_06660ed7421c45af": {
+      "id": "msg_06660ed7421c45af",
+      "source": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
+      "component": "DocumentDashboard",
+      "fingerprint": "22fc2a0252c52a62b5af086e",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:10155",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:23:14.788Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_d1194597b783486a": {
+      "id": "msg_d1194597b783486a",
+      "source": "{count} seconds ago",
+      "component": "DocumentDashboard",
+      "fingerprint": "59b52bf5f94bec824f28109c",
+      "autoPlural": true,
+      "hint": "Use word 'Booya' when count = 0, and use word 'Later' when over 5",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7006",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:30:47.727Z",
+      "lastSeen": "2026-11-18T22:34:54.630Z"
+    },
+    "msg_5ac36811a4a84c04": {
+      "id": "msg_5ac36811a4a84c04",
+      "source": "{count} minutes ago",
+      "component": "DocumentDashboard",
+      "fingerprint": "373b30da5f657b0f3b1f7ab5",
+      "autoPlural": true,
+      "hint": "Use word 'Booya' when count = 0, and use word 'Later' when over 5",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7006",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:36:42.488Z",
+      "lastSeen": "2026-11-18T22:44:27.954Z"
+    },
+    "msg_63d5384fe9b84f86": {
+      "id": "msg_63d5384fe9b84f86",
+      "source": "{count} minutes ago",
+      "component": "DocumentDashboard",
+      "fingerprint": "ddc4bdebb6ac8379e3506d6f",
+      "autoPlural": true,
+      "hint": "Use word 'Booya' when count = 0",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7174",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:39:45.699Z",
+      "lastSeen": "2026-11-18T22:39:45.699Z"
+    },
+    "msg_fd8b7375fa684e15": {
+      "id": "msg_fd8b7375fa684e15",
+      "source": "{count} minutes ago",
+      "component": "DocumentDashboard",
+      "fingerprint": "458939e0f37829d3dce0f156",
+      "autoPlural": true,
+      "hint": "Use word 'Booya' when count = 0, and use word 'Five' when count = 5",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7006",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:44:33.454Z",
+      "lastSeen": "2026-11-18T22:44:47.298Z"
+    },
+    "msg_b09a7f4346f7450c": {
+      "id": "msg_b09a7f4346f7450c",
+      "source": "{count} minutes ago",
+      "component": "DocumentDashboard",
+      "fingerprint": "8c1e222216c0de72e00f8809",
+      "autoPlural": true,
+      "hint": "Use word 'Now' when count = 0",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:6978",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:45:30.584Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_d4e905615ff442b4": {
+      "id": "msg_d4e905615ff442b4",
+      "source": "{count} minutes remaining from timer",
+      "component": "DocumentDashboard",
+      "fingerprint": "0cb571a6ea2953df9a37ad82",
+      "autoPlural": true,
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7253",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:46:47.654Z",
+      "lastSeen": "2026-11-18T22:46:47.654Z"
+    },
+    "msg_078b93cc446d4e77": {
+      "id": "msg_078b93cc446d4e77",
+      "source": "{count} minutes left",
+      "component": "DocumentDashboard",
+      "fingerprint": "1ff2e9c51c7f09f27a9268d0",
+      "autoPlural": true,
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:7253",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:47:09.118Z",
+      "lastSeen": "2026-11-18T22:47:09.118Z"
+    },
+    "msg_9a118cc0103f46e3": {
+      "id": "msg_9a118cc0103f46e3",
+      "source": "You have {count} notifications",
+      "component": "DocumentDashboard",
+      "fingerprint": "a6fb295ee357c9a82b942b4f",
+      "autoPlural": true,
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:8790",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:49:14.096Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
+    },
+    "msg_93b5fc0ae2cf4c53": {
+      "id": "msg_93b5fc0ae2cf4c53",
+      "source": "{name} is editing this document",
+      "component": "DocumentDashboard",
+      "fingerprint": "7fa3cb4033c606f19ed95784",
+      "autoPlural": true,
+      "hint": "When count > 0, then say {name} and # others are editing this documentS",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9201",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:51:33.195Z",
+      "lastSeen": "2026-11-18T22:51:45.781Z"
+    },
+    "msg_98e36797938c4d19": {
+      "id": "msg_98e36797938c4d19",
+      "source": "{name} is editing this document",
+      "component": "DocumentDashboard",
+      "fingerprint": "fabd73a83ead967705921a60",
+      "autoPlural": true,
+      "hint": "When count > 0, then say {name} and # others are editing this document. When count is 0, then say Nobody is editing this document.",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9201",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:52:13.204Z",
+      "lastSeen": "2026-11-18T22:52:13.204Z"
+    },
+    "msg_b5edba58945947e2": {
+      "id": "msg_b5edba58945947e2",
+      "source": "{name} is editing this document",
+      "component": "DocumentDashboard",
+      "fingerprint": "477b1c9845672ad68d43e3c8",
+      "autoPlural": true,
+      "hint": "When count > 0, then say {name} and # others are editing this document. When count = 0, then say Nobody is editing this document.",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9201",
+      "status": "orphaned",
+      "firstSeen": "2026-11-18T22:52:39.564Z",
+      "lastSeen": "2026-11-18T22:52:39.564Z"
+    },
+    "msg_d16ce1d831684e43": {
+      "id": "msg_d16ce1d831684e43",
+      "source": "{name} is editing this document",
+      "component": "DocumentDashboard",
+      "fingerprint": "195178e33312cfbc553619ea",
+      "autoPlural": true,
+      "hint": "If count = 0, then say Nobody is editing this document.",
+      "location": "/home/bogdan/git/vite-plugin-ai-i18n/example/src/components/DocumentDashboard.tsx:9201",
+      "status": "active",
+      "firstSeen": "2026-11-18T22:53:32.625Z",
+      "lastSeen": "2026-11-18T22:53:32.625Z"
     }
   }
 }

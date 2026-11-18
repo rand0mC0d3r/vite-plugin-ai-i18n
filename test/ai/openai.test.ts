@@ -78,6 +78,33 @@ describe("OpenAICompatibleProvider", () => {
     ]);
   });
 
+  it("includes an auto-plural hint in the provider request", async () => {
+    fetchMock.mockResolvedValue(
+      chatResponse(
+        JSON.stringify({
+          a: "{count, plural, =0 {Now} one {# second ago} other {# seconds ago}}",
+        }),
+      ),
+    );
+    await provider().translate(
+      input([
+        { id: "a", source: "{count} seconds ago", context: "App", autoPlural: true, hint: "Use Now when count is 0" },
+      ]),
+    );
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(init.body as string) as ChatBody;
+    expect(JSON.parse(body.messages[1].content)).toEqual([
+      {
+        id: "a",
+        text: "{count} seconds ago",
+        context: "App",
+        autoPlural: true,
+        hint: "Use Now when count is 0",
+      },
+    ]);
+  });
+
   it("uses a custom baseURL", async () => {
     fetchMock.mockResolvedValue(chatResponse(JSON.stringify({ a: "x" })));
     await provider({ baseURL: "https://x.example/v1" }).translate(input([request("a")]));

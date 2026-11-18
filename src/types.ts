@@ -11,6 +11,8 @@ export interface ExtractedMessage {
   valuesStart?: number | undefined;
   /** True for `tt()`, which asks providers to generate natural-language ICU plural defaults. */
   autoPlural?: boolean | undefined;
+  /** Optional static hint passed to providers for a `tt()` count template. */
+  hint?: string | undefined;
   /** Enclosing component name. Used with `fingerprint` to match a message to its registry entry. */
   component: string;
   /** Hash of the normalized source, used to match registry entries. */
@@ -22,6 +24,7 @@ export type ResolvedMessage = ExtractedMessage & { id: string };
 export type RegistryEntry = Pick<ExtractedMessage, "source" | "component" | "fingerprint"> & {
   id: string;
   autoPlural?: boolean | undefined;
+  hint?: string | undefined;
   location: string;
   status: "active" | "orphaned";
   firstSeen: string;
@@ -42,6 +45,8 @@ export interface TranslationRequest {
   context: string;
   /** Generate language-specific ICU plural branches for this natural-language count template. */
   autoPlural?: boolean | undefined;
+  /** Optional provider hint describing special count wording. */
+  hint?: string | undefined;
 }
 /** One translation call: the locale pair and the messages to translate between them. */
 export interface TranslateInput {

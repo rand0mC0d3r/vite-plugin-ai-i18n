@@ -27,6 +27,79 @@ const baseInput = {
 };
 
 describe("buildCatalogs", () => {
+  it("passes a free-form hint through translation requests", async () => {
+    const hinted = {
+      ...message(1, "{count} seconds ago"),
+      autoPlural: true,
+      hint: "Use Now at zero; use Later above five",
+    };
+    const translate = vi.fn<TranslationProvider["translate"]>(({ messages }) =>
+      Promise.resolve(
+        Object.fromEntries(
+          messages.map((message) => [message.id, "{count, plural, =0 {Jetzt} other {vor # Sekunden}}"]),
+        ),
+      ),
+    );
+    const provider: TranslationProvider = { translate };
+
+    await buildCatalogs({
+      ...baseInput,
+      files: [{ file: "App.tsx", messages: [hinted] }],
+      locales: ["de"],
+      provider,
+    });
+
+    expect(translate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          expect.objectContaining({
+            source: "{count} seconds ago",
+            autoPlural: true,
+            hint: "Use Now at zero; use Later above five",
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("generates a source-locale catalogue for hinted tt() messages only", async () => {
+    const hinted = {
+      ...message(1, "{count} minutes ago"),
+      autoPlural: true,
+      hint: "Use Now at zero",
+    };
+    const plain = message(30, "Save");
+    const translate = vi.fn<TranslationProvider["translate"]>(({ messages }) =>
+      Promise.resolve(
+        Object.fromEntries(
+          messages.map((message) => [
+            message.id,
+            message.hint === undefined
+              ? "Save"
+              : "{count, plural, =0 {Booya} one {# minute ago} other {# minutes ago}}",
+          ]),
+        ),
+      ),
+    );
+    const provider: TranslationProvider = { translate };
+
+    const result = await buildCatalogs({
+      ...baseInput,
+      files: [{ file: "App.tsx", messages: [hinted, plain] }],
+      locales: ["de"],
+      provider,
+    });
+
+    const hintedId = result.messages.find((message) => message.source === "{count} minutes ago")?.id;
+    const plainId = result.messages.find((message) => message.source === "Save")?.id;
+    expect(hintedId).not.toBeUndefined();
+    expect(result.sourceFile.messages[hintedId as string]).toBe(
+      "{count, plural, =0 {Booya} one {# minute ago} other {# minutes ago}}",
+    );
+    expect(plainId).not.toBeUndefined();
+    expect(result.sourceFile.messages[plainId as string]).toBe("Save");
+  });
+
   it("builds the source catalogue and translates every requested locale", async () => {
     const provider: TranslationProvider = {
       translate: vi.fn(({ targetLocale, messages }: Parameters<TranslationProvider["translate"]>[0]) =>

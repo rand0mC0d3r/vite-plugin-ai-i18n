@@ -13,7 +13,7 @@ type RuntimeModule = {
   getVersion(): number;
   lookup(id: string, source: string, values?: Record<string, unknown>): string;
   t(source: string, values?: Record<string, unknown>): string;
-  tt(source: string, values?: Record<string, unknown>): string;
+  tt(source: string, values?: Record<string, unknown>, hint?: string): string;
 };
 
 describe("createRuntimeModule escaping", () => {

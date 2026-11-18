@@ -82,6 +82,22 @@ describe("translateLocale", () => {
     expect(result.untranslated).toBe(1);
   });
 
+  it("forwards an auto-plural hint unchanged to the provider", async () => {
+    const p = provider({ a: "{count, plural, =0 {Jetzt} one {vor # Sekunde} other {vor # Sekunden}}" });
+    const request = {
+      ...text("a", "{count} seconds ago"),
+      autoPlural: true,
+      hint: "Use Now at zero; use Later above five",
+    };
+    await translateLocale({
+      ...base,
+      provider: p,
+      requests: [request],
+      previous: emptyLocaleFile(),
+    });
+    expect(p.translate.mock.calls[0][0].messages).toEqual([request]);
+  });
+
   it("prunes keys for messages that are no longer active", async () => {
     const previous = { messages: { keep: "Behalten", gone: "Weg" }, sources: { keep: "Keep", gone: "Gone" } };
     const result = await translateLocale({
