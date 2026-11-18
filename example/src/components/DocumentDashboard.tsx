@@ -192,6 +192,9 @@ export function DocumentDashboard() {
 
         <Container>
           <div>{t("{count, plural, one {# second ago} other {# seconds ago}}", { count })}</div>
+          <div>{tt("{count} seconds ago", { count: 5 })}</div>
+          <div>{tt("{count} seconds ago", { count: 1 })}</div>
+          <div>{tt("{count} seconds ago", { count: 0 })}</div>
 
           <div>{t("{count, plural, one {# minute remaining} other {# minutes remaining}}", { count })}</div>
 
@@ -203,13 +206,11 @@ export function DocumentDashboard() {
         </Container>
 
         <Container>
-          // Literal braces
           <div>{t("This is '{not a variable}'")}</div>
-          // Apostrophes
-          <div>{t("You're viewing {count} documents", { count })}</div>
-          // Special characters
+          <div>{tt("You're viewing {count} documents", { count })}</div>
           <div>{t("Your balance is '{' {amount} '}'", { amount: 100 })}</div>
-          // Literal #<div>{t("There are {count, plural, one {# file} other {# files}}", { count })}</div>
+          <div>{t("There are {count, plural, one {# file} other {# files}}", { count })}</div>
+          <div>{tt("There is {count} file", { count: 2 })}</div>
         </Container>
 
         <Container>

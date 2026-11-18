@@ -30,7 +30,13 @@ const EURO_COUNTRIES = new Set([
   "SK",
 ]);
 
-function defaultCurrency(locale: string): string {
+function operatingSystemLocale(): string {
+  if (typeof navigator !== "undefined" && navigator.languages.length > 0) return navigator.languages[0];
+  return Intl.NumberFormat().resolvedOptions().locale;
+}
+
+function defaultCurrency(operatingLocale?: string): string {
+  const locale = operatingLocale ?? operatingSystemLocale();
   const region = new Intl.Locale(locale).maximize().region;
   if (region !== undefined && EURO_COUNTRIES.has(region)) return "EUR";
   if (region === "GB") return "GBP";
@@ -42,12 +48,13 @@ function defaultCurrency(locale: string): string {
   return "USD";
 }
 
-function numberFormats(message: string, locale: string): Record<string, Record<string, unknown>> {
+function numberFormats(message: string, operatingLocale?: string): Record<string, Record<string, unknown>> {
   const formats: Record<string, Record<string, unknown>> = {};
   for (const match of message.matchAll(/\{[^,{}]+,\s*number,\s*([^{}]+)\}/g)) {
     const style = match[1].trim();
-    if (style === "currency") formats["currency"] = { style: "currency", currency: defaultCurrency(locale) };
-    else if (/^[A-Z]{3}$/.test(style)) formats[style] = { style: "currency", currency: style };
+    if (style === "currency") {
+      formats["currency"] = { style: "currency", currency: defaultCurrency(operatingLocale) };
+    } else if (/^[A-Z]{3}$/.test(style)) formats[style] = { style: "currency", currency: style };
   }
   return formats;
 }
@@ -87,12 +94,18 @@ export function formatAutoPluralMessage(message: string, locale: string, values:
  * that fail to parse or are missing a value are logged and returned unformatted, so a bad translation never breaks the
  * page.
  */
-export function formatMessage(message: string, locale: string, values: MessageValues): string {
-  const key = `${locale}\u0000${message}`;
+export function formatMessage(
+  message: string,
+  locale: string,
+  values: MessageValues,
+  operatingLocale?: string,
+): string {
+  const resolvedOperatingLocale = operatingLocale ?? operatingSystemLocale();
+  const key = `${locale}\u0000${resolvedOperatingLocale}\u0000${message}`;
   try {
     let formatter = formatters.get(key);
     if (!formatter) {
-      const numberFormatsByStyle = numberFormats(message, locale);
+      const numberFormatsByStyle = numberFormats(message, resolvedOperatingLocale);
       const formats = Object.keys(numberFormatsByStyle).length ? { number: numberFormatsByStyle } : undefined;
       formatter = new IntlMessageFormat(message, locale, formats, ICU_PARSER_OPTIONS);
       formatters.set(key, formatter);

@@ -39,7 +39,6 @@
     "msg_c3817af32b824b9e": "{count, plural, one {# Person online} other {# Personen online}}",
     "msg_b4763f6e0cc44e4a": "{count, plural, one {# Ergebnis gefunden} other {# Ergebnisse gefunden}}",
     "msg_6be1f5988f4c4233": "Dies ist '{nicht eine Variable}'",
-    "msg_a331d93ad37747a0": "Sie betrachten {count} Dokumente",
     "msg_d13b18c373004394": "Ihr Guthaben beträgt '{' {amount} '}'",
     "msg_5ac5bf8e3be2495f": "Es {count, plural, one {ist # Datei} other {sind # Dateien}} vorhanden",
     "msg_e743638b695d4bdd": "{count, plural, =0 {Keine Dokumente ausgewählt} one {# Dokument ausgewählt} other {# Dokumente ausgewählt}}",
@@ -49,7 +48,12 @@
     "msg_ec3cc0f633d64632": "{used, number} MB von {total, number} MB verwendet ({percentage, number, percent})",
     "msg_5dfe8b0f91274195": "{role, select, owner {Sie besitzen dieses Album} editor {Sie können dieses Album bearbeiten} viewer {Sie können dieses Album ansehen} other {Sie haben keinen Zugriff auf dieses Album}}",
     "msg_b7f64afff9c142b6": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}",
-    "msg_a703deba5f644804": "Preis: {price, number, GBP}"
+    "msg_a703deba5f644804": "Preis: {price, number, GBP}",
+    "msg_ec3a4bff0cc24457": "{count, plural, =0 {gerade eben} one {vor # Sekunde} other {vor # Sekunden}}",
+    "msg_ecfbaed928ea4211": "{count, plural, =0 {gerade eben} one {vor # Sekunde} other {vor # Sekunden}}",
+    "msg_be8c391b4251405e": "{count, plural, =0 {gerade eben} one {vor # Sekunde} other {vor # Sekunden}}",
+    "msg_43e6f3f11bf145f3": "Sie betrachten {count, plural, =0 {keine Dokumente} one {# Dokument} other {# Dokumente}}",
+    "msg_b0bdcf1138c74299": "{count, plural, =0 {Es ist keine Datei vorhanden} one {Es ist # Datei vorhanden} other {Es sind # Dateien vorhanden}}"
   },
   "sources": {
     "msg_a806b7cd62474626": "Language",
@@ -91,7 +95,6 @@
     "msg_c3817af32b824b9e": "{count, plural, one {# person online} other {# people online}}",
     "msg_b4763f6e0cc44e4a": "{count, plural, one {# result found} other {# results found}}",
     "msg_6be1f5988f4c4233": "This is '{not a variable}'",
-    "msg_a331d93ad37747a0": "You're viewing {count} documents",
     "msg_d13b18c373004394": "Your balance is '{' {amount} '}'",
     "msg_5ac5bf8e3be2495f": "There are {count, plural, one {# file} other {# files}}",
     "msg_e743638b695d4bdd": "{count, plural, =0 {No documents selected} one {# document selected} other {# documents selected}}",
@@ -101,6 +104,11 @@
     "msg_ec3cc0f633d64632": "{used, number} MB used out of {total, number} MB ({percentage, number, percent})",
     "msg_5dfe8b0f91274195": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
     "msg_b7f64afff9c142b6": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
-    "msg_a703deba5f644804": "Price: {price, number, GBP}"
+    "msg_a703deba5f644804": "Price: {price, number, GBP}",
+    "msg_ec3a4bff0cc24457": "{count} seconds ago",
+    "msg_ecfbaed928ea4211": "{count} seconds ago",
+    "msg_be8c391b4251405e": "{count} seconds ago",
+    "msg_43e6f3f11bf145f3": "You're viewing {count} documents",
+    "msg_b0bdcf1138c74299": "There is {count} file"
   }
 }

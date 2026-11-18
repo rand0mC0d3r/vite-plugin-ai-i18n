@@ -19,15 +19,21 @@ describe("formatMessage", () => {
   });
 
   it("formats generic currency values using the locale's currency", () => {
-    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 })).toBe("Price: $129.99");
-    expect(formatMessage("Price: {price, number, currency}", "de", { price: 129.99 })).toBe("Price: 129,99 €");
-    expect(formatMessage("Price: {price, number, currency}", "en-GB", { price: 129.99 })).toBe("Price: £129.99");
-    expect(formatMessage("Price: {price, number, currency}", "ja-JP", { price: 129.99 })).toBe("Price: ￥130");
-    expect(formatMessage("Price: {price, number, currency}", "en-CA", { price: 129.99 })).toBe("Price: $129.99");
-    expect(formatMessage("Price: {price, number, currency}", "en-AU", { price: 129.99 })).toBe("Price: $129.99");
-    expect(formatMessage("Price: {price, number, currency}", "zh-CN", { price: 129.99 })).toBe("Price: ¥129.99");
-    expect(formatMessage("Price: {price, number, currency}", "en-IN", { price: 129.99 })).toBe("Price: ₹129.99");
-    expect(formatMessage("Price: {price, number, currency}", "es-MX", { price: 129.99 })).toBe("Price: USD 129.99");
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "en-US")).toBe("Price: $129.99");
+    expect(formatMessage("Price: {price, number, currency}", "de", { price: 129.99 }, "de-DE")).toBe("Price: 129,99 €");
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "en-GB")).toBe("Price: £129.99");
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "ja-JP")).toBe("Price: ¥130");
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "en-CA")).toBe(
+      "Price: CA$129.99",
+    );
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "en-AU")).toBe("Price: A$129.99");
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "zh-CN")).toBe(
+      "Price: CN¥129.99",
+    );
+    expect(formatMessage("Price: {price, number, currency}", "en", { price: 129.99 }, "en-IN")).toBe("Price: ₹129.99");
+    expect(formatMessage("Price: {price, number, currency}", "es", { price: 129.99 }, "es-MX")).toBe(
+      "Price: 129,99 US$",
+    );
   });
 
   it("formats explicit ISO currency codes", () => {
