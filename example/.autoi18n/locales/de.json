@@ -54,7 +54,9 @@
     "msg_9e29d3d372c2411b": "{count, plural, =0 {Jetzt} one {vor # Sekunde} other {vor # Sekunden}}",
     "msg_f4925fb74ebd49dd": "{count, plural, =0 {Keine Minuten verbleibend} one {{count} Minute verbleibend} other {{count} Minuten verbleibend}}",
     "msg_6619e4881f0242ab": "{count, plural, =0 {Niemand online} one {# Person online} other {# Personen online}}",
-    "msg_5de10d2f04a344a9": "{count, plural, one {# Ergebnis gefunden} other {# Ergebnisse gefunden}}"
+    "msg_506c6f5f58aa4f78": "{count, plural, =0 {Keine Ergebnisse gefunden} one {# Ergebnis gefunden} other {# Ergebnisse gefunden}}",
+    "msg_2407ce7aea0c4262": "{count, plural, =0 {Kein Dokument ausgewählt} one {# Dokument ausgewählt} other {# Dokumente ausgewählt}}",
+    "msg_921cd605b1364f27": "{name} hat {count, plural, =0 {kein Foto} one {# Foto} other {# Fotos}} hochgeladen."
   },
   "sources": {
     "msg_a806b7cd62474626": "Language",
@@ -111,6 +113,8 @@
     "msg_9e29d3d372c2411b": "{count, plural, =0 {Now} one {# second ago} other {# seconds ago}}",
     "msg_f4925fb74ebd49dd": "{count} minute remaining",
     "msg_6619e4881f0242ab": "{count} person online",
-    "msg_5de10d2f04a344a9": "{count} result found"
+    "msg_506c6f5f58aa4f78": "{count} result found",
+    "msg_2407ce7aea0c4262": "{count} document selected",
+    "msg_921cd605b1364f27": "{name} uploaded {count} photo"
   }
 }

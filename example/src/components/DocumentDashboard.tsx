@@ -213,7 +213,7 @@ export function DocumentDashboard() {
           <div>{tt("{count} person online", { count })}</div>
 
           <div>{t("{count, plural, one {# result found} other {# results found}}", { count })}</div>
-          <div>{t("{count} result found", { count })}</div>
+          <div>{tt("{count} result found", { count })}</div>
         </Container>
 
         <Container>
@@ -229,6 +229,9 @@ export function DocumentDashboard() {
               count,
             })}
           </div>
+          <div>
+            {tt("{count} document selected", { count })}
+          </div>
 
           <div>
             {t(
@@ -236,7 +239,17 @@ export function DocumentDashboard() {
               {
                 name: "John",
                 gender: "male",
-                count: 12,
+                count,
+              },
+            )}
+            </div>
+            <div>
+            {tt(
+              "{name} uploaded {count} photo",
+              {
+                name: "John",
+                gender: "male",
+                count,
               },
             )}
           </div>
