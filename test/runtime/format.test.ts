@@ -55,8 +55,28 @@ describe("formatMessage", () => {
   });
 
   it("preserves prefix wording and handles missing counts", () => {
-    expect(formatAutoPluralMessage("There are {count} items", "en", { count: 1 })).toBe("There are 1 item");
+    expect(formatAutoPluralMessage("There are {count} items", "en", { count: 1 })).toBe("There is 1 item");
     expect(formatAutoPluralMessage("{count}", "en", {})).toBe("{count}");
+    expect(formatAutoPluralMessage("{count}", "en", { count: 1 })).toBe("1");
+  });
+
+  it("uses correct there-is and there-are wording in count fallbacks", () => {
+    expect(formatAutoPluralMessage("There is {count} file", "en", { count: 1 })).toBe("There is 1 file");
+    expect(formatAutoPluralMessage("There is {count} file", "en", { count: 2 })).toBe("There are 2 files");
+    expect(formatAutoPluralMessage("There is {count} file", "en", { count: 0 })).toBe("There are no files");
+    expect(formatAutoPluralMessage("there is {count} file", "en", { count: 2 })).toBe("there are 2 files");
+    expect(formatAutoPluralMessage("THERE IS {count} file", "en", { count: 2 })).toBe("THERE ARE 2 files");
+  });
+
+  it("generalizes English verb and noun inflections in count fallbacks", () => {
+    expect(formatAutoPluralMessage("She has {count} child", "en", { count: 1 })).toBe("She has 1 child");
+    expect(formatAutoPluralMessage("She has {count} child", "en", { count: 2 })).toBe("She has 2 children");
+    expect(formatAutoPluralMessage("She has {count} person", "en", { count: 2 })).toBe("She has 2 people");
+    expect(formatAutoPluralMessage("They have {count} mouse", "en", { count: 1 })).toBe("They have 1 mouse");
+    expect(formatAutoPluralMessage("There are {count} people", "en", { count: 1 })).toBe("There is 1 person");
+    expect(formatAutoPluralMessage("There are {count} children", "en", { count: 2 })).toBe("There are 2 children");
+    expect(formatAutoPluralMessage("THERE ARE {count} PEOPLE", "en", { count: 1 })).toBe("THERE IS 1 PERSON");
+    expect(formatAutoPluralMessage("There are {count} category", "en", { count: 2 })).toBe("There are 2 categories");
   });
 
   it("returns the message unformatted and logs when a value is missing", () => {

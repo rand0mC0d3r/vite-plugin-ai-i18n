@@ -60,6 +60,20 @@ function numberFormats(message: string, operatingLocale?: string): Record<string
 }
 
 function singularWord(word: string): string {
+  const irregular: Record<string, string> = {
+    people: "person",
+    children: "child",
+    men: "man",
+    women: "woman",
+    mice: "mouse",
+    teeth: "tooth",
+    feet: "foot",
+    geese: "goose",
+  };
+  if (Object.hasOwn(irregular, word.toLowerCase())) {
+    const singular = irregular[word.toLowerCase()];
+    return matchCase(word, singular);
+  }
   if (/[^aeiou]ies$/i.test(word)) return word.slice(0, -3) + (word.endsWith("IES") ? "Y" : "y");
   if (/sses$/i.test(word)) return word.slice(0, -2);
   if (/ses$/i.test(word)) {
@@ -68,6 +82,49 @@ function singularWord(word: string): string {
   if (/(xes|zes|ches|shes)$/i.test(word)) return word.slice(0, -2);
   if (/s$/i.test(word) && !/ss$/i.test(word)) return word.slice(0, -1);
   return word;
+}
+
+function pluralWord(word: string): string {
+  const irregular: Record<string, string> = {
+    person: "people",
+    child: "children",
+    man: "men",
+    woman: "women",
+    mouse: "mice",
+    tooth: "teeth",
+    foot: "feet",
+    goose: "geese",
+  };
+  if (Object.hasOwn(irregular, word.toLowerCase())) {
+    const plural = irregular[word.toLowerCase()];
+    return matchCase(word, plural);
+  }
+  if (/[^aeiou]y$/i.test(word)) return word.slice(0, -1) + (word.endsWith("Y") ? "IES" : "ies");
+  if (/(s|x|z|ch|sh)$/i.test(word)) return word + "es";
+  return word + "s";
+}
+
+function matchCase(word: string, result: string): string {
+  if (word === word.toUpperCase()) return result.toUpperCase();
+  if (word[0] === word[0].toUpperCase()) return result[0].toUpperCase() + result.slice(1);
+  return result;
+}
+
+function conjugateEnglishPrefix(prefix: string, singular: boolean): string {
+  if (!/^There\s+/i.test(prefix)) return prefix;
+  const replacements = singular
+    ? { are: "is", have: "has", were: "was", do: "does" }
+    : { is: "are", has: "have", was: "were", does: "do" };
+  return prefix.replace(/\b(are|is|have|has|were|was|do|does)\b/gi, (verb) => {
+    const lower = verb.toLowerCase();
+    const replacement = replacements[lower as keyof typeof replacements];
+    if (replacement === undefined) return verb;
+    if (verb === verb.toUpperCase()) return replacement.toUpperCase();
+    if (verb[0] === verb[0].toUpperCase()) {
+      return replacement[0].toUpperCase() + replacement.slice(1);
+    }
+    return replacement;
+  });
 }
 
 /** Converts a plain count template used by `tt()` into a fallback ICU plural message. */
@@ -80,11 +137,17 @@ export function formatAutoPluralMessage(message: string, locale: string, values:
   const word = suffix.match(/[A-Za-z][A-Za-z-]*\w*/)?.[0];
   if (word === undefined || word.length === 0) return formatMessage(message, locale, values);
   const singular = singularWord(word);
+  const nounPlural = pluralWord(singular);
   const singularSuffix = suffix.replace(word, singular);
-  const zeroPrefix = prefix.trim() ? `${prefix.trim()} no` : "No";
-  const onePhrase = `${prefix.trim()} ${singularSuffix.trim() ? `# ${singularSuffix.trim()}` : `# ${singular}`}`.trim();
-  const otherPhrase = `${prefix.trim()} ${suffix.trim() ? `# ${suffix.trim()}` : `# ${word}`}`.trim();
-  const zeroPhrase = `${zeroPrefix} ${suffix.trim()}`.trim();
+  const pluralSuffix = suffix.replace(word, nounPlural);
+  const trimmedPrefix = prefix.trim();
+  const singularPrefix = conjugateEnglishPrefix(trimmedPrefix, true);
+  const pluralPrefix = conjugateEnglishPrefix(trimmedPrefix, false);
+  const zeroPrefix = pluralPrefix ? `${pluralPrefix} no` : "No";
+  const onePhrase =
+    `${singularPrefix} ${singularSuffix.trim() ? `# ${singularSuffix.trim()}` : `# ${singular}`}`.trim();
+  const otherPhrase = `${pluralPrefix} ${pluralSuffix.trim() ? `# ${pluralSuffix.trim()}` : `# ${nounPlural}`}`.trim();
+  const zeroPhrase = `${zeroPrefix} ${pluralSuffix.trim()}`.trim();
   const plural = `{count, plural, =0 {${zeroPhrase}} one {${onePhrase}} other {${otherPhrase}}}`;
   return formatMessage(plural, locale, values);
 }
