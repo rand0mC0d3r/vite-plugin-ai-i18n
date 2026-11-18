@@ -1,8 +1,10 @@
 {
   "messages": {
-    "msg_b09a7f4346f7450c": "{count, plural, =0 {Now} one {# minute ago} other {# minutes ago}}"
+    "msg_b09a7f4346f7450c": "{count, plural, =0 {Now} one {# minute ago} other {# minutes ago}}",
+    "msg_d16ce1d831684e43": "{count, plural, =0 {Nobody is editing this document.} other {{name} is editing this document}}"
   },
   "sources": {
-    "msg_b09a7f4346f7450c": "{count} minutes ago"
+    "msg_b09a7f4346f7450c": "{count} minutes ago",
+    "msg_d16ce1d831684e43": "{name} is editing this document"
   }
 }

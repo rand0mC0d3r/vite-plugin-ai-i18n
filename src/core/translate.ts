@@ -83,8 +83,10 @@ export async function translateLocale(input: LocaleTranslationInput): Promise<Lo
         typeof text === "string" && text.includes("{count") && text.includes(", plural,") && text.includes("other");
       if (!valid) continue;
     }
-    // A translation that drops or renames an argument would format wrongly, so it is requested again instead.
-    if (typeof text !== "string" || !text.trim() || !keepsArguments(request.source, text)) continue;
+    // A translation that drops or renames an argument would format wrongly, so it is requested again instead. An
+    // auto-plural template may add `count` (for example to express "Nobody" at zero) even when its source omits it.
+    const allowed = request.autoPlural === true ? ["count"] : [];
+    if (typeof text !== "string" || !text.trim() || !keepsArguments(request.source, text, allowed)) continue;
     messages[request.id] = text;
     sources[request.id] = request.source;
   }

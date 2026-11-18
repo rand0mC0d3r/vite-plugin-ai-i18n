@@ -252,9 +252,7 @@ export function DocumentDashboard() {
               { count },
             )}
           </div>
-          <div>
-            {tt("You have {count} notifications", { count })}
-          </div>
+          <div>{tt("You have {count} notifications", { count })}</div>
 
           <div>
             {t(
@@ -266,14 +264,15 @@ export function DocumentDashboard() {
             )}
           </div>
           <div>
-            =={tt(
+            ==
+            {tt(
               "{name} is editing this document",
               {
                 count,
                 name: "John",
               },
               // "When count > 0, then say {name} and # others are editing this document. When count = 0, then say Nobody is editing this document."
-              "If count = 0, then say Nobody is editing this document."
+              "If count = 0, then say Nobody is editing this document.",
             )}
           </div>
 

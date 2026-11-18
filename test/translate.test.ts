@@ -82,6 +82,24 @@ describe("translateLocale", () => {
     expect(result.untranslated).toBe(1);
   });
 
+  it("accepts an auto-plural translation that adds the count argument to a source without it", async () => {
+    const nobody = "{count, plural, =0 {Niemand bearbeitet} one {{name} bearbeitet} other {{name} und # weitere}}";
+    const p = provider({ a: nobody });
+    const request = {
+      ...text("a", "{name} is editing this document"),
+      autoPlural: true,
+      hint: "If count = 0, then say Nobody is editing this document.",
+    };
+    const result = await translateLocale({
+      ...base,
+      provider: p,
+      requests: [request],
+      previous: emptyLocaleFile(),
+    });
+    expect(result.file.messages).toEqual({ a: nobody });
+    expect(result.untranslated).toBe(0);
+  });
+
   it("forwards an auto-plural hint unchanged to the provider", async () => {
     const p = provider({ a: "{count, plural, =0 {Jetzt} one {vor # Sekunde} other {vor # Sekunden}}" });
     const request = {

@@ -33,4 +33,11 @@ describe("keepsArguments", () => {
   it("accepts any translation when the source is not valid ICU", () => {
     expect(keepsArguments("Use {", "Verwende {")).toBe(true);
   });
+
+  it("accepts an allowed extra argument, but still rejects any other one", () => {
+    const nobody = "{count, plural, =0 {Niemand} one {{name} bearbeitet} other {{name} und # weitere}}";
+    expect(keepsArguments("{name} is editing", nobody)).toBe(false);
+    expect(keepsArguments("{name} is editing", nobody, ["count"])).toBe(true);
+    expect(keepsArguments("{name} is editing", `${nobody} {owner}`, ["count"])).toBe(false);
+  });
 });

@@ -53,7 +53,8 @@
     "msg_3e0b9e5ab7c94908": "{role, select, owner {Sie besitzen dieses Album} editor {Sie können dieses Album bearbeiten} viewer {Sie können dieses Album ansehen} other {Sie haben keinen Zugriff auf dieses Album}}",
     "msg_06660ed7421c45af": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}",
     "msg_b09a7f4346f7450c": "{count, plural, =0 {Jetzt} one {vor # Minute} other {vor # Minuten}}",
-    "msg_9a118cc0103f46e3": "{count, plural, =0 {Sie haben keine Benachrichtigungen} one {Sie haben # Benachrichtigung} other {Sie haben # Benachrichtigungen}}"
+    "msg_9a118cc0103f46e3": "{count, plural, =0 {Sie haben keine Benachrichtigungen} one {Sie haben # Benachrichtigung} other {Sie haben # Benachrichtigungen}}",
+    "msg_d16ce1d831684e43": "{count, plural, =0 {Niemand bearbeitet dieses Dokument} one {{name} bearbeitet dieses Dokument} other {{name} bearbeitet dieses Dokument}}"
   },
   "sources": {
     "msg_5d1301ca4d85426b": "Language",
@@ -109,6 +110,7 @@
     "msg_3e0b9e5ab7c94908": "{role, select, owner {You own this album} editor {You can edit this album} viewer {You can view this album} other {You have no access to this album}}",
     "msg_06660ed7421c45af": "{role, select, admin {{count, plural, one {Delete # user} other {Delete # users}}} user {{count, plural, one {Remove # item} other {Remove # items}}} other {Action unavailable}}",
     "msg_b09a7f4346f7450c": "{count} minutes ago",
-    "msg_9a118cc0103f46e3": "You have {count} notifications"
+    "msg_9a118cc0103f46e3": "You have {count} notifications",
+    "msg_d16ce1d831684e43": "{name} is editing this document"
   }
 }

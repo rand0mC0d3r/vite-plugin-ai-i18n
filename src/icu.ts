@@ -25,15 +25,18 @@ function collectArguments(elements: MessageFormatElement[], names: Set<string>):
 
 /**
  * Checks that a translation still uses the same arguments as its source, so a machine translation that renames or drops
- * `{count}` is rejected. A source that is not valid ICU has nothing to compare against and is accepted as is.
+ * `{count}` is rejected. `allowed` lists arguments the translation may add beyond the source's own, such as `count` for
+ * a count template whose source omits it. A source that is not valid ICU has nothing to compare against and is accepted
+ * as is.
  */
-export function keepsArguments(source: string, translation: string): boolean {
+export function keepsArguments(source: string, translation: string, allowed: readonly string[] = []): boolean {
   let expected: Set<string>;
   try {
     expected = argumentNames(source);
   } catch {
     return true;
   }
+  for (const name of allowed) expected.add(name);
   let actual: Set<string>;
   try {
     actual = argumentNames(translation);
