@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
-import autoI18n, { hosted, HostedService, local, LocalService, machine, MachineService } from "../src/index";
+import autoI18n, { hosted, HostedService, local, LocalService } from "../src/index";
 
 export default defineConfig(({ mode }) => {
   // Reads provider keys from the repo-root .env.local (git-ignored) as well as the process environment.
@@ -59,10 +59,6 @@ export default defineConfig(({ mode }) => {
             env.DOCKERMODELRUNNER_MODEL,
             env.DOCKERMODELRUNNER_BASE_URL,
           ),
-
-          // Dedicated machine-translation APIs. Each is enabled by its own credentials.
-          deepl: machine(MachineService.DeepL, env.DEEPL_API_KEY),
-          google: machine(MachineService.Google, env.GOOGLE_TRANSLATE_API_KEY),
         },
       }),
       react(),

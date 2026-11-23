@@ -1,6 +1,6 @@
 # 🌍 vite-plugin-ai-auto-i18n (Vite AI i18n plugin)
 
-**Build-time localization for `t()` strings.** Wrap user-facing copy in `t("...")` imported from `virtual:autoi18n`. The compiler extracts each string, gives it a stable ID, and can translate it with an AI or machine-translation provider.
+**Build-time localization for `t()` strings.** Wrap user-facing copy in `t("...")` imported from `virtual:autoi18n`. The compiler extracts each string, gives it a stable ID, and can translate it with an AI provider.
 
 > [!WARNING]
 > **Beta.** Configuration options and `.autoi18n/` file formats are meant to stay stable, but review the [known limitations](#-known-limitations) before shipping to production. Pin the version while in beta.
@@ -37,7 +37,7 @@
 
 **Translation**
 
-- Pluggable providers: Anthropic, Gemini, any OpenAI-compatible API (OpenAI, Mistral, Groq, Ollama and [many more](#choosing-a-provider)), DeepL and Google Translate
+- Pluggable providers: Anthropic, Gemini, any OpenAI-compatible API (OpenAI, Mistral, Groq, Ollama and [many more](#choosing-a-provider))
 - Only new or changed messages are sent to the provider
 - Source English is always the fallback
 
@@ -502,7 +502,7 @@ Any object with a `translate` method works:
 ```ts
 import type { TranslationProvider } from "vite-plugin-ai-auto-i18n";
 
-const deepl: TranslationProvider = {
+const custom: TranslationProvider = {
   async translate({ sourceLocale, targetLocale, messages }) {
     const out: Record<string, string> = {};
     for (const m of messages) {
@@ -710,21 +710,6 @@ All three model providers send messages in batches, run requests in parallel, ti
 
 Example: `new GeminiProvider({ apiKey: env.GEMINI_API_KEY!, model: "gemini-3.5-flash-lite" })`.
 
-### Machine-translation providers
-
-DeepL and Google Translate return translations directly rather than model output, so they skip the JSON prompt. Each adapter protects `{name}` placeholders from the engine and restores them afterwards. Plural and `select` messages are less reliable with these engines: a translation that drops or renames an ICU argument is rejected and the source text is shown until a valid one is produced. Batching, concurrency and retry options match the other providers.
-
-- **`DeepLProvider({ apiKey, baseURL? })`**: `POST /v2/translate` with `Authorization: DeepL-Auth-Key`.
-  - Keys ending in `:fx` use `https://api-free.deepl.com`; all others use `https://api.deepl.com`.
-  - Plain `en` and `pt` targets map to `EN-US` and `PT-BR`, because DeepL rejects the unqualified codes as targets.
-  - Set `DEEPL_API_KEY`.
-- **`GoogleTranslateProvider({ apiKey, baseURL? })`**: Cloud Translation v2 (Basic) in HTML mode, sent as `x-goog-api-key`.
-  - Placeholders are wrapped in `<span translate="no">`. Google's Advanced (v3) API is not used.
-  - Set `GOOGLE_TRANSLATE_API_KEY`.
-
-> [!NOTE]
-> Placeholder protection covers simple `{name}` arguments only. Plural and select blocks are not protected, so check those translations in the output.
-
 ### Helpers for named provider maps
 
 Instead of writing `env.X ? new Provider(...) : undefined` for each service, use the helpers exported from the package. Each returns `undefined` when its credentials are missing, so the entry is skipped. They take values, not environment names, so the library still reads no environment variables.
@@ -733,17 +718,9 @@ Instead of writing `env.X ? new Provider(...) : undefined` for each service, use
 | ----------------------------------------- | ----------------------------------------------- | ---------------------------- | -------------------------------------------------------------------- |
 | `hosted(HostedService.X, apiKey, model?)` | `HostedService` (Anthropic and Gemini included) | `apiKey`                     | `AnthropicProvider`, `GeminiProvider`, or `OpenAICompatibleProvider` |
 | `local(LocalService.X, model, baseURL?)`  | `LocalService`                                  | `model` (you have loaded it) | `OpenAICompatibleProvider`                                           |
-| `machine(MachineService.X, apiKey)`       | `MachineService` (`DeepL`, `Google`)            | `apiKey`                     | `DeepLProvider` or `GoogleTranslateProvider`                         |
 
 ```ts
-import autoI18n, {
-  hosted,
-  HostedService,
-  local,
-  LocalService,
-  machine,
-  MachineService,
-} from "vite-plugin-ai-auto-i18n";
+import autoI18n, { hosted, HostedService, local, LocalService } from "vite-plugin-ai-auto-i18n";
 
 autoI18n({
   provider: {
@@ -751,7 +728,6 @@ autoI18n({
     mistral: hosted(HostedService.Mistral, env.MISTRAL_API_KEY, env.MISTRAL_MODEL),
     ollama: local(LocalService.Ollama, env.OLLAMA_MODEL, env.OLLAMA_BASE_URL),
     anthropic: hosted(HostedService.Anthropic, env.ANTHROPIC_API_KEY, env.ANTHROPIC_MODEL),
-    deepl: machine(MachineService.DeepL, env.DEEPL_API_KEY),
   },
 });
 ```

@@ -54,7 +54,7 @@
     "msg_06660ed7421c45af": "{role, select, admin {{count, plural, one {# Benutzer löschen} other {# Benutzer löschen}}} user {{count, plural, one {# Element entfernen} other {# Elemente entfernen}}} other {Aktion nicht verfügbar}}",
     "msg_b09a7f4346f7450c": "{count, plural, =0 {Jetzt} one {vor # Minute} other {vor # Minuten}}",
     "msg_9a118cc0103f46e3": "{count, plural, =0 {Sie haben keine Benachrichtigungen} one {Sie haben # Benachrichtigung} other {Sie haben # Benachrichtigungen}}",
-    "msg_2797be3ec22b4679": "{count, plural, offset:1 =0 {Niemand bearbeitet dieses Dokument.} =1 {{name} bearbeitet dieses Dokument.} other {{name} und # weitere bearbeiten dieses Dokument.}}"
+    "msg_2797be3ec22b4679": "{count, plural, offset:1 =0 {Niemand bearbeitet dieses Dokument} =1 {{name} bearbeitet dieses Dokument} one {{name} und # weitere Person bearbeiten dieses Dokument} other {{name} und # weitere Personen bearbeiten dieses Dokument}}"
   },
   "sources": {
     "msg_5d1301ca4d85426b": "Language",

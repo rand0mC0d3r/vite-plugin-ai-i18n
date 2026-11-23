@@ -1,6 +1,6 @@
 # vite-plugin-ai-auto-i18n
 
-> Build-time i18n for Vite apps. Mark user-facing strings with `t()`. The plugin extracts them, gives each one a stable opaque ID, translates new or changed strings with an AI or machine-translation provider, and emits localized output: one bundle per locale (`delivery: "build"`) or one bundle with on-demand catalogues and a runtime `setLocale()` (`delivery: "runtime"`).
+> Build-time i18n for Vite apps. Mark user-facing strings with `t()`. The plugin extracts them, gives each one a stable opaque ID, translates new or changed strings with an AI provider, and emits localized output: one bundle per locale (`delivery: "build"`) or one bundle with on-demand catalogues and a runtime `setLocale()` (`delivery: "runtime"`).
 
 npm package: `vite-plugin-ai-auto-i18n`. Requires Vite 7+ (peer dependency) and Node.js 26+. Beta: pin the exact version.
 
@@ -109,14 +109,12 @@ Preset helpers return `undefined` when credentials are missing, so an entry is s
 
 - `hosted(HostedService.X, apiKey, model?)` returns an `AnthropicProvider`, `GeminiProvider`, or `OpenAICompatibleProvider`. `HostedService` values: `Anthropic`, `Gemini`, `OpenAI`, `Mistral`, `Groq`, `DeepSeek`, `OpenRouter`, `XAI`, `Cerebras`, `Perplexity`, `Together`, `Fireworks`, `HuggingFace`, `DeepInfra`, `SambaNova`, `Moonshot`.
 - `local(LocalService.X, model, baseURL?)` for keyless local servers. Enabled by the model name you have loaded. `LocalService` values: `Ollama`, `LMStudio`, `LlamaCpp`, `VLLM`, `LocalAI`, `DockerModelRunner`.
-- `machine(MachineService.X, apiKey)` for `DeepL` or `Google` (Google Cloud Translation v2 Basic).
 
 Direct classes:
 
 - `new OpenAICompatibleProvider({ model, apiKey?, baseURL? })`: any OpenAI-compatible Chat Completions API. Default `baseURL` is `https://api.openai.com/v1`. Omit `apiKey` for keyless servers.
 - `new AnthropicProvider({ apiKey, model, baseURL?, maxTokens? })`.
 - `new GeminiProvider({ apiKey, model, baseURL?, maxOutputTokens? })`.
-- `new DeepLProvider({ apiKey, baseURL? })` and `new GoogleTranslateProvider({ apiKey, baseURL? })`.
 - Shared options: `batchSize` (40), `concurrency` (4), `timeoutMs` (60000), `maxRetries` (2), `retryDelayMs` (500).
 
 Multiple providers with fallback:
@@ -131,7 +129,7 @@ provider: {
 
 Failed messages fall through to the next provider in declaration order, per batch. Naming a `primary` that is not configured fails the build.
 
-Common env variables for the example config: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, `GROQ_API_KEY`, `DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`, `XAI_API_KEY`, `DEEPL_API_KEY`, `GOOGLE_TRANSLATE_API_KEY`. Local runtimes use `<NAME>_MODEL`, for example `OLLAMA_MODEL`.
+Common env variables for the example config: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, `GROQ_API_KEY`, `DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`, `XAI_API_KEY`. Local runtimes use `<NAME>_MODEL`, for example `OLLAMA_MODEL`.
 
 Use a model that reliably returns JSON. Malformed replies are retried, then left untranslated.
 
@@ -180,8 +178,7 @@ node node_modules/vite-plugin-ai-auto-i18n/dist/cli/prune.js --directory .autoi1
 1. Runtime delivery shows the source text until a locale's catalogue has loaded.
 2. Duplicate identical strings are paired by source order. Reordered indistinguishable duplicates are reported through `onAmbiguous`, not resolved.
 3. Fingerprints use the source text only. Editing a message's text changes its ID and re-translates it.
-4. Machine-translation providers (DeepL, Google) protect only simple `{name}` placeholders. Check plural and select output. Translations that drop or rename an ICU argument are rejected and re-requested.
-5. The version is beta. Configuration options and `.autoi18n/` formats are meant to stay stable.
+4. The version is beta. Configuration options and `.autoi18n/` formats are meant to stay stable.
 
 ## Links
 

@@ -1,7 +1,5 @@
 import { AnthropicProvider } from "./anthropic.js";
-import { DeepLProvider } from "./deepl.js";
 import { GeminiProvider } from "./gemini.js";
-import { GoogleTranslateProvider } from "./google.js";
 import { OpenAICompatibleProvider } from "./openai.js";
 
 /** Hosted LLM services, created with {@link hosted}. */
@@ -32,12 +30,6 @@ export enum LocalService {
   VLLM = "vllm",
   LocalAI = "localai",
   DockerModelRunner = "dockermodelrunner",
-}
-
-/** Machine-translation APIs, created with {@link machine}. */
-export enum MachineService {
-  DeepL = "deepl",
-  Google = "google",
 }
 
 const HOSTED_PRESETS: Record<OpenAIHostedService, { baseURL?: string; model: string }> = {
@@ -112,16 +104,6 @@ const HOSTED_FACTORIES: { [S in HostedService]: (apiKey: string, model?: string)
   [HostedService.Moonshot]: openAICompatible(HostedService.Moonshot),
 };
 
-interface MachineProviders {
-  [MachineService.DeepL]: DeepLProvider;
-  [MachineService.Google]: GoogleTranslateProvider;
-}
-
-const MACHINE_FACTORIES: { [S in MachineService]: (apiKey: string) => MachineProviders[S] } = {
-  [MachineService.DeepL]: (apiKey) => new DeepLProvider({ apiKey }),
-  [MachineService.Google]: (apiKey) => new GoogleTranslateProvider({ apiKey }),
-};
-
 /**
  * Creates a provider for a hosted service, or returns `undefined` when `apiKey` is unset so the service is skipped in a
  * named provider map. `model` overrides the service's default model.
@@ -145,12 +127,4 @@ export function local(
 ): OpenAICompatibleProvider | undefined {
   if (model === undefined || model === "") return undefined;
   return new OpenAICompatibleProvider({ baseURL: baseURL ?? LOCAL_BASE_URLS[service], model });
-}
-
-/** Creates a DeepL or Google Translate provider when `apiKey` is set. */
-export function machine<S extends MachineService>(
-  service: S,
-  apiKey: string | undefined,
-): MachineProviders[S] | undefined {
-  return apiKey !== undefined && apiKey !== "" ? MACHINE_FACTORIES[service](apiKey) : undefined;
 }

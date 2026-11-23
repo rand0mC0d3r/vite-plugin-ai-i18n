@@ -1,11 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AnthropicProvider } from "../../src/ai/anthropic.js";
-import { DeepLProvider } from "../../src/ai/deepl.js";
 import { GeminiProvider } from "../../src/ai/gemini.js";
-import { GoogleTranslateProvider } from "../../src/ai/google.js";
 import { OpenAICompatibleProvider } from "../../src/ai/openai.js";
-import { hosted, HostedService, local, LocalService, machine, MachineService } from "../../src/ai/presets.js";
+import { hosted, HostedService, local, LocalService } from "../../src/ai/presets.js";
 import type { TranslationRequest } from "../../src/types.js";
 
 const request: TranslationRequest = { id: "a", source: "Save", context: "" };
@@ -32,10 +30,9 @@ describe("provider presets", () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it("skips hosted and machine services without a key", () => {
+  it("skips hosted and local services without a key or model", () => {
     expect(hosted(HostedService.Mistral, undefined)).toBeUndefined();
     expect(hosted(HostedService.Gemini, "")).toBeUndefined();
-    expect(machine(MachineService.DeepL, undefined)).toBeUndefined();
     expect(local(LocalService.Ollama, undefined)).toBeUndefined();
   });
 
@@ -61,11 +58,9 @@ describe("provider presets", () => {
     expect((fetchMock.mock.calls[0] as [string])[0]).toBe("http://gpu-box:11434/v1/chat/completions");
   });
 
-  it("returns the provider class for each hosted and machine service", () => {
+  it("returns the provider class for each hosted service", () => {
     expect(hosted(HostedService.Anthropic, "key")).toBeInstanceOf(AnthropicProvider);
     expect(hosted(HostedService.Gemini, "key", "gemini-test")).toBeInstanceOf(GeminiProvider);
     expect(hosted(HostedService.Mistral, "key")).toBeInstanceOf(OpenAICompatibleProvider);
-    expect(machine(MachineService.DeepL, "key")).toBeInstanceOf(DeepLProvider);
-    expect(machine(MachineService.Google, "key")).toBeInstanceOf(GoogleTranslateProvider);
   });
 });

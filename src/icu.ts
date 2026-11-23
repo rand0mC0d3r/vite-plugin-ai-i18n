@@ -24,7 +24,7 @@ function collectArguments(elements: MessageFormatElement[], names: Set<string>):
 }
 
 /**
- * Checks that a translation still uses the same arguments as its source, so a machine translation that renames or drops
+ * Checks that a translation still uses the same arguments as its source, so a translation that renames or drops
  * `{count}` is rejected. `allowed` lists arguments the translation may add beyond the source's own, such as `count` for
  * a count template whose source omits it. A source that is not valid ICU has nothing to compare against and is accepted
  * as is.
