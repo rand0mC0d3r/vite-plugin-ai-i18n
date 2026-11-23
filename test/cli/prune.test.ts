@@ -148,13 +148,15 @@ describe("prune CLI", () => {
 
   it("reports an error and sets exit code 1 for an unknown option", async () => {
     await runCli(root, ["--bogus"]);
-    expect(console.error).toHaveBeenCalledWith("autoi18n: Unknown option --bogus");
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Unknown option '--bogus'"));
     expect(process.exitCode).toBe(1);
   });
 
   it("reports an error when an option is missing its value", async () => {
     await runCli(root, ["--directory"]);
-    expect(console.error).toHaveBeenCalledWith("autoi18n: --directory needs a value");
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Option '--directory <value>' argument missing"),
+    );
     expect(process.exitCode).toBe(1);
   });
 

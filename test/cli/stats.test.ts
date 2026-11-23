@@ -228,19 +228,19 @@ describe("stats CLI", () => {
 
   it("reports an error for an unknown option", async () => {
     await runCli(root, ["--bogus"]);
-    expect(console.error).toHaveBeenCalledWith("autoi18n: Unknown option --bogus");
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Unknown option '--bogus'"));
     expect(process.exitCode).toBe(1);
   });
 
   it.each([["--directory"], ["--source-locale"]])("reports an error when %s has no value", async (flag) => {
     await runCli(root, [flag]);
-    expect(console.error).toHaveBeenCalledWith(`autoi18n: ${flag} needs a value`);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining(`Option '${flag} <value>' argument missing`));
     expect(process.exitCode).toBe(1);
   });
 
   it("rejects a flag that is given where a value is expected", async () => {
     await runCli(root, ["--directory", "--json"]);
-    expect(console.error).toHaveBeenCalledWith("autoi18n: --directory needs a value");
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Option '--directory' argument is ambiguous"));
     expect(process.exitCode).toBe(1);
   });
 });

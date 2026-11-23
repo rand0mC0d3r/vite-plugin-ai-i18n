@@ -271,7 +271,7 @@ export function DocumentDashboard() {
                 count,
                 name: "John",
               },
-              "When count > 0, then say {name} and #-1 others are editing this document. When count = 0, then say Nobody is editing this document."
+              "When count > 0, then say {name} and #-1 others are editing this document. When count = 0, then say Nobody is editing this document.",
             )}
           </div>
 
