@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-ai-auto-i18n",
-  "version": "0.9.22",
+  "version": "0.9.23",
   "description": "Build-time AI localization for strings marked with t() in Vite applications",
   "keywords": [
     "ai",
