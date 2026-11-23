@@ -11,15 +11,16 @@ async function pruneLocaleFiles(
   localesDir: string,
   activeIds: Set<string>,
 ): Promise<{ file: string; removed: string[] }[]> {
-  const results: { file: string; removed: string[] }[] = [];
-  for (const name of await listLocaleFiles(localesDir)) {
-    const file = path.join(localesDir, name);
-    const pruned = pruneLocaleFile(await readLocaleFile(file, (message) => console.warn(message)), activeIds);
-    if (!pruned.removed.length) continue;
-    await writeLocaleFile(file, pruned.file);
-    results.push({ file, removed: pruned.removed });
-  }
-  return results;
+  const outcomes = await Promise.all(
+    (await listLocaleFiles(localesDir)).map(async (name) => {
+      const file = path.join(localesDir, name);
+      const pruned = pruneLocaleFile(await readLocaleFile(file, (message) => console.warn(message)), activeIds);
+      if (!pruned.removed.length) return undefined;
+      await writeLocaleFile(file, pruned.file);
+      return { file, removed: pruned.removed };
+    }),
+  );
+  return outcomes.filter((outcome) => outcome !== undefined);
 }
 
 /**

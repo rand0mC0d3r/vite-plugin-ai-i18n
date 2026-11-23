@@ -5,6 +5,7 @@ import type { Logger, ResolvedConfig } from "vite";
 
 import { resolveProvider } from "./ai/fallback.js";
 import { extractMessages } from "./compiler/extract.js";
+import { mapWithConcurrency } from "./core/concurrency.js";
 import { buildCatalogs } from "./core/engine.js";
 import { debugLog } from "./debug.js";
 import { DEFAULT_ORPHAN_RETENTION_MINUTES } from "./identity/registry.js";
@@ -18,6 +19,8 @@ import type { Catalog, ExtractedMessage } from "./types.js";
 const DEFAULT_INCLUDE = ["src/**/*.{tsx,jsx,ts,js}"];
 /** Default globs skipped during scanning: tests and dependencies. */
 const DEFAULT_EXCLUDE = ["**/*.test.*", "**/node_modules/**"];
+/** Source files read at once while indexing, so large projects do not open every file together. */
+const READ_CONCURRENCY = 16;
 
 /** Sink for build-time messages. Vite's logger and the plugin context's `info`/`warn`/`error` both satisfy this shape. */
 export interface Reporter {
@@ -124,26 +127,32 @@ export class Syncer {
 
   // Reads and extracts each file, reusing a cached extraction whose content hash is unchanged.
   private async extractFiles(files: string[], incremental: boolean, changedFile: string | undefined) {
+    const outcomes = await mapWithConcurrency(files, READ_CONCURRENCY, (file) =>
+      this.extractFile(file, incremental, changedFile),
+    );
     const nextExtractions = new Map<string, ExtractionCacheEntry>();
     const indexed: { file: string; messages: ExtractedMessage[] }[] = [];
-    for (const file of files) {
-      const cached = this.state.extractions.get(file);
-      let entry: ExtractionCacheEntry;
-      if (cached && incremental && file !== changedFile) {
-        entry = cached;
-      } else {
-        const code = await readFile(file, "utf8");
-        const hash = hashContent(code);
-        if (cached?.hash === hash) {
-          entry = cached;
-        } else {
-          entry = { hash, messages: extractMessages(code, file) };
-        }
-      }
-      nextExtractions.set(file, entry);
-      indexed.push({ file, messages: entry.messages });
-    }
+    files.forEach((file, index) => {
+      const outcome = outcomes[index];
+      if (outcome.status === "rejected") throw outcome.reason;
+      nextExtractions.set(file, outcome.value);
+      indexed.push({ file, messages: outcome.value.messages });
+    });
     return { nextExtractions, indexed };
+  }
+
+  // Returns the cached extraction when it is still valid, otherwise reads and extracts the file.
+  private async extractFile(
+    file: string,
+    incremental: boolean,
+    changedFile: string | undefined,
+  ): Promise<ExtractionCacheEntry> {
+    const cached = this.state.extractions.get(file);
+    if (cached && incremental && file !== changedFile) return cached;
+    const code = await readFile(file, "utf8");
+    const hash = hashContent(code);
+    if (cached?.hash === hash) return cached;
+    return { hash, messages: extractMessages(code, file) };
   }
 
   // Logs the per-locale outcome of a build: missing providers, untranslated and failed messages.
@@ -181,14 +190,16 @@ export class Syncer {
 
     const outDir = this.localesDir();
     const locales = this.localesToTranslate();
-    const previous = new Map<string, LocaleFile>();
-    previous.set(sourceLocale, await state.readLocale(localeFilePath(outDir, sourceLocale), report.warn));
-    for (const locale of locales)
-      previous.set(locale, await state.readLocale(localeFilePath(outDir, locale), report.warn));
+    const localeIds = [sourceLocale, ...locales];
+    const [registry, ...localeFiles] = await Promise.all([
+      state.readRegistry(this.registryFile(), report.warn),
+      ...localeIds.map((locale) => state.readLocale(localeFilePath(outDir, locale), report.warn)),
+    ]);
+    const previous = new Map<string, LocaleFile>(localeIds.map((locale, index) => [locale, localeFiles[index]]));
 
     const result = await buildCatalogs({
       files: indexed,
-      registry: await state.readRegistry(this.registryFile(), report.warn),
+      registry,
       orphanRetentionMinutes: this.orphanRetentionMinutes,
       sourceLocale,
       locales,
@@ -217,11 +228,13 @@ export class Syncer {
       state.legacySidecarsRemoved = true;
     }
 
+    await Promise.all(
+      [...result.locales].map(([locale, translation]) =>
+        state.writeLocale(localeFilePath(outDir, locale), translation.file),
+      ),
+    );
     const nextCatalogs = new Map<string, Catalog>([[sourceLocale, result.sourceFile.messages]]);
-    for (const [locale, translation] of result.locales) {
-      await state.writeLocale(localeFilePath(outDir, locale), translation.file);
-      nextCatalogs.set(locale, translation.file.messages);
-    }
+    for (const [locale, translation] of result.locales) nextCatalogs.set(locale, translation.file.messages);
     // A failed locale keeps its previous file on disk, so the build keeps serving the previous text for it.
     for (const locale of result.failures.keys()) nextCatalogs.set(locale, previous.get(locale)?.messages ?? {});
     const changed = [...nextCatalogs]

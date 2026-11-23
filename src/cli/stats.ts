@@ -21,14 +21,14 @@ function parseArgs(argv: string[]) {
 
 /** Reads every translated locale file (all `*.json` except the source locale and legacy `*.sources.json` sidecars). */
 async function readLocales(localesDir: string, sourceLocale: string): Promise<Record<string, LocaleFile>> {
-  const locales: Record<string, LocaleFile> = {};
-  for (const name of await listLocaleFiles(localesDir)) {
-    if (name.endsWith(".sources.json")) continue;
-    const locale = name.slice(0, -".json".length);
-    if (locale === sourceLocale) continue;
-    locales[locale] = await readLocaleFile(path.join(localesDir, name), (message) => console.warn(message));
-  }
-  return locales;
+  const targets = (await listLocaleFiles(localesDir))
+    .filter((name) => !name.endsWith(".sources.json"))
+    .map((name) => ({ name, locale: name.slice(0, -".json".length) }))
+    .filter(({ locale }) => locale !== sourceLocale);
+  const files = await Promise.all(
+    targets.map(({ name }) => readLocaleFile(path.join(localesDir, name), (message) => console.warn(message))),
+  );
+  return Object.fromEntries(targets.map(({ locale }, index) => [locale, files[index]]));
 }
 
 const percent = (coverage: number): string => `${(coverage * 100).toFixed(1)}%`;
@@ -100,8 +100,11 @@ async function main(): Promise<void> {
     console.log(`autoi18n: no registry found at ${registryFile}; nothing to report.`);
     return;
   }
-  const registry = await loadRegistry(registryFile, (message) => console.warn(message));
-  const locales = await readLocales(path.join(path.dirname(registryFile), "locales"), args.sourceLocale);
+  const localesDir = path.join(path.dirname(registryFile), "locales");
+  const [registry, locales] = await Promise.all([
+    loadRegistry(registryFile, (message) => console.warn(message)),
+    readLocales(localesDir, args.sourceLocale),
+  ]);
   const report = computeStats(registry, locales);
   console.log(args.json ? JSON.stringify(report, null, 2) : formatReport(report, args.verbose));
 }
