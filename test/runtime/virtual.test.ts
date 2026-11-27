@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createLocaleLoader } from "../../src/runtime/loader.js";
 import { createRuntimeModule } from "../../src/virtual/runtime.js";
 
 type RuntimeModule = {
@@ -24,6 +25,21 @@ describe("createRuntimeModule escaping", () => {
     expect(code).not.toContain("\u2029");
     expect(code).toContain("\\u003c/script\\u003e");
     expect(code).toContain("\\u2029\\u0026");
+  });
+});
+
+describe("embedded runtime helpers", () => {
+  it("createLocaleLoader works when its source is evaluated without the plugin's scope", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "autoi18n-embedded-"));
+    try {
+      const file = path.join(dir, "loader.mjs");
+      await writeFile(file, `export const createLocaleLoader = ${createLocaleLoader.toString()};\n`);
+      const embedded = (await import(pathToFileURL(file).href)) as { createLocaleLoader: typeof createLocaleLoader };
+      const load = embedded.createLocaleLoader({ en: () => Promise.resolve({ default: { a: "Save" } }) }, "en");
+      await expect(load("en")).resolves.toEqual({ a: "Save" });
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
 
